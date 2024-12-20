@@ -1,23 +1,46 @@
 import React, { useState } from 'react'
 import Drawer from '@mui/material/Drawer';
 import { IoClose } from "react-icons/io5";
+import useStateContext from '@/context/ContextProvider';
+import { filter_method, find_filter } from '@/utils/functions/filter_function';
+
 
 const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
 
-    const [sort_opt, set_sort_opt] = useState("");
+    const { filters, set_filters } = useStateContext()
 
+    // Sorting options
     const sort_options = [
-        "Featured",
-        "Best selling",
-        "Alphabetically, A-Z",
-        "Alphabetically, Z-A",
-        "Price, low to high",
-        "Price, high to low",
-        "Date, old to new",
-        "Date, new to old",
+        {
+            title: "Alphabetically, A-Z",
+            option: "title-ascending",
+        },
+        {
+            title: "Alphabetically, Z-A",
+            option: "title-descending",
+        },
+        {
+            title: "Price, low to high",
+            option: "price-ascending",
+        },
+        {
+            title: "Price, high to low",
+            option: "price-descending",
+        },
+        {
+            title: "Date, old to new",
+            option: "created-descending",
+        },
+        {
+            title: "Date, new to old",
+            option: "created-ascending",
+        },
+
     ]
-    const select_option = (opt) => {
-        set_sort_opt(opt);
+
+    const select_option = (obj) => {
+        filter_method(obj, set_filters);
+        close();
     }
 
     return (
@@ -33,10 +56,16 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
                         <IoClose className='text-stone-400 scale-[2.4]' />
                     </button>
                 </div>
-                {sort_options.map((option, index) => (
-                    <button onClick={() => select_option(option)} key={index} className={`w-full text-left py-[10px] px-[20px] ${sort_opt === option ? "bg-gray-100 font-bold" : ""} transition-all`} >
+                {sort_options.map((each, index) => (
+                    <button
+                        onClick={() => {
+                            select_option({ sort_by: each.option });
+                            toggle_drawer("sort_drawer")
+                        }}
+                        key={index}
+                        className={`w-full text-left py-[10px] px-[20px] ${find_filter(filters, "sort_by").sort_by === each.option ? "bg-gray-100 font-bold" : ""} transition-all`} >
                         <p className='text-[18px] select-none' >
-                            {option}
+                            {each.title}
                         </p>
                     </button>
                 ))

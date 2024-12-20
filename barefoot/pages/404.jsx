@@ -6,8 +6,8 @@ export default function FourOhFour() {
         <div className={`w-screen h-[95vh] text-stone-800 justify-center flex items-center flex-col gap-16`} >
             <Head>
                 <title>Kickskraze | 404</title>
-                <meta name="description" content="Get yourself a better experience with Turpio" />
-                <link rel="icon" href="/images/logo.png" />
+                <meta name="description" content="You have entered in the wrong page" />
+                <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='flex items-center' >
 
@@ -15,7 +15,7 @@ export default function FourOhFour() {
                 <p className='text-[13px] md:text-[16px] font-medium' >This page could not be found.</p>
             </div>
             <Link href="/">
-                <button className={`text-white text-[14px] md:text-[16px] font-semibold px-[13px] md:px-[30px] py-[6px] md:py-[8px] cursor-pointer transition-all bg-blue-500 hover:opacity-75 duration-300 rounded-md`}>Go back to home</button>
+                <button className={`text-white text-[14px] md:text-[16px] font-semibold px-[13px] md:px-[30px] py-[6px] md:py-[8px] cursor-pointer transition-all bg-black hover:opacity-75 duration-300`}>Go back to home</button>
             </Link>
         </div>
     )

@@ -10,10 +10,11 @@ import Checkbox from '@mui/material/Checkbox';
 import product_1 from "@/public/images/product_1.jpg"
 import { MdVerifiedUser } from "react-icons/md";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import useStateContext from '@/context/ContextProvider';
 
 
 const Cart_page = () => {
-
+    const { set_snackbar_alert } = useStateContext()
     useEffect(() => {
         document.querySelector(".MuiCheckbox-root").style = "color: #292524"
     }, []);
@@ -34,6 +35,87 @@ const Cart_page = () => {
         const remainingSeconds = seconds % 60;
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
+
+
+    const [cart, set_cart] = useState([
+        {
+            _id: 1,
+            quantity: 1,
+            price: 5000,
+            stock: 4,
+        },
+        {
+            _id: 2,
+            quantity: 1,
+            price: 6500,
+            stock: 1,
+        },
+        {
+            _id: 3,
+            quantity: 1,
+            price: 4000,
+            stock: 1,
+        },
+        {
+            _id: 4,
+            quantity: 1,
+            price: 3200,
+            stock: 1,
+        },
+        {
+            _id: 5,
+            quantity: 1,
+            price: 11000,
+            stock: 1,
+        }
+    ]);
+
+    const sum_of_cart = cart.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+
+    const delete_item_from_cart = (item) => {
+        set_cart((prev_cart) => {
+            const updated_cart = [...prev_cart];
+            const index = updated_cart.findIndex((each) => each._id === item._id)
+            updated_cart.splice(index, 1);
+            return updated_cart;
+        });
+    }
+
+    const add_item_to_cart = (item) => {
+        set_cart((prev_cart) => {
+            const updated_cart = [...prev_cart];
+            const index = updated_cart.findIndex((each) => each._id === item._id)
+            if (index !== -1) {
+                if (Number(item.quantity + 1) <= item.stock) {
+                    const new_item = { ...item, quantity: item.quantity + 1 }
+                    updated_cart.splice(index, 1, new_item);
+                    return updated_cart;
+                }
+                set_snackbar_alert({
+                    open: true,
+                    message: "Can't add to the cart!",
+                    severity: "warning"
+                });
+                return updated_cart;
+            }
+            return [...updated_cart, item];
+        });
+    }
+
+    const substract_item_from_cart = (item) => {
+        set_cart((prev_cart) => {
+            const updated_cart = [...prev_cart];
+            const index = updated_cart.findIndex((each) => each._id === item._id)
+
+            if (Number(item.quantity - 1) < 1) {
+                updated_cart.splice(index, 1);
+                return updated_cart;
+            }
+            const new_item = { ...item, quantity: item.quantity - 1 }
+            updated_cart.splice(index, 1, new_item);
+            return updated_cart;
+        });
+    }
 
     return (
         <div className='w-full px-[20px] pt-[15px] md:pt-[30px] tracking-wider'>
@@ -85,120 +167,85 @@ const Cart_page = () => {
                     </div>
 
                     {/* Cart Product(s)  */}
-                    <div className='w-full flex px-[20px] items-center justify-between border border-stone-200 
+                    {cart.map((item, index) => (
+
+                        <div key={index} className='w-full flex px-[20px] items-center justify-between border border-stone-200 
                     py-[10px] md:py-[25px] mt-[10px] h-[170px]' >
 
-                        {/* Product info */}
-                        <div className='flex w-full h-full gap-4' >
-                            <div className='w-[100px] h-full object-contain'>
-                                <Image src={product_1} alt="product" className='w-full h-full object-contain' />
-                            </div>
-                            <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
-                                <p className='capitalize' >vans ward hi</p>
-                                <p className='capitalize text-gray-400' >44 / very good</p>
-                                <p className='capitalize text-gray-400'>Vans</p>
+                            {/* Product info */}
+                            <div className='flex w-full h-full gap-4' >
+                                <div className='w-[100px] h-full object-contain'>
+                                    <Image src={product_1} alt="product" className='w-full h-full object-contain' />
+                                </div>
+                                <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
+                                    <p className='capitalize' >vans ward hi</p>
+                                    <p className='capitalize text-gray-400' >44 / very good</p>
+                                    <p className='capitalize text-gray-400'>Vans</p>
 
-                                {/* Qunatity Selector for Mobile media (Responsive) */}
-                                <div className='flex sm:hidden justify-center gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
-                                    {/* Quantity Selector button */}
-                                    <div className='px-[6px] py-[8px] md:py-[10px] flex gap-5 md:gap-6 items-center border border-stone-500 text-stone-700'>
-                                        <button className='active:opacity-60'>
-                                            <FaMinus className='text-[12px] md:text-[14px]' />
-                                        </button>
-                                        <p className='text-[15px] md:text-[16px]' >1</p>
-                                        <button className='active:opacity-60'>
-                                            <IoMdAdd className='text-[15px] md:text-[17px]' />
+                                    {/* Qunatity Selector for Mobile media (Responsive) */}
+                                    <div className='flex sm:hidden justify-center gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
+                                        {/* Quantity Selector button */}
+                                        <div className='px-[6px] py-[8px] md:py-[10px] flex gap-5 md:gap-6 items-center border border-stone-500 text-stone-700'>
+                                            <button
+                                                onClick={() => substract_item_from_cart(item)} className='active:opacity-60'
+                                            >
+                                                <FaMinus className='text-[12px] md:text-[14px]' />
+                                            </button>
+                                            <p className='text-[15px] md:text-[16px]' >{item.quantity}</p>
+                                            <button
+                                                onClick={() => add_item_to_cart(item)}
+                                                className='active:opacity-60'
+                                            >
+                                                <IoMdAdd className='text-[15px] md:text-[17px]' />
+                                            </button>
+                                        </div>
+                                        {/* Remove from the cart button */}
+                                        <button
+                                            onClick={() => delete_item_from_cart(item)}
+                                            className='active:opacity-60'
+                                        >
+                                            <IoClose className='text-stone-700 scale-[1.3]' />
                                         </button>
                                     </div>
-                                    {/* Remove from the cart button */}
-                                    <button className='active:opacity-60' >
-                                        <IoClose className='text-stone-700 scale-[1.3]' />
+                                </div>
+
+                            </div>
+
+                            {/* Price & Quantity */}
+                            <div className='flex flex-col md:flex-row w-full h-full justify-start md:justify-end items-end md:items-center gap-4 md:gap-6 lg:gap-8 text-[15px] xl:text-[17px] text-stone-800 font-medium select-none text-nowrap'>
+                                {/* Price */}
+                                <p className='' >Rs. {Number(item.price).toLocaleString("en-US")}</p>
+                                {/* Quanity Selector button */}
+                                <div className='px-[6px] py-[10px] sm:flex hidden  gap-6 items-center border border-stone-500 text-stone-700'>
+                                    <button
+                                        onClick={() => substract_item_from_cart(item)}
+                                        className='active:opacity-60'
+                                    >
+                                        <FaMinus className='text-[14px]' />
+                                    </button>
+                                    <p>{item.quantity}</p>
+                                    <button
+                                        onClick={() => add_item_to_cart(item)}
+                                        className='active:opacity-60'
+                                    >
+                                        <IoMdAdd className='text-[17px]' />
                                     </button>
                                 </div>
+                                {/* Total price */}
+                                <p className='hidden md:block' >Rs. {Number(item.price * item.quantity).toLocaleString("en-US")}</p>
+                                {/* Remove from the Cart button*/}
+                                <button
+                                    onClick={() => delete_item_from_cart(item)}
+                                    className='hidden sm:block active:opacity-60'
+                                >
+                                    <IoClose className='text-stone-700 scale-[1.3]' />
+                                </button>
                             </div>
 
                         </div>
+                    ))}
 
-                        {/* Price & Quantity */}
-                        <div className='flex flex-col md:flex-row w-full h-full justify-start md:justify-end items-end md:items-center gap-4 md:gap-6 lg:gap-8 text-[15px] xl:text-[17px] text-stone-800 font-medium select-none text-nowrap'>
-                            {/* Price */}
-                            <p className='' >Rs. {Number(14000).toLocaleString("en-US")}</p>
-                            {/* Quanity Selector button */}
-                            <div className='px-[6px] py-[10px] sm:flex hidden  gap-6 items-center border border-stone-500 text-stone-700'>
-                                <button className='active:opacity-60'>
-                                    <FaMinus className='text-[14px]' />
-                                </button>
-                                <p>1</p>
-                                <button className='active:opacity-60'>
-                                    <IoMdAdd className='text-[17px]' />
-                                </button>
-                            </div>
-                            {/* Total price */}
-                            <p className='hidden md:block' >Rs. {Number(25000).toLocaleString("en-US")}</p>
-                            {/* Remove from the Cart button*/}
-                            <button className='hidden sm:block active:opacity-60' >
-                                <IoClose className='text-stone-700 scale-[1.3]' />
-                            </button>
-                        </div>
 
-                    </div>
-                    <div className='w-full flex px-[20px] items-center justify-between border border-stone-200 
-                    py-[10px] md:py-[25px] mt-[10px] h-[170px]' >
-
-                        {/* Product info */}
-                        <div className='flex w-full h-full gap-4' >
-                            <div className='w-[100px] h-full object-contain'>
-                                <Image src={product_1} alt="product" className='w-full h-full object-contain' />
-                            </div>
-                            <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
-                                <p className='capitalize' >vans ward hi</p>
-                                <p className='capitalize text-gray-400' >44 / very good</p>
-                                <p className='capitalize text-gray-400'>Vans</p>
-
-                                {/* Qunatity Selector for Mobile media (Responsive) */}
-                                <div className='flex sm:hidden justify-center gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
-                                    {/* Quantity Selector button */}
-                                    <div className='px-[6px] py-[8px] md:py-[10px] flex gap-5 md:gap-6 items-center border border-stone-500 text-stone-700'>
-                                        <button className='active:opacity-60'>
-                                            <FaMinus className='text-[12px] md:text-[14px]' />
-                                        </button>
-                                        <p className='text-[15px] md:text-[16px]' >1</p>
-                                        <button className='active:opacity-60'>
-                                            <IoMdAdd className='text-[15px] md:text-[17px]' />
-                                        </button>
-                                    </div>
-                                    {/* Remove from the cart button */}
-                                    <button className='active:opacity-60' >
-                                        <IoClose className='text-stone-700 scale-[1.3]' />
-                                    </button>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        {/* Price & Quantity */}
-                        <div className='flex flex-col md:flex-row w-full h-full justify-start md:justify-end items-end md:items-center gap-4 md:gap-6 lg:gap-8 text-[15px] xl:text-[17px] text-stone-800 font-medium select-none text-nowrap'>
-                            {/* Price */}
-                            <p className='' >Rs. {Number(14000).toLocaleString("en-US")}</p>
-                            {/* Quanity Selector button */}
-                            <div className='px-[6px] py-[10px] sm:flex hidden  gap-6 items-center border border-stone-500 text-stone-700'>
-                                <button className='active:opacity-60'>
-                                    <FaMinus className='text-[14px]' />
-                                </button>
-                                <p>1</p>
-                                <button className='active:opacity-60'>
-                                    <IoMdAdd className='text-[17px]' />
-                                </button>
-                            </div>
-                            {/* Total price */}
-                            <p className='hidden md:block' >Rs. {Number(25000).toLocaleString("en-US")}</p>
-                            {/* Remove from the Cart button*/}
-                            <button className='hidden sm:block active:opacity-60' >
-                                <IoClose className='text-stone-700 scale-[1.3]' />
-                            </button>
-                        </div>
-
-                    </div>
                     {/* Additional Comments from Customers */}
                     <div className='w-full mt-[20px] flex flex-col gap-2'>
                         <p className='text-[15px] md:text-[17px] font-semibold text-stone-700'>
@@ -226,7 +273,7 @@ const Cart_page = () => {
                         {/* Subtotal of Order */}
                         <div className='w-full border-b py-[10px] border-stone-300 flex items-center justify-between mt-[10px]' >
                             <p className='text-[16px] md:text-[18px] font-medium'>Subtotal</p>
-                            <p className='text-[17px] md:text-[20px] font-bold'>Rs. 39,000</p>
+                            <p className='text-[17px] md:text-[20px] font-bold'>Rs. {sum_of_cart.toLocaleString("en-US")}</p>
                         </div>
 
                         {/* Coupon Code */}
@@ -243,7 +290,7 @@ const Cart_page = () => {
                         {/* Total */}
                         <div className='w-full border-b border-stone-300 flex items-center justify-between py-[15px] md:py-[20px]' >
                             <p className='text-[16px] md:text-[19px] font-semibold tracking-wider'>TOTAL:</p>
-                            <p className='text-[19px] md:text-[22px] font-black'>Rs. 39,000</p>
+                            <p className='text-[19px] md:text-[22px] font-black'>Rs. {sum_of_cart.toLocaleString("en-US")}</p>
                         </div>
                     </div>
 

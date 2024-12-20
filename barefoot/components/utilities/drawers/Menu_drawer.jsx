@@ -11,19 +11,19 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
     const slider_menu_options = [
         {
             option: "Men",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Women",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Kids",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Exclusive",
-            link: "#",
+            link: "/collection",
         },
     ]
 
@@ -50,20 +50,20 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
 
                 {slider_menu_options.map((each, index) => (
                     <div key={index} className='py-[12px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
-                        <Link href={each.link} >
+                        <Link onClick={() => toggle_drawer("menu_drawer")} href={each.link} >
                             <p className='text-[17px] font-semibold select-none' >{each.option}</p>
                         </Link>
                     </div>
                 ))}
 
-                <div className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
+                <button onClick={() => toggle_drawer("menu_drawer")} className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all w-full' >
                     <RiAccountCircleLine className='text-[24px] text-stone-900 font-thin' />
                     <p className='text-[17px] font-medium select-none' >Sign In</p>
-                </div>
-                <div className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
+                </button>
+                <button onClick={() => toggle_drawer("menu_drawer")} className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all w-full' >
                     <LuUserPlus2 className='text-[24px] text-stone-900 font-thin' />
                     <p className='text-[17px] font-medium select-none' >Create an Account</p>
-                </div>
+                </button>
             </div>
         </Drawer>
     )

@@ -10,7 +10,9 @@ export default function Home() {
     return (
         <>
             <Head>
-
+                <title>Kickskraze | Cart</title>
+                <meta name="description" content="Cart Page" />
+                <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Navbar />

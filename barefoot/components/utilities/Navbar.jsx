@@ -7,6 +7,7 @@ import logo from "@/public/images/logo.png";
 import Image from "next/image";
 import useStateContext from "@/context/ContextProvider";
 import { RiAccountCircleLine } from "react-icons/ri";
+import Link from "next/link";
 
 
 const Navbar = () => {
@@ -28,57 +29,61 @@ const Navbar = () => {
                 </button>
             </div>
             <div className="flex lg:hidden w-full justify-center">
-                <Image alt="logo" src={logo} className="w-[120px] object-contain" />
+                <Link href="/">
+                    <Image alt="logo" priority src={logo} className="w-[90px] object-contain" />
+                </Link>
             </div>
 
             {/* Logo and Optoins Div */}
             <div className="hidden lg:flex items-center h-full w-full gap-16">
                 {/* Logo Div */}
                 <div className="w-[120px]">
-                    <Image alt="logo" src={logo} className="w-[120px] object-contain" />
+                    <Link href="/" >
+                        <Image alt="logo" priority src={logo} className="w-[90px] object-contain" />
+                    </Link>
                 </div>
                 {/* Options Div */}
                 <div className="flex h-full items-center">
                     <ul className="flex gap-10 items-center justify-center text-center">
                         <li>
-                            <a
+                            <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="#"
+                                href="/collection"
                             >
                                 Collections
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
+                            <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="#"
+                                href="/collection"
                             >
                                 Women
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
+                            <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="#"
+                                href="/collection"
                             >
                                 Men
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
+                            <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="#"
+                                href="/collection"
                             >
                                 Kids
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a
+                            <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100 `}
-                                href="#"
+                                href="/collection"
                             >
                                 Exclusive
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>
@@ -98,16 +103,14 @@ const Navbar = () => {
                     </button>
                 </div>
 
-                <button onClick={() => toggle_drawer("menu_drawer")} className="lg:hidden" >
-                    <RiAccountCircleLine className='text-[26px] text-stone-900' />
-                </button>
-
                 <div>
-                    <button onClick={() => toggle_drawer("sort_drawer")} className="active:text-stone-400 text-stone-800 transition-all">
-                        <Badge badgeContent={0} color="info" showZero>
-                            <FiShoppingCart className="text-[24px]" />
-                        </Badge>
-                    </button>
+                    <Link href={"/cart"}>
+                        <button className="active:text-stone-400 text-stone-800 transition-all">
+                            <Badge badgeContent={0} color="info" showZero>
+                                <FiShoppingCart className="text-[24px]" />
+                            </Badge>
+                        </button>
+                    </Link>
                 </div>
             </div>
         </div>

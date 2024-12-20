@@ -7,6 +7,8 @@ import { Slide } from '@mui/material';
 import useStateContext from '@/context/ContextProvider';
 import Search_drawer from '@/components/utilities/drawers/Search_drawer';
 import Sort_drawer from '@/components/utilities/drawers/Sort_drawer';
+import Filter_drawer from '@/components/utilities/drawers/Filter_drawer';
+import axios from "axios";
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -68,7 +70,11 @@ const Layout = ({ children }) => {
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
             />
-
+            <Filter_drawer
+                axios={axios}
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
             {children}
         </div>
     )

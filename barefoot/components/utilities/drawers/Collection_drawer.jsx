@@ -9,63 +9,63 @@ const Collection_drawer = ({ drawer_state, toggle_drawer }) => {
     const collections_menu = [
         {
             option: "Go To Collection",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Nike",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Asics",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Skechers",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Converse",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Adidas",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Fila",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Under Armor",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Saucony",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "New Balance",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Hoka",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Reebok",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Puma",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "On Cloud",
-            link: "#",
+            link: "/collection",
         },
         {
             option: "Orthofeet",
-            link: "#",
+            link: "/collection",
         },
     ]
 
@@ -87,7 +87,7 @@ const Collection_drawer = ({ drawer_state, toggle_drawer }) => {
 
                 {collections_menu.map((each, index) => (
                     <div key={index} className='py-[12px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
-                        <Link href={each.link} >
+                        <Link onClick={() => { toggle_drawer("collection_drawer"); toggle_drawer("menu_drawer") }} href={each.link} >
                             <p className='text-[16px] font-medium select-none tracking-wider' >{each.option}</p>
                         </Link>
                     </div>

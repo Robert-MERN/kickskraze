@@ -8,7 +8,9 @@ const product = () => {
     return (
         <>
             <Head>
-
+                <title>Kickskraze | Product</title>
+                <meta name="description" content="Product Page" />
+                <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Navbar />

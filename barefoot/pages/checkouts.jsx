@@ -8,7 +8,9 @@ export default function Home() {
     return (
         <>
             <Head>
-
+                <title>Kickskraze | Checkouts</title>
+                <meta name="description" content="Checkouts Page" />
+                <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <div className='w-full flex justify-center border-b border-stone-200'>

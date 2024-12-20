@@ -20,6 +20,7 @@ export const ContextProvider = ({ children }) => {
         collection_drawer: false,
         search_drawer: false,
         sort_drawer: false,
+        filter_drawer: false,
     }
     const [drawer_state, set_drawer_state] = useState(default_drawer_state);
 
@@ -31,11 +32,19 @@ export const ContextProvider = ({ children }) => {
         }
     };
 
+    const default_filters = [
+        { price_gte: 20000 },
+        { price_lte: 0 },
+        { sort_by: "created-ascending" }
+    ]
+    const [filters, set_filters] = useState(default_filters);
+
     return (
         <StateContext.Provider
             value={{
                 snackbar_alert, set_snackbar_alert, close_snackbar,
                 toggle_drawer, drawer_state,
+                filters, set_filters, default_filters,
             }}
         >
             {children}

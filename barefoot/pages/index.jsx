@@ -9,7 +9,9 @@ export default function Home() {
   return (
     <>
       <Head>
-
+        <title>Kickskraze | Home</title>
+        <meta name="description" content="Home Page" />
+        <link rel="icon" href="/images/icon.png" />
       </Head>
       <div className='w-screen flex flex-col items-center'>
         <Navbar />
