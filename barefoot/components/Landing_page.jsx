@@ -105,7 +105,9 @@ const Landing_page = () => {
                     <Image alt="banner_1" src={banner} className='w-full object-contain  md:block hidden' />
                 </Link>
                 <Link href="/collection">
-                    <Image priority={true} alt="banner_2" src={banner_2} className='w-full object-contain block md:hidden' />
+                    <div className='w-full static' >
+                        <Image priority={true} alt="banner_2" src={banner_2} className='w-full object-contain block md:hidden' />
+                    </div>
                 </Link>
 
 
