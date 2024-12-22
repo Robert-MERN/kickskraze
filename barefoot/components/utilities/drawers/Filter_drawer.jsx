@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styles from "@/styles/home.module.css";
 import Checkbox from '@mui/material/Checkbox';
-import { convert_to_query_string, filter_method, find_filter } from '@/utils/functions/filter_function';
+import {
+    convert_to_query_string,
+    filter_method,
+    filters_realtime_update,
+    remove_item_from_filters_realtime_update,
+    remove_group_items_from_filters_realtime_update,
+    remove_all_items_from_filters_realtime_update,
+    find_filter,
+} from '@/utils/functions/filter_function';
 import Drawer from '@mui/material/Drawer';
 import Slider from '@mui/material/Slider';
 import { IoClose } from "react-icons/io5";
@@ -11,7 +19,11 @@ import useStateContext from '@/context/ContextProvider';
 
 const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
-    const { filters, set_filters } = useStateContext();
+    const { filters,
+        set_filters,
+        filter_started,
+        set_filter_started,
+    } = useStateContext();
 
 
     const conditions = ["excellent", "premium", "premium+", "very good"];
@@ -38,7 +50,14 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
     useEffect(() => {
         fetch_filter();
+        if (filters.length > 3) {
+            set_filter_started(true);
+        } else {
+            set_filter_started(false);
+        }
     }, [filters]);
+
+
     return (
         <Drawer
             open={drawer_state.filter_drawer}
@@ -55,7 +74,36 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
                 </div>
 
+
+
                 <div className={`w-full px-[15px] ${styles.scroll_bar}`} >
+
+                    {/* Filter Realtime Updates */}
+                    {filter_started &&
+                        <div className='pb-[15px] border-b border-stone-300 mb-[30px]'>
+
+                            <button
+                                onClick={() => remove_all_items_from_filters_realtime_update(set_filters)}
+                                className='text-[16px] text-stone-600 mb-3 underline underline-offset-4'
+                            >
+                                Clear all
+                            </button>
+
+                            <div className='flex flex-wrap gap-2' >
+                                {filters_realtime_update(filters).map((e, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => remove_item_from_filters_realtime_update(set_filters, e, set_filter_started)
+                                        }
+                                        className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
+                                    >
+                                        {e} <IoClose />
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                    }
+
                     {/* size */}
                     <div className='pb-[15px] border-b border-stone-300'>
                         <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
@@ -72,6 +120,14 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                             }
 
                         </div>
+                        {filters.some(e => Object.keys(e)[0] === "size") &&
+                            <button
+                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "size", set_filter_started)
+                                }
+                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                Clear all
+                            </button>
+                        }
                     </div>
                     {/* Condition */}
                     <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
@@ -89,6 +145,14 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                 <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
                             </button>
                         ))}
+                        {filters.some(e => Object.keys(e)[0] === "condition") &&
+                            <button
+                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "condition", set_filter_started)
+                                }
+                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                Clear all
+                            </button>
+                        }
                     </div>
                     {/* Brand */}
                     <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
@@ -107,6 +171,14 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                 </button>
                             ))}
                         </div>
+                        {filters.some(e => Object.keys(e)[0] === "brand") &&
+                            <button
+                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "brand", set_filter_started)
+                                }
+                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                Clear all
+                            </button>
+                        }
                     </div>
 
                     {/* Price */}

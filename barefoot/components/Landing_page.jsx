@@ -101,13 +101,11 @@ const Landing_page = () => {
                         <button className='font-extrabold text-[19px] px-[40px] py-[10px] md:bg-transparent hover:bg-teal-600 md:hover:text-white md:text-stone-800 transition-all text-stone-800 hover:text-white bg-white' >Shop Collection</button>
                     </Link>
                 </div>
-                <Link href="/collection">
+                <Link className='w-full' href="/collection">
                     <Image alt="banner_1" src={banner} className='w-full object-contain  md:block hidden' />
                 </Link>
-                <Link href="/collection">
-                    <div className='w-full static' >
-                        <Image priority={true} alt="banner_2" src={banner_2} className='w-full object-contain block md:hidden' />
-                    </div>
+                <Link className='w-full' href="/collection">
+                    <Image priority={true} alt="banner_2" src={banner_2} className='w-full object-cover block md:hidden' />
                 </Link>
 
 
@@ -117,10 +115,10 @@ const Landing_page = () => {
             {/* Top Categories For Shoes */}
             <div className='w-full text-stone-900 text-center tracking-wider my-12'>
                 <p className='text-[26px] font-medium' >TOP CATEGORIES</p>
-                <div className='w-full grid grid-cols-2 md:flex items-center mt-[30px] gap-5'>
+                <div className='w-full grid grid-cols-2 md:flex justify-center items-center mt-[30px] gap-5'>
                     {top_categories.map((val, index) => (
-                        <Link href={`/collection?brand=${val.category}`}>
-                            <div key={index + val.category} className='flex flex-col xl:flex-row items-center rounded-md bg-[#F7F7F7] py-[15px] px-[25px] w-full xl:gap-4 justify-between cursor-pointer  hover:shadow-2xl transition-all duration-300 h-[130px] xl:h-auto active:bg-white active:shadow-none' >
+                        <Link key={index + val.category} href={`/collection?brand=${val.category}`}>
+                            <div className='flex flex-col xl:flex-row items-center rounded-md bg-[#F7F7F7] py-[15px] px-[25px] w-full xl:gap-4 justify-between cursor-pointer  hover:shadow-2xl transition-all duration-300 h-[130px] xl:h-auto active:bg-white active:shadow-none' >
                                 <Image src={val.src} alt="shoes" className='w-[70px] object-contain hover:scale-110 transition-all duration-500' />
                                 <p className='text-[15px] md:text-[14px] xl:text-[16px] font-bold' >{val.category}</p>
                             </div>

@@ -5,6 +5,9 @@
  * @param {import('next').NextApiResponse} res 
  */
 
+import { get_mongo_sort_object } from '@/utils/functions/filter_function';
+
+
 export default async function handler(req, res) {
 
 
@@ -14,6 +17,7 @@ export default async function handler(req, res) {
 
     // Initialize a query object
     const query = {};
+    let sort = { createdAt: -1 };
 
     // Handle 'size' filter (ensure numbers)
     if (size) {
@@ -40,7 +44,7 @@ export default async function handler(req, res) {
 
     // Handle 'price' filter (optional range logic)
     if (sort_by) {
-
+      sort = get_mongo_sort_object(sort_by);
     }
 
     return res.status(200).json(query);

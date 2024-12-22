@@ -29,11 +29,11 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
         },
         {
             title: "Date, old to new",
-            option: "created-descending",
+            option: "created-ascending",
         },
         {
             title: "Date, new to old",
-            option: "created-ascending",
+            option: "created-descending",
         },
 
     ]

@@ -3,10 +3,24 @@ import { IoChatboxEllipsesSharp } from "react-icons/io5";
 import { IoMailSharp } from "react-icons/io5";
 import { FaSquareInstagram } from "react-icons/fa6";
 import { FaFacebookF } from "react-icons/fa";
+import Link from 'next/link';
+import useStateContext from '@/context/ContextProvider';
 
 const Footer = () => {
 
     const copyright_year = new Date().getFullYear();
+    const { set_snackbar_alert } = useStateContext()
+
+    const email_regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}$"
+    const submit_newsletter = (e) => {
+        e.preventDefault();
+        set_snackbar_alert({
+            open: true,
+            message: "You've successfully subscribed our Newsletter",
+            severity: "success"
+        });
+        e.target.reset();
+    }
 
     return (
         <div className='w-full bg-[#F7F7F7] flex flex-col items-center mt-8 mb-[70px] lg:mb-0'>
@@ -14,14 +28,18 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-black pb-2' >Get in Touch</p>
                     <ul className='flex flex-col gap-3'>
-                        <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
-                            <IoChatboxEllipsesSharp className='text-[21px] text-stone-800' />
-                            Call: 0310 2223 511
-                        </li>
-                        <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
-                            <IoMailSharp className='text-[21px] text-stone-800' />
-                            kickskraze@gmail.com
-                        </li>
+                        <a href="tel:+923102223511">
+                            <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
+                                <IoChatboxEllipsesSharp className='text-[21px] text-stone-800' />
+                                Call: 0310 2223 511
+                            </li>
+                        </a>
+                        <a href="mailto:kickskraze@gmail.com">
+                            <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
+                                <IoMailSharp className='text-[21px] text-stone-800' />
+                                kickskraze@gmail.com
+                            </li>
+                        </a>
                     </ul>
 
                 </div >
@@ -29,42 +47,58 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-black pb-4' >Shop By</p>
                     <ul className='flex flex-col gap-3'>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Collections
-                        </li>
+                        <Link href="/collection">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Collections
+                            </li>
+                        </Link>
 
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Men
-                        </li>
+                        <Link href="/collection?gender=men">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Men
+                            </li>
+                        </Link>
 
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Women
-                        </li>
+                        <Link href="/collection?gender=women">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Women
+                            </li>
+                        </Link>
 
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Kids
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Exclusive
-                        </li>
+                        <Link href="/collection?gender=kids">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Kids
+                            </li>
+                        </Link>
                     </ul>
                 </div>
 
                 <div className='' >
                     <p className='text-[17px] font-black pb-4' >Information</p>
                     <ul className='flex flex-col gap-3'>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            About
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Contact
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Size Chart
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Condition Guide
-                        </li>
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                About
+                            </li>
+                        </Link>
+
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Contact
+                            </li>
+                        </Link>
+
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Size Chart
+                            </li>
+                        </Link>
+
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Condition Guide
+                            </li>
+                        </Link>
                     </ul>
 
                 </div>
@@ -72,15 +106,23 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-black pb-4' >Customer Service</p>
                     <ul className='flex flex-col gap-3'>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Shipping Policy
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Return Policy
-                        </li>
-                        <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                            Terms & Conditions
-                        </li>
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Shipping Policy
+                            </li>
+                        </Link>
+
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Return Policy
+                            </li>
+                        </Link>
+
+                        <Link href="#">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Terms & Conditions
+                            </li>
+                        </Link>
                     </ul>
 
                 </div>
@@ -88,24 +130,29 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-black pb-4' >Follow Us</p>
                     <div className='flex items-center gap-6 pb-4'>
-                        <button className=''>
+                        <Link className='' href="https://www.instagram.com/kickskraze.pk/profilecard/?igsh=Z3dvcDk3eXRlN3Z1" target='_blank'>
                             <FaSquareInstagram className='text-[26px] text-stone-800 hover:opacity-75 active:opacity-50 transition-all' />
-                        </button>
-                        <button className=''>
+                        </Link>
+                        <Link className='' href="https://www.facebook.com/share/152nJBR4YZ/?mibextid=wwXIfr">
                             <FaFacebookF className='text-[26px] text-stone-800 hover:opacity-75 active:opacity-50 transition-all' />
-                        </button>
+                        </Link>
                     </div>
                     <p className='text-[17px] font-black pb-4 pt-2'>Newsletter Sign Up</p>
                     <p className='text-[17px] w-fit transition-all pb-4'>
                         Receive our latest updates about our products and promotions.
                     </p>
-                    <div className='flex items-center gap-1'>
-                        <input type="text" className='p-[10px] border-stone-500 border flex-[3] text-[17px] outline-none' placeholder='enter your email address' />
-                        <button className='flex-[1] bg-stone-800 text-white text-[17px] p-[10px] font-black hover:bg-transparent hover:text-stone-800 transition-all border-stone-500 border'>Submit</button>
-                    </div>
+                    <form onSubmit={submit_newsletter} className='flex flex-col md:flex-row items-center gap-4 md:gap-1'>
+                        <input
+                            pattern={email_regex}
+                            required
+                            type="email"
+                            className='p-[10px] border-stone-500 border w-full md:w-fit md:flex-[3] text-[17px] outline-none' placeholder='enter your email address'
+                        />
+                        <button type='submit' className='w-full md:w-fit md:flex-[1] bg-stone-800 text-white text-[17px] p-[10px] font-black hover:bg-transparent hover:text-stone-800 transition-all border-stone-500 border'>Submit</button>
+                    </form>
                 </div>
 
-                
+
 
             </div>
             {/* Copyright statement */}

@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styles from "@/styles/home.module.css";
 import Checkbox from '@mui/material/Checkbox';
-import { convert_to_query_string, filter_method, find_filter } from '@/utils/functions/filter_function';
+import {
+    convert_to_query_string,
+    filter_method,
+    filters_realtime_update,
+    remove_item_from_filters_realtime_update,
+    remove_group_items_from_filters_realtime_update,
+    remove_all_items_from_filters_realtime_update,
+    find_filter,
+} from '@/utils/functions/filter_function';
 import Slider from '@mui/material/Slider';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { TfiLayoutColumn2Alt } from "react-icons/tfi";
@@ -14,6 +22,8 @@ import Link from 'next/link';
 import { LuFilter } from "react-icons/lu";
 import useStateContext from '@/context/ContextProvider';
 import Popover from '@mui/material/Popover';
+import { IoClose } from "react-icons/io5";
+import { products } from '@/models/product_schema';
 
 
 // Sort Popover for Windows Screens
@@ -64,7 +74,13 @@ const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters }) =
 
 const Collection_page = ({ axios }) => {
 
-    const { filters, set_filters, default_filters } = useStateContext();
+    const { filters,
+        set_filters,
+        default_filters,
+        filter_started,
+        set_filter_started,
+
+    } = useStateContext();
 
     useEffect(() => {
         set_filters(default_filters);
@@ -94,10 +110,15 @@ const Collection_page = ({ axios }) => {
         }
     };
 
+
     useEffect(() => {
         fetch_filter();
+        if (filters.length > 3) {
+            set_filter_started(true);
+        } else {
+            set_filter_started(false);
+        }
     }, [filters]);
-
 
 
     // Grid state changing dynamicly
@@ -171,11 +192,11 @@ const Collection_page = ({ axios }) => {
         },
         {
             title: "Date, old to new",
-            option: "created-descending",
+            option: "created-ascending",
         },
         {
             title: "Date, new to old",
-            option: "created-ascending",
+            option: "created-descending",
         },
 
     ]
@@ -187,6 +208,35 @@ const Collection_page = ({ axios }) => {
                 {/* Filter Section */}
                 <div className={`xl:flex-[1.2] 2xl:flex-[1.1] py-[10px] hidden lg:block`}>
                     <div className={`w-full h-[calc(100vh-105px)] md:h-[calc(100vh-120px)] overflow-y-auto sticky top-0 overflow-x-hidden px-[15px] ${styles.scroll_bar}`} >
+
+
+                        {/* Filter Realtime Updates */}
+                        {filter_started &&
+                            <div className='pb-[15px] border-b border-stone-300 mb-[30px]'>
+
+                                <button
+                                    onClick={() => remove_all_items_from_filters_realtime_update(set_filters)}
+                                    className='text-[16px] text-stone-600 mb-3 underline underline-offset-4'
+                                >
+                                    Clear all
+                                </button>
+
+                                <div className='flex flex-wrap gap-2' >
+                                    {filters_realtime_update(filters).map((e, index) => (
+                                        <button
+                                            key={index}
+                                            onClick={() => remove_item_from_filters_realtime_update(set_filters, e, set_filter_started)
+                                            }
+                                            className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
+                                        >
+                                            {e} <IoClose />
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        }
+
+
                         {/* size */}
                         <div className='pb-[15px] border-b border-stone-300'>
                             <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
@@ -201,8 +251,15 @@ const Collection_page = ({ axios }) => {
                                     </button>
                                 ))
                                 }
-
                             </div>
+                            {filters.some(e => Object.keys(e)[0] === "size") &&
+                                <button
+                                    onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "size", set_filter_started)
+                                    }
+                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                    Clear all
+                                </button>
+                            }
                         </div>
                         {/* Condition */}
                         <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
@@ -220,6 +277,14 @@ const Collection_page = ({ axios }) => {
                                     <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
                                 </button>
                             ))}
+                            {filters.some(e => Object.keys(e)[0] === "condition") &&
+                                <button
+                                    onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "condition", set_filter_started)
+                                    }
+                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                    Clear all
+                                </button>
+                            }
                         </div>
                         {/* Brand */}
                         <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
@@ -238,6 +303,14 @@ const Collection_page = ({ axios }) => {
                                     </button>
                                 ))}
                             </div>
+                            {filters.some(e => Object.keys(e)[0] === "brand") &&
+                                <button
+                                    onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "brand", set_filter_started)
+                                    }
+                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                    Clear all
+                                </button>
+                            }
                         </div>
 
                         {/* Price */}
@@ -362,8 +435,8 @@ const Collection_page = ({ axios }) => {
 
                     {/* Products */}
                     <div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`grid gap-2 transition-all`}>
-                        {[...Array(20)].map((_, i) => (
-                            <Link href={"/product"} key={i}>
+                        {products.map((product, i) => (
+                            <Link href={`/product?id=${product._id}`} key={i}>
                                 <div
                                     className={`p-4 flex gap-2 cursor-pointer overflow-hidden ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
                                 >
@@ -371,10 +444,10 @@ const Collection_page = ({ axios }) => {
                                         <Image alt="Product" src={product_image} className={`${grid === 1 ? "w-full sm:w-[250px] md:[300px] 2xl:w-[350px]" : "w-full hover:scale-[1.1] transition-all duration-500 object-contain"} `} />
                                     </div>
                                     <div className='flex flex-col gap-1'>
-                                        <p className='text-[16px] font-bold text-stone-600' >Product {i + 1}</p>
-                                        <p className='text-[14px] font-bold text-black mt-2' >Rs. {((i + 1) * 10000).toLocaleString("en-US")}</p>
-                                        <p className='text-[14px] text-black' >Size: {"42"}</p>
-                                        <p className='text-[14px] text-black' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{"Excelllent"}</span></p>
+                                        <p className='text-[16px] font-bold text-stone-600' >{product.title}</p>
+                                        <p className='text-[14px] font-bold text-black mt-2' >Rs. {product.price.toLocaleString("en-US")}</p>
+                                        <p className='text-[14px] text-black' >Size: {product.size}</p>
+                                        <p className='text-[14px] text-black' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
                                     </div>
                                 </div>
                             </Link>

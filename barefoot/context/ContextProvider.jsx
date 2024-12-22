@@ -35,16 +35,18 @@ export const ContextProvider = ({ children }) => {
     const default_filters = [
         { price_gte: 20000 },
         { price_lte: 0 },
-        { sort_by: "created-ascending" }
+        { sort_by: "created-descending" }
     ]
     const [filters, set_filters] = useState(default_filters);
+    const [filter_started, set_filter_started] = useState(false);
+
 
     return (
         <StateContext.Provider
             value={{
                 snackbar_alert, set_snackbar_alert, close_snackbar,
                 toggle_drawer, drawer_state,
-                filters, set_filters, default_filters,
+                filters, set_filters, default_filters, filter_started, set_filter_started,
             }}
         >
             {children}
