@@ -17,7 +17,7 @@ import mid_banner_2 from "@/public/images/home_banner_mid_2.webp"
 import sm_banner_1 from "@/public/images/sm_banner_1.jpg"
 import sm_banner_2 from "@/public/images/sm_banner_2.jpg"
 import sm_banner_3 from "@/public/images/sm_banner_3.jpg"
-import App_footer from '@/components/utilities/App_footer';
+// import App_footer from '@/components/utilities/App_footer';
 import product_image from "@/public/images/product_image.webp"
 import Link from 'next/link';
 
@@ -221,7 +221,7 @@ const Landing_page = () => {
                 <button className='hover:bg-stone-800 hover:text-white text-[17px] w-[275px] py-[10px] font-black bg-transparent text-stone-800 transition-all border border-stone-500 active:opacity-75'>SHOW MORE</button>
             </div>
 
-            <App_footer />
+            {/* <App_footer /> */}
 
         </div>
     )

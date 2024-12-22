@@ -14,10 +14,15 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import useStateContext from '@/context/ContextProvider';
+import { useRouter } from 'next/router';
 
 
 const Product_page = ({ product }) => {
 
+    const { add_item_to_cart } = useStateContext();
+
+    const router = useRouter();
 
     const [thumbnailPosition, setThumbnailPosition] = useState("bottom"); // Default for mobile
 
@@ -86,12 +91,12 @@ const Product_page = ({ product }) => {
                     underline="hover"
                     key="1"
                     color="inherit"
-                    href="/cart"
+                    href="/"
                 >
                     Home
                 </Link>
                 <p>
-                    {"Product"}
+                    {product?.title || "Product"}
                 </p>
             </Breadcrumbs>
             {product ?
@@ -124,7 +129,7 @@ const Product_page = ({ product }) => {
 
                             <div className='w-full text-stone-950'>
                                 <p className='text-[16px] xl:text-[18px] font-bold'>{product.title}</p>
-                                <p className='text-[16px] xl:text-[18px] font-bold'>Rs. {Number("6500").toLocaleString("en-US")}</p>
+                                <p className='text-[16px] xl:text-[18px] font-bold'>Rs. {Number(product.price).toLocaleString("en-US")}</p>
                             </div>
 
                             <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
@@ -141,14 +146,17 @@ const Product_page = ({ product }) => {
 
                             <div className='w-full mt-6 xl:mt-6'>
                                 {/* Checkout Button */}
-                                <button className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-black text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500 tracking-widest transition-all duration-300'>
+                                <button onClick={() => add_item_to_cart(product)} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-black text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500 tracking-widest transition-all duration-300'>
                                     ADD TO CART
                                 </button>
                             </div>
 
                             <div className='w-full my-6 xl:mt-8'>
                                 {/* Checkout Button */}
-                                <button className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-black text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500 tracking-widest transition-all duration-300'>
+                                <button onClick={() => {
+                                    add_item_to_cart(product);
+                                    router.push("/checkouts");
+                                }} className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-black text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500 tracking-widest transition-all duration-300'>
                                     BUY IT NOW
                                 </button>
                             </div>

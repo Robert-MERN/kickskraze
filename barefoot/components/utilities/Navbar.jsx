@@ -11,7 +11,7 @@ import Link from "next/link";
 
 
 const Navbar = () => {
-    const { toggle_drawer } = useStateContext();
+    const { toggle_drawer, cart } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
@@ -106,7 +106,7 @@ const Navbar = () => {
                 <div>
                     <Link href={"/cart"}>
                         <button className="active:text-stone-400 text-stone-800 transition-all">
-                            <Badge badgeContent={0} color="info" showZero>
+                            <Badge badgeContent={cart.length} color="info" showZero>
                                 <FiShoppingCart className="text-[24px]" />
                             </Badge>
                         </button>

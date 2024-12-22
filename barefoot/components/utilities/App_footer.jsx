@@ -15,7 +15,7 @@ import Link from 'next/link';
 
 
 const App_footer = () => {
-    const { toggle_drawer } = useStateContext();
+    const { toggle_drawer, cart } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
@@ -50,9 +50,9 @@ const App_footer = () => {
                 <p>Account</p>
             </button>
 
-            <Link className='/cart' >
+            <Link href='/cart' >
                 <button className='text-[12px] text-stone-950 flex flex-col items-center gap-1 active:opacity-70 transition-all'>
-                    <Badge className='badge-2' badgeContent={0} color="info" showZero>
+                    <Badge className='badge-2' badgeContent={cart.length} color="info" showZero>
                         <FiShoppingCart className='text-[22px] text-stone-700' />
                     </Badge>
                     <p>Cart</p>

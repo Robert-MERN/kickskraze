@@ -11,9 +11,11 @@ const product = () => {
     const router = useRouter();
     const [product, set_product] = useState(null);
     useEffect(() => {
-        const find_product = products.find(e => e._id.toString().includes(router.query.id.toString()))
-        set_product(find_product);
-    }, [])
+        if (router.query.id) {
+            const find_product = products.find(e => e._id.toString().includes(router.query.id.toString()))
+            set_product(find_product);
+        }
+    }, [router.query])
     return (
         <>
             <Head>
@@ -26,8 +28,8 @@ const product = () => {
                 <div className='w-full min-h-[calc(100vh-70px)] 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] lg:px-[40px]' >
                     <Product_page product={product} />
                 </div>
-                <Footer />
                 <App_footer />
+                <Footer />
             </div>
         </>
     )
