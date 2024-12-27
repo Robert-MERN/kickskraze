@@ -102,33 +102,33 @@ const Cart_page = () => {
                             {cart.map((item, index) => (
 
                                 <div key={index} className='w-full flex px-[20px] items-center justify-between border border-stone-200 
-                    py-[10px] md:py-[25px] mt-[10px] h-[170px]' >
+                    py-[10px] md:py-[25px] mt-[10px] min-h-[150px] sm:min-h-[170px]' >
 
                                     {/* Product info */}
                                     <div className='flex w-full h-full gap-4' >
-                                        <div className='w-[100px] h-full object-contain'>
+                                        <div className='w-[60px] sm:w-[100px] h-full object-contain'>
                                             <Image src={product_1} alt="product" className='w-full h-full object-contain' />
                                         </div>
-                                        <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
-                                            <p className='capitalize' >{item.title}</p>
+                                        <div className='flex flex-col gap-1 text-[12px] sm:text-[14px] md:text-[17px]' >
+                                            <p className='capitalize text-wrap' >{item.title}</p>
                                             <p className='capitalize text-gray-400' >{item.size} / {item.condition}</p>
                                             <p className='capitalize text-gray-400'>{item.brand}</p>
 
                                             {/* Qunatity Selector for Mobile media (Responsive) */}
-                                            <div className='flex sm:hidden justify-center gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
+                                            <div className='flex sm:hidden justify-center gap-2 sm:gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
                                                 {/* Quantity Selector button */}
-                                                <div className='px-[6px] py-[8px] md:py-[10px] flex gap-5 md:gap-6 items-center border border-stone-500 text-stone-700'>
+                                                <div className='px-[5px] sm:px-[6px] py-[6px] sm:py-[8px] md:py-[10px] flex gap-3 sm:gap-5 md:gap-6 items-center border border-stone-500 text-stone-700'>
                                                     <button
                                                         onClick={() => substract_item_from_cart(item)} className='active:opacity-60'
                                                     >
-                                                        <FaMinus className='text-[12px] md:text-[14px]' />
+                                                        <FaMinus className='text-[11px] sm:text-[12px] md:text-[14px]' />
                                                     </button>
-                                                    <p className='text-[15px] md:text-[16px]' >{item.quantity}</p>
+                                                    <p className='text-[12px] sm:text-[15px] md:text-[16px]' >{item.quantity}</p>
                                                     <button
                                                         onClick={() => add_item_to_cart(item)}
                                                         className='active:opacity-60'
                                                     >
-                                                        <IoMdAdd className='text-[15px] md:text-[17px]' />
+                                                        <IoMdAdd className='text-[13px] sm:text-[15px] md:text-[17px]' />
                                                     </button>
                                                 </div>
                                                 {/* Remove from the cart button */}
@@ -136,7 +136,7 @@ const Cart_page = () => {
                                                     onClick={() => delete_item_from_cart(item)}
                                                     className='active:opacity-60'
                                                 >
-                                                    <IoClose className='text-stone-700 scale-[1.3]' />
+                                                    <IoClose className='text-stone-700 sm:scale-[1.3]' />
                                                 </button>
                                             </div>
                                         </div>
@@ -144,9 +144,9 @@ const Cart_page = () => {
                                     </div>
 
                                     {/* Price & Quantity */}
-                                    <div className='flex flex-col md:flex-row w-full h-full justify-start md:justify-end items-end md:items-center gap-4 md:gap-6 lg:gap-8 text-[15px] xl:text-[17px] text-stone-800 font-medium select-none text-nowrap'>
+                                    <div className='flex flex-col md:flex-row w-full h-full justify-start md:justify-end items-end md:items-center gap-4 md:gap-6 lg:gap-8 text-[12px] sm:text-[15px] xl:text-[17px] text-stone-800 font-medium select-none text-nowrap'>
                                         {/* Price */}
-                                        <p className='' >Rs. {Number(item.price).toLocaleString("en-US")}</p>
+                                        <p className='text-wrap' >Rs. {Number(item.price).toLocaleString("en-US")}</p>
                                         {/* Quanity Selector button */}
                                         <div className='px-[6px] py-[10px] sm:flex hidden  gap-6 items-center border border-stone-500 text-stone-700'>
                                             <button

@@ -221,7 +221,7 @@ const Checkouts_page = () => {
 
                     <h1 className='text-[20px] font-bold pt-4'>Delivery</h1>
 
-                    <div className='flex flex-col md:flex-row gap-4 md:gap-3 items-center'>
+                    <div className='flex flex-col md:flex-row gap-4 md:gap-3'>
                         <TextField
                             label="First name"
                             variant="outlined"
@@ -255,7 +255,7 @@ const Checkouts_page = () => {
                         sx={style_textfield}
                     />
 
-                    <div className='flex flex-col md:flex-row gap-4 md:gap-3 items-center'>
+                    <div className='flex flex-col md:flex-row gap-4 md:gap-3'>
                         <TextField
                             label="City"
                             variant="outlined"

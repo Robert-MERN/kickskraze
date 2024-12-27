@@ -57,7 +57,7 @@ const Landing_page = () => {
 
 
     return (
-        <div className='w-full px-[20px] pt-[15px] md:pt-[30px] '>
+        <div className='w-full px-[20px] pt-[15px] md:pt-[30px] tracking-wider'>
             {/* Offer */}
             <div className='w-full flex flex-col md:flex-row px-[10px] py-[10px] md:py-[25px] h-auto md:h-[100px] bg-[#F9EDE1] justify-between items-center' >
                 <div className='w-full border-b md:border-b-0 md:border-r-2 border-stone-300 flex flex-col justify-center items-center pb-2 md:pb-0' >

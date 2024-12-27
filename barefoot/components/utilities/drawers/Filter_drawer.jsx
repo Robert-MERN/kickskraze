@@ -136,7 +136,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                             <button
                                 key={index + each}
                                 onClick={() => apply_filter({ condition: each })}
-                                className='flex items-center'
+                                className='flex items-center w-full'
                             >
                                 <Checkbox
                                     checked={filters.some(e => e.condition === each)}
@@ -161,7 +161,8 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                             {brands.map((each, index) => (
                                 <button
                                     onClick={() => apply_filter({ brand: each })}
-                                    key={index + each} className='flex items-center'
+                                    key={index + each} 
+                                    className='flex items-center w-full'
                                 >
                                     <Checkbox
                                         checked={filters.some(e => e.brand === each)}
