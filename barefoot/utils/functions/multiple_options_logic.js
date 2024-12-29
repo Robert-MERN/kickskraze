@@ -164,7 +164,8 @@ export const handle_change_options = (event, set_options, index, index_2) => {
             copy_options.splice(index, 1, updated_option);
         } else if (name === "menu_image" || name === "banner_image") {
             // Changing values for menu_image & banner_image
-            return { ...prev_options, [name]: URL.createObjectURL(event.target.files[0]) }
+            const file = event.target.files[0];
+            return { ...prev_options, [name]: Boolean(file) ? URL.createObjectURL(file) : file }
         } else {
             // Changing values for section_name, menu_title, price, comp_price, desc
             return { ...prev_options, [name]: value }

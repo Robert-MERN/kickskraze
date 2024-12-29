@@ -16,9 +16,9 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useStateContext from '@/context/ContextProvider';
 import { useRouter } from 'next/router';
+import menu_image from "@/public/images/menu_image.jpg"
 
-
-const Product_page = ({ product }) => {
+const Food_item_page = ({ product }) => {
 
     const { add_item_to_cart } = useStateContext();
 
@@ -96,7 +96,7 @@ const Product_page = ({ product }) => {
                     Home
                 </Link>
                 <p>
-                    {product?.title || "Product"}
+                    {product?.title || "Food Item"}
                 </p>
             </Breadcrumbs>
             {product ?
@@ -106,20 +106,10 @@ const Product_page = ({ product }) => {
                         {/* Product Image Gallery */}
                         <div className='flex flex-[1] lg:flex-[1.6]' >
                             <div className='w-full' >
-                                <ImageGallery
-                                    items={images}
-                                    showThumbnails={true}
-                                    showPlayButton={false}
-                                    showFullscreenButton={false}
-                                    showBullets={false}
-                                    infinite={true}
-                                    useBrowserFullscreen={false}
-                                    isRTL={false}
-                                    renderItem={(item) => renderZoomedImage(item)}
-                                    thumbnailPosition={thumbnailPosition} // Align thumbnails to the left
-                                    slideDuration={500} // Transition duration
-                                    slideInterval={2000}
-                                    slideOnThumbnailOver={false}
+                                <Image
+                                    src={menu_image}
+                                    alt="Menu Image"
+                                    className='w-full'
                                 />
                             </div>
                         </div>
@@ -315,14 +305,14 @@ const Product_page = ({ product }) => {
 
                 :
                 <div className="h-[70vh] flex flex-col justify-center items-center">
-                    <h1 className='text-[18px] text-stone-500 tracking-wider uppercase'>
-                        NO PRODUCT IS AVAILABLE TO SHOW YOU
+                    <h1 className='text-[24px] text-stone-500 tracking-wider uppercase'>
+                        NO FOOD ITEM SELECTED TO SHOW YOU
                     </h1>
 
                     <div className='my-[30px] w-full flex justify-center items-center'>
-                        <Link href="/collection" >
+                        <Link href="/" >
                             <button className='font-extrabold text-black hover:text-white active:opacity-50 transition-all py-[12px] px-[16px] md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
-                                CONTINUE SHOPPING
+                                CONTINUE ORDERING
                             </button>
                         </Link>
                     </div>
@@ -332,4 +322,4 @@ const Product_page = ({ product }) => {
     )
 }
 
-export default Product_page
+export default Food_item_page

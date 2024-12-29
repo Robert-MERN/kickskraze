@@ -23,6 +23,7 @@ export const ContextProvider = ({ children }) => {
         search_drawer: false,
         sort_drawer: false,
         filter_drawer: false,
+        food_menu_drawer: false,
     }
     const [drawer_state, set_drawer_state] = useState(default_drawer_state);
 
@@ -106,6 +107,34 @@ export const ContextProvider = ({ children }) => {
     }
 
 
+    // Resturant Application Logic
+    const default_data = {
+        section_title: "",
+        banner_image: "",
+        menu_title: "",
+        menu_image: "",
+        price: "",
+        compare_price: "",
+        description: "",
+        options: [],
+        errors: {
+            section_title: "",
+            menu_title: "",
+            menu_image: "",
+            price: "",
+            compare_price: "",
+            description: "",
+        }
+    }
+
+    const [data, set_data] = useState(default_data);
+
+    const [sidebar, set_sidebar] = useState("create-menu");
+
+    const handle_sidebar = (set_options, value) => {
+        set_options(default_data);
+        set_sidebar(value);
+    }
 
 
     return (
@@ -120,6 +149,9 @@ export const ContextProvider = ({ children }) => {
                 cart, set_cart, sum_of_cart, delete_item_from_cart, add_item_to_cart,
                 substract_item_from_cart,
 
+                sidebar, handle_sidebar,
+
+                data, set_data, default_data,
 
             }}
         >
