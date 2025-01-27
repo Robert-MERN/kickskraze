@@ -1,8 +1,8 @@
 import { Schema, connection } from "mongoose"
 
 const userSchema = new Schema({
-    firstName: "",
-    lastName: "",
+    firstName: { type: String },
+    lastName: { type: String },
     email: {
         type: String,
         required: [true, "Please Enter Your Email"],

@@ -1,5 +1,6 @@
 import React, { useState, createContext, useContext, useEffect } from 'react'
 import imageCompression from 'browser-image-compression';
+import { useRouter } from 'next/router';
 
 
 
@@ -9,7 +10,7 @@ const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
 
-
+    const router = useRouter();
 
     // Notification logic
     const [snackbar_alert, set_snackbar_alert] = useState({
@@ -24,7 +25,7 @@ export const ContextProvider = ({ children }) => {
 
     // Modal Logic
     const default_modals_state = {
-        search_modal: false,
+        logout_modal: false,
         delete_product_modal: false,
     };
     const [modals_state, set_modals_state] = useState(default_modals_state);
@@ -472,12 +473,12 @@ export const ContextProvider = ({ children }) => {
         set_is_loading(true)
         try {
             const res = await axios.post("/api/login", data);
-            router.push("/admin");
             set_snackbar_alert({
                 open: true,
                 message: res.data.message,
                 severity: "success"
             })
+            router.push("/admin");
         } catch (err) {
             set_snackbar_alert({
                 open: true,
@@ -509,78 +510,6 @@ export const ContextProvider = ({ children }) => {
             set_is_loading(false)
         }
     }
-
-
-
-    // Upload Image API 
-    const upload_image_api = async (axios, _files, compressVideo, set_is_loading) => {
-        set_is_loading(true);
-        const files = [..._files];
-
-        const formData = new FormData();
-
-        const options = {
-            maxSizeMB: 1, // Compress to ~1MB
-            maxWidthOrHeight: 1920, // Resize if needed
-            useWebWorker: true, // Use Web Worker for better performance
-        };
-
-        try {
-            if (files.length) {
-                // Compress the file
-                for (let index = 0; index < files.length; index++) {
-                    if (!files.at(index).url.includes("res.cloudinary.com")) {
-
-                        const FILE = await fetch(files.at(index).url); // Fetch the binary data
-                        const file = await FILE.blob();
-                        // const file = files.at(index).url; // Fetch the binary data
-
-                        if (files.at(index).type === "image") {
-                            const compressedFile = await imageCompression(file, options);
-                            formData.append('file', compressedFile); // The image file
-                            formData.append('upload_preset', 'imageCloud');
-                            const res = await axios.post(`https://api.cloudinary.com/v1_1/dceqyrfhu/image/upload`, formData);
-
-
-                            // Pushing the video url in array
-                            files.splice(index, 1, { type: "image", url: res.data.secure_url || "" });
-
-                        } else if (files.at(index).type === "video") {
-                            const transformation = await compressVideo(file);
-                            formData.append('file', file); // The image file
-                            formData.append('upload_preset', 'videoCloud');
-                            const res = await axios.post(`https://api.cloudinary.com/v1_1/dceqyrfhu/video/upload${transformation}`, formData, {
-                                onUploadProgress: (progressEvent) => {
-                                    const percentCompleted = Math.round((progressEvent.loaded * 50) / progressEvent.total);
-                                    set_progress_of_loading({ status: true, value: percentCompleted });
-                                }
-                            });
-
-                            // Returning the image url in array
-                            files.splice(index, 1, { type: "video", url: res.data.secure_url || "" });
-                        }
-
-                        // Revoking Blob URL
-                        URL.revokeObjectURL(files.at(index).url);
-
-                    }
-
-                };
-            }
-            return files.filter(e => Boolean(e.url));
-
-        } catch (err) {
-            set_snackbar_alert({
-                open: true,
-                message: "Failed to upload image.",
-                severity: "error",
-            })
-
-        } finally {
-            set_progress_of_loading({ status: false, value: 0 });
-            set_is_loading(false);
-        }
-    };
 
 
     // Confirm Order API
@@ -703,8 +632,6 @@ export const ContextProvider = ({ children }) => {
 
 
                 login_api,
-
-                upload_image_api,
 
                 confirm_order_api, cancel_order_api, get_order_api, get_all_orders_api,
 

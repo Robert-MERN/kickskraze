@@ -12,6 +12,13 @@ export const get_cookies = ({ req, res }) => {
 }
 
 
+export const remove_cookie = (cookie_name) => {
+    // Set the cookie with an expiration date in the past to remove it
+    document.cookie = `${cookie_name}=; Max-Age=0; path=/; sameSite=Strict`;
+}
+
+
+
 export const set_cookie = (cookie_name, cookie_value, { req, res, expires }) => {
     let stringify_value;
     if (typeof cookie_value === "object") {

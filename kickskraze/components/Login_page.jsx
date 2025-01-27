@@ -4,6 +4,7 @@ import Fade from "react-reveal/Fade";
 import useStateContext from '@/context/ContextProvider';
 import styles from "@/styles/home.module.css";
 import logo from "@/public/images/logo.png"
+import logo_white from "@/public/images/logo_white.png"
 import IconButton from '@mui/material/IconButton';
 import OutlinedInput from '@mui/material/OutlinedInput';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -111,7 +112,7 @@ const Login_page = ({ axios }) => {
                             <div className='flex-1 flex flex-col md:justify-center items-center  bg-slate-100 mt-[50px] md:mt-0'>
 
                                 <div className='w-full flex justify-center md:hidden mb-4'>
-                                    <div className='w-[280px] relative p-2' >
+                                    <div className='w-[180px] relative p-2' >
                                         <Image className='object-contain w-full h-full' alt="logo Image" src={logo} />
                                     </div>
                                 </div>
@@ -197,9 +198,9 @@ const Login_page = ({ axios }) => {
                                     </form>
                                 </Fade>
                             </div>
-                            <div className='flex-1 place-items-center bg-[#1F2822] md:grid hidden' >
-                                <div className='md:w-[300px] lg:w-[380px] xl:w-[500px] relative p-2' >
-                                    <Image className='object-contain w-full h-full' alt="logo Image" src={logo} />
+                            <div className='flex-1 place-items-center bg-stone-950 md:grid hidden' >
+                                <div className='md:w-[400px] lg:w-[480px] xl:w-[600px] relative p-2' >
+                                    <Image className='object-contain w-full h-full' alt="logo_white Image" src={logo_white} />
                                 </div>
                             </div>
                         </div>

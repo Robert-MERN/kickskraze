@@ -39,7 +39,7 @@ const Delete_product_modal = ({
             onClose={() => toggle_modal("delete_product_modal")}
         >
             <div className='w-full md:w-[500px]' >
-                <div className='w-full flex justify-between items-center pl-[20px] pr-[15px] py-[10px] bg-slate-50' >
+                <div className='w-full flex justify-between items-center pl-[20px] pr-[15px] py-[8px] bg-slate-50' >
                     <p className='text-[15px] md:text-[18px] font-medium text-stone-700 '>
                         Delete Product
                     </p>
@@ -51,8 +51,8 @@ const Delete_product_modal = ({
                     Are you sure do you want to delete this Product?
                 </p>
                 <div className='w-full flex justify-end gap-3 p-[20px] ' >
-                    <button onClick={() => toggle_modal("delete_product_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[14px] py-[8px] md:py-[10px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Cancel</button>
-                    <button onClick={handle_delete_menu} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[14px] py-[8px] md:py-[10px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete</button>
+                    <button onClick={() => toggle_modal("delete_product_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Cancel</button>
+                    <button onClick={handle_delete_menu} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete</button>
                 </div>
 
             </div>

@@ -16,6 +16,7 @@ import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Admin_menu_drawer from "@/components/utilities/drawers/Admin_menu_drawer"
 import Delete_product_modal from '@/utils/modals/Delete_product_modal';
+import Logout_modal from '@/utils/modals/Logout_modal';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -43,6 +44,8 @@ const Layout = ({ children }) => {
         delete_product_api,
         default_update_product_details,
         set_update_product_details,
+        set_product_details,
+        default_product_details,
         progress_of_loading,
     } = useStateContext();
 
@@ -144,6 +147,16 @@ const Layout = ({ children }) => {
                 delete_product_api={delete_product_api}
                 default_update_product_details={default_update_product_details}
                 set_update_product_details={set_update_product_details}
+            />
+            <Logout_modal
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
+                set_product_id={set_product_id}
+                default_update_product_details={default_update_product_details}
+                set_update_product_details={set_update_product_details}
+                set_product_details={set_product_details}
+                default_product_details={default_product_details}
+
             />
 
             {children}

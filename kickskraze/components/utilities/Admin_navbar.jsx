@@ -5,10 +5,11 @@ import Image from "next/image";
 import useStateContext from "@/context/ContextProvider";
 import Link from "next/link";
 import LogoutIcon from '@mui/icons-material/Logout';
+import { IconButton } from "@mui/material";
 
 
 const Admin_navbar = () => {
-    const { toggle_drawer } = useStateContext();
+    const { toggle_drawer, toggle_modal } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
@@ -37,17 +38,13 @@ const Admin_navbar = () => {
                 </div>
             </div>
 
-            {/* Search Div */}
+            {/* Logout Button */}
             <div className="w-full h-full flex justify-end items-center gap-6 ">
 
                 <div>
-
-                    <button className="active:text-stone-400 text-stone-800 transition-all">
-
-                        <LogoutIcon className="text-[24px] md:text-[28px]" />
-
-                    </button>
-
+                    <IconButton onClick={() => toggle_modal("logout_modal")}>
+                        <LogoutIcon className="text-[24px] md:text-[26px] text-stone-900" />
+                    </IconButton>
                 </div>
             </div>
         </div>
