@@ -47,6 +47,7 @@ const Layout = ({ children }) => {
         set_product_details,
         default_product_details,
         progress_of_loading,
+        get_all_products_api,
     } = useStateContext();
 
     // lock scroll when drawer opens
@@ -119,8 +120,10 @@ const Layout = ({ children }) => {
                 toggle_drawer={toggle_drawer}
             />
             <Search_drawer
+                axios={axios}
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
+                get_all_products_api={get_all_products_api}
             />
             <Sort_drawer
                 drawer_state={drawer_state}

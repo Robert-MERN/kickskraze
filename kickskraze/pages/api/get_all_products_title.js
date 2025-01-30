@@ -24,26 +24,32 @@ export default async function handler(req, res) {
 
 
 
+
         const products = await Products.aggregate([
+            { $unwind: "$media" }, // Flatten the media array
             {
-                $project: {
-                    _id: 1,
-                    title: 1,
-                    media: 1,
-                    createdAt: 1,
-                }
+                $match: {
+                    "media.type": "image", // Only include type "image"
+                },
             },
-            { $unwind: "$media", },
-            { $match: { $or: [{ "media.thumbnail": true, "media.type": "image" }, { "media.type": "image" }] } },
+            {
+                $sort: {
+                    "media.thumbnail": -1, // Sort by thumbnail (true first)
+                },
+            },
             {
                 $group: {
                     _id: "$_id",
                     title: { $first: "$title" },
-                    url: { $first: "$media.url" },
+                    url: { $first: "$media.url" }, // First media URL (thumbnail prioritized)
                     createdAt: { $first: "$createdAt" },
-                }
+                },
             },
-
+            {
+                $sort: {
+                    createdAt: -1
+                }
+            }
         ]);
 
         return res.status(200).json(products);

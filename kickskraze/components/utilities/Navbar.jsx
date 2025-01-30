@@ -7,256 +7,48 @@ import logo from "@/public/images/logo.png";
 import Image from "next/image";
 import useStateContext from "@/context/ContextProvider";
 import Link from "next/link";
-import { IoClose } from "react-icons/io5";
-import style from "@/styles/home.module.css";
-import { products } from '@/models/product_schema';
-import product_image from "@/public/images/product_image.webp"
-import Fade from '@mui/material/Fade';
-
-
-import { Popper } from "@mui/material";
-
-const SearchPopper = ({ anchorEl, open, onClose, forwardRef, searchTerm, results }) => {
-
-    const trending_options = [
-        {
-            option: "men",
-            link: "#",
-        },
-        {
-            option: "women",
-            link: "#",
-        },
-        {
-            option: "kids",
-            link: "#",
-        },
-        {
-            option: "converse",
-            link: "#",
-        },
-        {
-            option: "nike",
-            link: "#",
-        },
-        {
-            option: "asics",
-            link: "#",
-        },
-        {
-            option: "adidas",
-            link: "#",
-        },
-        {
-            option: "new balance",
-            link: "#",
-        },
-        {
-            option: "saucony",
-            link: "#",
-        },
-        {
-            option: "fila",
-            link: "#",
-        },
-    ]
-    return (
-        <Popper
-            ref={forwardRef}
-            open={open}
-            disablePortal={true}
-            anchorEl={anchorEl}
-            placement="bottom-end"
-            transition
-            strategy="fixed" // Ensures the Popper stays in the viewport
-            modifiers={[
-                {
-                    name: 'flip',
-                    enabled: true,
-                    options: {
-                        altBoundary: true,
-                        rootBoundary: 'viewport', // Keeps Popper within the viewport
-                        padding: 8,
-                    },
-                },
-                {
-                    name: 'preventOverflow',
-                    enabled: true,
-                    options: {
-                        altAxis: true, // Prevents overflow on alternate axes
-                        altBoundary: true,
-                        tether: true,
-                        rootBoundary: 'viewport', // Restricts to the viewport
-                        padding: 8,
-                    },
-                },
-                {
-                    name: 'offset',
-                    options: {
-                        offset: [0, 10], // Adds spacing between Popper and anchor
-                    },
-                },
-            ]}
-            className="z-[11] hidden lg:block"
-        >
-            {({ TransitionProps }) => (
-                <Fade {...TransitionProps} timeout={350}>
-                    <div
-                        className="w-[600px] py-[15px] px-[20px] bg-white rounded-md text-stone-950 shadow-lg border"
-                    // onMouseLeave={onClose} // Optional: close when mouse leaves
-                    >
-                        {searchTerm ?
-
-                            <>
-                                <div className='w-full py-[12px] px-[20px] border-b border-stone-200 mb-2' >
-                                    <p className='text-[15px] font-bold select-none' >PRODUCT RESULTS</p>
-                                </div>
-                                {!results.length ?
-                                    <>
-                                        <div className="grid grid-cols-3 gap-2">
-                                            {products.slice(0, 3).map((product, i) => (
-                                                <Link href={`/product?id=${product._id}`} key={i}>
-                                                    <div
-                                                        className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}
-                                                    >
-                                                        <div className='relative'>
-                                                            <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
-
-                                                                <Image alt="Product" src={product_image} className={`w-full h-[150px] hover:scale-[1.1] object-contain transition-all duration-500`} />
-
-                                                                <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
-                                                                    -66%
-                                                                </p>
-                                                            </div>
-                                                        </div>
-
-
-                                                        <div className='flex flex-col gap-1'>
-                                                            <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                            <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                                <span className='text-[15px] font-bold text-black'>
-                                                                    Rs. {product.price.toLocaleString("en-US")}
-                                                                </span>
-                                                                {" "}
-                                                                <span className='text-[13px] line-through text-red-600'>
-                                                                    Rs. {product.price.toLocaleString("en-US")}
-                                                                </span>
-                                                            </p>
-                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                        </div>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                        </div>
-                                        <div className='w-full flex justify-center py-[20px] px-[20px] border-t border-stone-200' >
-                                            <button className='w-full text-[17px] font-medium text-stone-700 select-none text-center' >View all results (4000)</button>
-                                        </div>
-                                    </>
-
-                                    :
-                                    <div className='w-full py-[30px] px-[20px]' >
-                                        <p className='text-[15px] font-semibold select-none text-center line-clamp-1 text-ellipsis overflow-hidden' >
-                                            <span className="text-stone-500" >couldnt' find for</span>
-                                            {" "}
-                                            <span className="text-stone-800 text-[16px]">{`"${searchTerm}"`}</span>
-                                        </p>
-                                    </div>
-                                }
-
-                            </>
-
-                            :
-                            <>
-
-                                <div className='flex justify-between w-full items-center py-[12px] px-[20px] border-b border-stone-200' >
-                                    <p className='text-[15px] font-bold select-none' >TRENDING NOW</p>
-                                    <button onClick={onClose} className='active:opacity-75' >
-                                        <IoClose className='text-stone-700 scale-[1.30]' />
-                                    </button>
-
-                                </div>
-
-                                <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[120px] overflow-y-auto ${style.scroll_bar}`}>
-                                    {trending_options.map((each, index) => (
-                                        <Link href={each.link} key={index}>
-                                            <div className='px-[8px] py-[6px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-1 text-[15px] font-medium transition-all' >
-                                                <SearchIcon className="text-[20px]" />
-                                                <p>{each.option}</p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-
-                                <div className='w-full py-[12px] px-[20px] border-b border-stone-200 mb-2' >
-                                    <p className='text-[15px] font-bold select-none' >POPULAR PRODUCTS</p>
-                                </div>
-
-                                <div className="grid grid-cols-3 gap-2">
-                                    {products.slice(0, 3).map((product, i) => (
-                                        <Link href={`/product?id=${product._id}`} key={i}>
-                                            <div
-                                                className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer`}
-                                            >
-                                                <div className='relative'>
-                                                    <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
-
-                                                        <Image alt="Product" src={product_image} className={`w-full h-[150px] hover:scale-[1.1] object-contain transition-all duration-500`} />
-
-
-                                                    </div>
-                                                    <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
-                                                        -66%
-                                                    </p>
-                                                </div>
-
-
-                                                <div className='flex flex-col gap-1'>
-                                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                        <span className='text-[15px] font-bold text-black'>
-                                                            Rs. {product.price.toLocaleString("en-US")}
-                                                        </span>
-                                                        {" "}
-                                                        <span className='text-[13px] line-through text-red-600'>
-                                                            Rs. {product.price.toLocaleString("en-US")}
-                                                        </span>
-                                                    </p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
-                            </>
-                        }
-                    </div>
-                </Fade>
-            )}
-        </Popper>
-    );
-};
+import { useRouter } from "next/router";
+import SearchPopper from "@/utils/popper/Search_poppper";
 
 
 
 
-const Navbar = () => {
-    const { toggle_drawer, cart } = useStateContext();
+
+const Navbar = ({ axios }) => {
+
+    const router = useRouter();
+    const { toggle_drawer, cart, get_all_products_api } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
     }, []);
 
 
-
-
-
     // <--------------------------------- Search Logic and Search Popper Display Logic --------------------------------->
     // Search Product Logic
     const [searchTerm, setSearchTerm] = useState(""); // Input value
     const [debouncedTerm, setDebouncedTerm] = useState(""); // Debounced value
-    const [results, setResults] = useState([]); // Search results
+    const [results, set_results] = useState([]); // Search results
+    const [trending_results, set_trending_results] = useState([]); // Trending results
+    const [is_loading, set_is_loading] = useState("default");
+    const [is_trending_loading, set_is_trending_loading] = useState(false);
+    const [fake_is_loading, set_fake_is_loading] = useState(false);
+
+
+    // Fetching Search products
+    const [show_more_payload, set_show_more_payload] = useState({
+        limit: 50,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+    useEffect(() => {
+        if (!router.isReady) return;
+        if (router.query.search) {
+            setSearchTerm(router.query.search);
+        }
+    }, [router.query, router.isReady])
+
 
     // Debounce logic
     useEffect(() => {
@@ -267,15 +59,40 @@ const Navbar = () => {
         return () => clearTimeout(timer); // Cleanup previous timer
     }, [searchTerm]);
 
+
     // Fetch results when the debounced term changes
     useEffect(() => {
-        if (debouncedTerm) {
-            console.log("triggered search")
-            // fetchResults();
-        } else {
-            setResults([]); // Clear results if input is empty
-        }
+        // Set loading state **before** starting the fetch
+        set_is_loading("started");
+
+        const fetchResults = async () => {
+            try {
+                await get_all_products_api(axios, `search=${debouncedTerm}`, set_results, set_show_more_payload, set_fake_is_loading);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                set_is_loading("ended");
+            }
+        };
+
+        fetchResults();
     }, [debouncedTerm]);
+
+    useEffect(() => {
+        if (is_loading === "ended" && !searchTerm) {
+            set_is_loading("default");
+        };
+    }, [is_loading, searchTerm]);
+
+    const search_btn = () => {
+        if (results.length) {
+            setAnchorEl(null);
+            router.push(`/collection?search=${debouncedTerm}`)
+        }
+    }
+
+
+
 
     // Search Popper Logic
     const [anchorEl, setAnchorEl] = useState(null);
@@ -310,10 +127,26 @@ const Navbar = () => {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, []);
-
     // <===========  LOGIC ENDS HERE  ===============>
 
-
+    // Fetching Trending Products
+    useEffect(() => {
+        const fetch = async () => {
+            if (anchorEl) {
+                set_is_trending_loading(true)
+                try {
+                    await get_all_products_api(axios, "featured=true", set_trending_results, set_show_more_payload, set_fake_is_loading);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    set_is_trending_loading(false)
+                }
+            }
+        }
+        if (!trending_results.length) {
+            fetch();
+        }
+    }, [anchorEl, trending_results]);
 
 
     return (
@@ -355,23 +188,23 @@ const Navbar = () => {
                         <li>
                             <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="/collection"
+                                href="/collection?category=women"
                             >
                                 Women
                             </Link>
                         </li>
                         <li>
-                            <Link
+                            <button
+                                onClick={() => router.push("/collection?category=men")}
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="/collection"
                             >
                                 Men
-                            </Link>
+                            </button>
                         </li>
                         <li>
                             <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
-                                href="/collection"
+                                href="/collection?category=kids"
                             >
                                 Kids
                             </Link>
@@ -379,7 +212,7 @@ const Navbar = () => {
                         <li>
                             <Link
                                 className={`font-semibold text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100 `}
-                                href="/collection"
+                                href="/collection?featured=true"
                             >
                                 Exclusive
                             </Link>
@@ -403,7 +236,7 @@ const Navbar = () => {
                         onFocus={handleSearchOpen} // Open popper on focus
                         onChange={(event) => { setSearchTerm(event.target.value); handleSearchOpen(event) }} // Open popper on focus
                     />
-                    <button className="bg-stone-800 flex items-center justify-center text-[16px] w-[40px] h-[40px] active:opacity-70 transition-all">
+                    <button onClick={search_btn} className="bg-stone-800 flex items-center justify-center text-[16px] w-[40px] h-[40px] active:opacity-70 transition-all">
                         <SearchIcon className="text-white" />
                     </button>
                 </div>
@@ -411,10 +244,17 @@ const Navbar = () => {
                 <SearchPopper
                     forwardRef={popperRef}
                     anchorEl={anchorEl}
+                    setAnchorEl={setAnchorEl}
                     open={Boolean(anchorEl)}
                     onClose={handleSearchClose}
+                    debouncedTerm={debouncedTerm}
                     searchTerm={searchTerm}
                     results={results}
+                    trending_results={trending_results}
+                    is_loading={is_loading}
+                    is_trending_loading={is_trending_loading}
+                    show_more_payload={show_more_payload}
+                    router={router}
                 />
 
 

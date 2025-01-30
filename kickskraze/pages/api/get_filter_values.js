@@ -21,25 +21,27 @@ export default async function handler(req, res) {
             {
                 $group: {
                     _id: null,
-                    size: { $addToSet: "$size" },
-                    brand: { $addToSet: "$brand" },
-                    price_gte: { $max: "$price" },
-                    price_lte: { $min: "$price" },
+                    sizes: { $addToSet: "$size" },
+                    brands: { $addToSet: "$brand" },
+                    conditions: { $addToSet: "$condition" },
+                    price_lte: { $max: "$price" },
                 }
             },
             {
                 $project: {
-                    size: 1,
-                    brand: 1,
-                    price_gte: 1,
+                    sizes: 1,
+                    brands: 1,
+                    conditions: 1,
+                    price_gte: { $literal: 0 }, // Set price_gte to 0
                     price_lte: 1,
+                    sort_by: "created-descending", // Static field for sort_by
                     _id: 0,
                 }
             }
         ]);
 
         // sending success response to client
-        return res.status(200).json(filter_values);
+        return res.status(200).json(filter_values[0]);
 
     } catch (err) {
 

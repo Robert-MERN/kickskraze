@@ -1,5 +1,6 @@
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
+import { deleteImages } from '@/utils/functions/destroy_cloudinary_image';
 
 
 /**
@@ -17,7 +18,15 @@ export default async function handler(req, res) {
             await connect_mongo();
             console.log("Successfuly conneted with DB");
 
-            const products = new Products(req.body);
+            // Removing "recent" field from the object in the media array
+            const { media: _media, ...other } = req.body;
+            const media = _media.length ? _media.map(e => {
+                const { recent, ...other } = e;
+                return { ...other };
+            }) : [];
+
+
+            const products = new Products({ media, ...other });
             await products.save()
 
             // sending success response to client
@@ -25,7 +34,15 @@ export default async function handler(req, res) {
 
 
         } catch (err) {
-            console.log(err)
+
+            // Deleting the uploaded media, if any error occurs in MongoDB server after the successful upload of media on the Cloudinary server.
+            const media = (Array.isArray(req.body.media) && req.body.media.length) ? req.body.media.filter(e => Boolean(e.recent)).map(e => e.url) : [];
+            if (media.length) {
+                await deleteImages(media, { req, res });
+            }
+
+
+            console.log(err);
             res.status(500).json({ success: false, message: err.message, });
         }
     } else {

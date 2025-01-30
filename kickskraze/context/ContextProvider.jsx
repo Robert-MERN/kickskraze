@@ -56,14 +56,9 @@ export const ContextProvider = ({ children }) => {
 
 
     // Filter logic
+    const [filters, set_filters] = useState([]);
+    const [filter_options, set_filter_options] = useState({});
 
-    const default_filters = [
-        { price_gte: 20000 },
-        { price_lte: 0 },
-        { sort_by: "created-descending" }
-    ]
-    const [filters, set_filters] = useState(default_filters);
-    const [filter_started, set_filter_started] = useState(false);
 
 
 
@@ -208,6 +203,9 @@ export const ContextProvider = ({ children }) => {
     const [update_product_details, set_update_product_details] = useState(default_update_product_details);
 
 
+    const [fetched_products_for_collection, set_fetched_products_for_collection] = useState([]);
+    const [products_for_collection_loading, set_products_for_collection_loading] = useState([]);
+
 
     //<----------------------- API Calls and Handlers [Back-end] ----------------------->
 
@@ -314,12 +312,20 @@ export const ContextProvider = ({ children }) => {
 
 
     // Get All Products API
-    const get_all_products_api = async (axios, filters, set_state, set_is_loading) => {
+    const get_all_products_api = async (axios, filters, set_state, set_show_more, set_is_loading, show_more) => {
         // start loading
         set_is_loading(true);
         try {
-            const res = await axios.get(`/api/get_all_product?${filters}`);
-            set_state(res.data);
+            let res;
+            if (show_more) {
+                res = await axios.get(`/api/get_all_products?${filters}&${show_more}`);
+            } else {
+                res = await axios.get(`/api/get_all_products?${filters}`);
+            }
+            if (res && res.data && res.data.products) {
+                set_state(res?.data?.products);
+                set_show_more(prev => ({ ...prev, hasMore: res?.data?.meta?.hasMore, count: res?.data?.meta?.filteredCount }));
+            }
         } catch (err) {
             set_snackbar_alert({
                 open: true,
@@ -614,7 +620,7 @@ export const ContextProvider = ({ children }) => {
 
                 toggle_drawer, drawer_state,
 
-                filters, set_filters, default_filters, filter_started, set_filter_started,
+                filters, set_filters, filter_options, set_filter_options,
 
                 cart, set_cart, save_cart, sum_of_cart, delete_item_from_cart, add_item_to_cart,
                 substract_item_from_cart,
@@ -622,6 +628,9 @@ export const ContextProvider = ({ children }) => {
                 product_details, set_product_details, update_product_details,
                 set_update_product_details, default_update_product_details, default_product_details,
                 product_id, set_product_id,
+
+                fetched_products_for_collection, set_fetched_products_for_collection,
+                products_for_collection_loading, set_products_for_collection_loading,
 
                 API_loading, set_API_loading,
 

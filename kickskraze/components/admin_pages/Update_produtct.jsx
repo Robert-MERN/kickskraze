@@ -155,6 +155,14 @@ const Create_product = ({ axios }) => {
 
             }
 
+            if (name === "featured") {
+                return {
+                    ...prevState,
+                    featured: Boolean(value),
+                };
+            }
+
+
             // For other inputs
             return {
                 ...prevState,
@@ -430,6 +438,9 @@ const Create_product = ({ axios }) => {
                                                         <video
                                                             src={file.url}
                                                             className='w-[180px] md:w-[300px] h-[180px] md:h-[300px] object-cover'
+                                                            muted
+                                                            autoPlay
+                                                            loop
                                                         />
                                                         :
                                                         <img
@@ -449,7 +460,7 @@ const Create_product = ({ axios }) => {
 
                                                 </div>
 
-                                                {(update_product_details.media.some(e => e.thumbnail) ? update_product_details.media.find(e => e.thumbnail)._id.includes(file._id) : true) &&
+                                                {(file.type !== "video" ? ((update_product_details.media.some(e => e.thumbnail) ? update_product_details.media.find(e => e.thumbnail)._id.includes(file._id) : true)) : false) &&
 
                                                     <div className='flex justify-between  items-center pl-3' >
                                                         <p className='text-[15px] font-semibold text-stone-600 capitalize'>Set Thumbnail*</p>

@@ -64,11 +64,9 @@ const Login_page = ({ axios }) => {
         const { name, value } = event.target;
         set_form_state((prev_state) => ({
             ...prev_state,
-            [name]: value,
+            [name]: value.trim(),
         }));
     }
-
-
 
     const handle_click_show_password = () => {
         set_form_state({
@@ -140,6 +138,7 @@ const Login_page = ({ axios }) => {
                                                 >
                                                     <TextField
                                                         name="email"
+                                                        size='small'
                                                         placeholder="Enter your Email"
                                                         error={Boolean(form_state.errors.email)}
                                                         helperText={form_state.errors.email}
@@ -160,6 +159,7 @@ const Login_page = ({ axios }) => {
                                                 <FormControl
                                                     className='w-full mt-1 md:mt-2'
                                                     variant="outlined"
+                                                    size='small'
                                                 >
                                                     <OutlinedInput
                                                         placeholder="Enter your Password"
@@ -189,7 +189,7 @@ const Login_page = ({ axios }) => {
                                             </div>
                                         </div>
 
-                                        <button className='bg-[#6CBE45] text-slate-100 text-[15px] md:text-[17px] w-full py-[8px] rounded-md my-6 hover:opacity-80 transition-all ' >Sign in</button>
+                                        <button className='bg-black text-slate-100 text-[15px] md:text-[17px] w-full py-[8px] rounded-md my-6 hover:opacity-80 transition-all ' >Sign in</button>
 
                                         {/* <div>
                                             <p className='text-[13px] text-stone-500 text-center' >Don't have an account?<span onClick={() => router.push("/signup")} className='font-bold cursor-pointer hover:underline ' > Sign up</span> </p>

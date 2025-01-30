@@ -15,7 +15,7 @@ const collection = () => {
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
-                <Navbar />
+                <Navbar axios={axios} />
                 <div className='w-full min-h-[calc(100vh-70px)] 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] lg:px-[40px]' >
                     <Collection_page axios={axios} />
                 </div>

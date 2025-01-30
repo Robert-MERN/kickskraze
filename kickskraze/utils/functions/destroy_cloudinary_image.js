@@ -18,8 +18,11 @@ export const deleteImages = async (images, { req, res }) => {
                 .split('.')[0] // Remove the file extension
                 .replace(/%20/g, ' '); // Decode any URL-encoded spaces
 
-            // Call the Cloudinary API to delete the image
-            await cloudinary.v2.uploader.destroy(publicId);
+            // Determine resource type based on URL
+            const resourceType = url.includes('/video/') ? 'video' : 'image';
+
+            // Call the Cloudinary API to delete the media
+            await cloudinary.v2.uploader.destroy(publicId, { resource_type: resourceType })
         }
 
     } catch (err) {

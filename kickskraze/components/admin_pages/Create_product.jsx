@@ -137,6 +137,12 @@ const Create_product = ({ axios }) => {
 
             }
 
+            if (name === "featured") {
+                return {
+                    ...prevState,
+                    featured: Boolean(value),
+                };
+            }
 
             // For other inputs
             return {
@@ -207,16 +213,16 @@ const Create_product = ({ axios }) => {
                     error = 'Please enter the shoes stock quantity';
                 }
                 break;
-            case 'size_desc':
-                if (!value) {
-                    error = 'Please enter the shoes size description';
-                }
-                break;
-            case 'shoes_desc':
-                if (!value) {
-                    error = 'Please enter the shoes description';
-                }
-                break;
+            // case 'size_desc':
+            //     if (!value) {
+            //         error = 'Please enter the shoes size description';
+            //     }
+            //     break;
+            // case 'shoes_desc':
+            //     if (!value) {
+            //         error = 'Please enter the shoes description';
+            //     }
+            //     break;
             case 'media':
                 if (!value.length) {
                     error = 'Please add the shoes media';
@@ -309,6 +315,7 @@ const Create_product = ({ axios }) => {
         }
     };
 
+    console.log(product_details)
 
     return (
         <div className='w-full h-full' >
@@ -352,6 +359,9 @@ const Create_product = ({ axios }) => {
                                                 <video
                                                     src={file.url}
                                                     className='w-[180px] md:w-[300px] h-[180px] md:h-[300px] object-cover'
+                                                    muted
+                                                    autoPlay
+                                                    loop
                                                 />
                                                 :
                                                 <img
@@ -371,7 +381,7 @@ const Create_product = ({ axios }) => {
 
                                         </div>
 
-                                        {(product_details.media.some(e => e.thumbnail) ? product_details.media.find(e => e.thumbnail)._id.includes(file._id) : true) &&
+                                        {(file.type !== "video" ? ((product_details.media.some(e => e.thumbnail) ? product_details.media.find(e => e.thumbnail)._id.includes(file._id) : true)) : false) &&
 
                                             <div className='flex justify-between  items-center pl-3' >
                                                 <p className='text-[15px] font-semibold text-stone-600 capitalize'>Set Thumbnail*</p>
@@ -628,7 +638,7 @@ const Create_product = ({ axios }) => {
                                     checked={product_details.featured}
                                     onChange={(e) =>
                                         handleChange({
-                                            target: { name: "featured", value: e.target.checked },
+                                            target: { name: "featured", value: Boolean(e.target.checked) },
                                         })
                                     }
                                 />

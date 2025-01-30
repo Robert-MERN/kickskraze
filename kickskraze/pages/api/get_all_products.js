@@ -24,10 +24,11 @@ export default async function handler(req, res) {
 
 
     // Extract query parameters
-    const { size, condition, brand, price, sort_by } = req.query;
+    const { size, condition, brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
 
     // Initialize a query object
     const query = {};
+
     let sort = { createdAt: -1 };
 
     // Handle 'size' filter (ensure numbers)
@@ -46,11 +47,24 @@ export default async function handler(req, res) {
     }
 
     // Handle 'price' filter (optional range logic)
-    if (price) {
-      const [min, max] = price.split("-").map(Number);
-      if (!isNaN(min) && !isNaN(max)) {
-        query.price = { $gte: min, $lte: max }; // Filter by price range
-      }
+    if (!isNaN(Number(price_gte)) && !isNaN(Number(price_lte))) {
+      query.price = { $gte: price_gte, $lte: price_lte }; // Filter by price range
+    }
+
+
+    // Handle "Featured" filter
+    if (featured === "true") {
+      query.featured = true;
+    }
+
+    // Handle "Search" filter
+    if (search) {
+      query.title = { $regex: search, $options: 'i' };
+    }
+
+    // Handle "Category" filter
+    if (category) {
+      query.category = { $in: Array.isArray(category) ? category : [category] };
     }
 
     // Handle sorting
@@ -59,11 +73,36 @@ export default async function handler(req, res) {
     }
 
 
-    const products = await Products.find(query).sort(sort);
-    
-    return res.status(200).json(products);
 
-  } catch (error) {
-    return res.status(500).json({ success: false, message: "Internal Server Error" });
+    // Pagination logic
+    const pageNumber = Number(page) || 1; // Default to page 1
+    const pageSize = Number(limit) || 50; // Default to 50 items per page
+    const skip = (pageNumber - 1) * pageSize;
+
+    // Fetch total count of filtered documents
+    const filteredCount = await Products.countDocuments(query); // Total count after filters
+
+    // Fetch products with filters, sorting, and pagination
+    const products = await Products.find(query)
+      .sort(sort)
+      .skip(skip)
+      .limit(pageSize);
+
+    // Determine whether more items are available
+    const hasMore = pageNumber * pageSize < filteredCount;
+
+    return res.status(200).json({
+      success: true,
+      products,
+      meta: {
+        filteredCount, // Total count after filters are applied
+        pageSize,
+        currentPage: pageNumber,
+        hasMore, // Whether there are more products to fetch
+      },
+    });
+
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err.message });
   }
 }
