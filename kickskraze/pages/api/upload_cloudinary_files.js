@@ -6,8 +6,8 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import { nanoid } from 'nanoid';
 
-ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
-// ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
+// ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
+ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 
 cloudinary.v2.config({
     cloud_name: 'dceqyrfhu',
