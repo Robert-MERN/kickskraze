@@ -111,7 +111,26 @@ export const remove_all_items_from_filters_realtime_update = (filter_options, se
     set_arr([{ sort_by }, { price_gte }, { price_lte }]);
 };
 
+
+export const configure_query_filters = (router_query) => {
+    if (typeof router_query === "object" && !Array.isArray(router_query) && Object.keys(router_query).length) {
+        const query_filters = [];
+        Object.entries(router_query).forEach(([key, value]) => {
+            if (typeof value === "string") {
+                query_filters.push({ [key]: value });
+            } else {
+                value.forEach(each_value => {
+                    query_filters.push({ [key]: each_value });
+                });
+            }
+        });
+        return query_filters;
+    }
+    return [];
+};
+
 export const add_query_filters = (query_filters, set_filters) => {
+
     const s_c_b = query_filters.filter(e => {
         const key = Object.keys(e)[0]
         return (key === "size" || key === "condition" || key === "brand")

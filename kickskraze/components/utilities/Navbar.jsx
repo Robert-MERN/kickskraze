@@ -9,12 +9,12 @@ import useStateContext from "@/context/ContextProvider";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import SearchPopper from "@/utils/popper/Search_poppper";
+import axios from "axios"
 
 
 
 
-
-const Navbar = ({ axios }) => {
+const Navbar = () => {
 
     const router = useRouter();
     const { toggle_drawer, cart, get_all_products_api } = useStateContext();

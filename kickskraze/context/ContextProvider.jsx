@@ -204,7 +204,7 @@ export const ContextProvider = ({ children }) => {
 
 
     const [fetched_products_for_collection, set_fetched_products_for_collection] = useState([]);
-    const [products_for_collection_loading, set_products_for_collection_loading] = useState([]);
+    const [products_for_collection_loading, set_products_for_collection_loading] = useState(true);
 
 
     //<----------------------- API Calls and Handlers [Back-end] ----------------------->

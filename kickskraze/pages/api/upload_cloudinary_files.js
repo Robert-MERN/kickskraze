@@ -6,8 +6,8 @@ import fs from 'fs/promises';
 import fsSync from 'fs';
 import { nanoid } from 'nanoid';
 
-// ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
-ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
+ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
+// ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 
 cloudinary.v2.config({
     cloud_name: 'dceqyrfhu',
@@ -50,7 +50,14 @@ const compressVideo = async (inputPath, outputPath) => {
     }
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)
-            .outputOptions('-an', '-preset', 'veryfast', '-vf', 'scale=1280:-1') // Correctly split options
+            .outputOptions([
+                '-c:v libx264',   // Use H.264 codec for maximum compatibility
+                '-preset veryfast',   // Faster encoding
+                '-crf 23',        // Balanced quality & file size
+                '-c:a aac',       // Use AAC for audio
+                '-b:a 128k',      // Set audio bitrate
+                '-movflags +faststart' // Optimize for web streaming
+            ]) // Correctly split options
             .on('start', (cmd) => console.log('Started:', cmd))
             .on('progress', (progress) =>
                 console.log("Progress:", progress)

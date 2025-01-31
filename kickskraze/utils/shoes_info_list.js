@@ -11,10 +11,10 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 
 export const category_list = [
-    { category: "men", _id: "1", icon: <FaceIcon className='mr-3' /> },
-    { category: "women", _id: "2", icon: <Face4Icon className='mr-3' /> },
-    { category: "unisex", _id: "4", icon: <WcIcon className='mr-3' /> },
-    { category: "kids", _id: "3", icon: <ChildCareIcon className='mr-3' /> },
+    { category: "unisex", _id: "1", icon: <WcIcon className='mr-3' /> },
+    { category: "men", _id: "2", icon: <FaceIcon className='mr-3' /> },
+    { category: "women", _id: "3", icon: <Face4Icon className='mr-3' /> },
+    { category: "kids", _id: "4", icon: <ChildCareIcon className='mr-3' /> },
 ];
 
 export const condition_list = [

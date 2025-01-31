@@ -4,9 +4,7 @@ import { IoClose } from "react-icons/io5";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from 'next/link';
 import style from "@/styles/home.module.css";
-import Image from 'next/image';
 import { products } from '@/models/product_schema';
-import product_image from "@/public/images/product_image.webp"
 import { useRouter } from 'next/router';
 import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
@@ -222,7 +220,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
               : (Boolean(results.length)) ?
                 <>
                   <div className="grid grid-cols-2 px-[20px] gap-2">
-                    {products.slice(0, 2).map((product) => (
+                    {results.slice(0, 2).map((product) => (
                       <Link href={`/product?product_id=${product._id}`} key={product._id}>
                         <div
                           className={`p-1 flex flex-col gap-2 cursor-pointer`}
@@ -275,7 +273,6 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                   </p>
                 </div>
             }
-
           </>
           :
 
@@ -349,7 +346,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
               </div>
               : (trending_results.length) ?
                 <div className="grid grid-cols-2 px-[20px] gap-2">
-                  {products.slice(0, 2).map((product) => (
+                  {trending_results.slice(0, 2).map((product) => (
                     <Link href={`/product?product_id=${product._id}`} key={product._id}>
                       <div
                         className={`p-1 flex flex-col gap-2 cursor-pointer`}

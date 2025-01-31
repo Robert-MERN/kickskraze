@@ -227,6 +227,9 @@ const Create_product = ({ axios }) => {
                 if (!value.length) {
                     error = 'Please add the shoes media';
                 }
+                if (value.length && value.every(e => e.type !== "image")) {
+                    error = 'Please add atleast 1 image to the media';
+                }
                 break;
             default:
                 break;
@@ -314,8 +317,6 @@ const Create_product = ({ axios }) => {
             set_API_loading(false);
         }
     };
-
-    console.log(product_details)
 
     return (
         <div className='w-full h-full' >

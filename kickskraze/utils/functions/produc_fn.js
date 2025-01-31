@@ -13,3 +13,20 @@ export const select_thumbnail_from_media = (media) => {
     return images.sort((a, b) => b.thumbnail - a.thumbnail)[0].url;
 
 }
+
+export const sort_product_media = (media) => {
+    if (Array.isArray(media) && media.length) {
+        let final_arr = [];
+        const images = media.filter(e => e.type === "image");
+        const videos = media.filter(e => e.type === "video");
+
+        if (images.length) {
+            final_arr = images.sort((a, b) => b.thumbnail - a.thumbnail);
+        }
+        if (videos.length) {
+            final_arr.concat(videos);
+        }
+        return final_arr.map(e => ({ url: e.url, type: e.type, thumbnail: e.url }));
+    }
+    return [];
+}

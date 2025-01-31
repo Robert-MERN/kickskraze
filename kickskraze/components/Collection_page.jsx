@@ -10,6 +10,7 @@ import {
     remove_all_items_from_filters_realtime_update,
     find_filter,
     add_query_filters,
+    configure_query_filters,
 } from '@/utils/functions/filter_function';
 import Slider from '@mui/material/Slider';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -106,9 +107,13 @@ const Collection_page = ({ axios }) => {
         filter_method(filter_obj, set_filters);
     }
 
+    const [should_fetch, set_should_fetch] = useState("neutral");
 
     useEffect(() => {
         get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
+        if (should_fetch === "query_0" || should_fetch === "query_1") {
+            set_should_fetch("neutral");
+        }
     }, []);
 
     useEffect(() => {
@@ -121,24 +126,28 @@ const Collection_page = ({ axios }) => {
 
     useEffect(() => {
         if (!router.isReady) return;
-        const query_filters = Object.entries(router.query).map(e => ({ [e[0]]: e[1] }));
+        const query_filters = configure_query_filters(router.query);
         if (filters.length && query_filters.length) {
+            remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+            set_should_fetch("query_1");
             add_query_filters(query_filters, set_filters);
         } else {
-            // Initalizing and Reseting Filters
+            set_should_fetch("query_0");
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
         }
+        // Initalizing and Reseting Filters
     }, [router.isReady, router.query, filter_options]);
 
 
     useEffect(() => {
+        if (!router.isReady) return;
         const timer = setTimeout(() => {
-            if (filters.length) {
+            if (filters.length && (should_fetch === "query_0" || should_fetch === "query_1")) {
                 get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_is_loading);
             }
         }, 250);
         return () => clearTimeout(timer);
-    }, [filters]);
+    }, [filters, router.isReady, should_fetch]);
 
 
 
@@ -331,7 +340,6 @@ const Collection_page = ({ axios }) => {
                                     className='bg-stone-100 w-full h-[40px] mt-[45px]'
                                 />
                             </div>
-
                             :
                             <>
                                 {/* Filter Realtime Updates */}
@@ -541,7 +549,7 @@ const Collection_page = ({ axios }) => {
                                     animation="wave"
                                     className='bg-stone-100 w-[80px]'
                                 />
-                                : (!is_loading) ?
+                                : !is_loading ?
                                     <>
                                         <LuFilter className='text-[20px] text-stone-600' />
                                         <h1 className='text-[15px] text-stone-900'>Filter</h1>
@@ -558,7 +566,7 @@ const Collection_page = ({ axios }) => {
                                 className='bg-stone-100 w-[90px] md:w-[200px] xl:w-[350px] h-[40px]'
 
                             />
-                            : (!is_loading && Boolean(products.length)) ?
+                            : (Boolean(products.length)) ?
 
                                 <div className='flex items-center gap-2'>
                                     <h1 className='text-[16px] text-stone-700 pr-3 hidden lg:block'>View As</h1>
@@ -586,7 +594,7 @@ const Collection_page = ({ axios }) => {
                                 className='bg-stone-100 w-[80px] md:w-[180px] xl:w-[250px] md:h-[40px]'
 
                             />
-                            : (!is_loading && Boolean(products.length) && Boolean(find_filter(filters, "sort_by"))) ?
+                            : (Boolean(products.length) && Boolean(find_filter(filters, "sort_by"))) ?
                                 <>
                                     <button
                                         onClick={() => toggle_drawer("sort_drawer")}
@@ -659,11 +667,10 @@ const Collection_page = ({ axios }) => {
                                     </div>
                                 </Fade>
                             ))
-                            : !is_loading && Boolean(products.length) ?
-
+                            : Boolean(products.length) ?
                                 products.map((product) => (
                                     <Fade key={product._id}>
-                                        <Link href={`/product?id=${product._id}`} >
+                                        <Link href={`/product?product_id=${product._id}`} >
                                             <div
                                                 className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
                                             >
@@ -703,7 +710,7 @@ const Collection_page = ({ axios }) => {
                                 :
                                 <Fade>
                                     <div className='w-full h-[50vh] flex justify-center items-center' >
-                                        <p className='text-center select-none text-stone-600 text-[15px] md:text-[17px] lg:text-[20px] font-bold px-[30px]'>No product was found. Try to remove filters or reload this page</p>
+                                        <p className='text-center select-none text-stone-600 text-[15px] md:text-[17px] lg:text-[20px] font-bold px-[30px] w-full'>No product was found. Try to remove filters or reload this page</p>
                                     </div>
                                 </Fade>
                         }

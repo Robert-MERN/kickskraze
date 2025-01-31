@@ -64,14 +64,21 @@ export default async function handler(req, res) {
 
     // Handle "Category" filter
     if (category) {
-      query.category = { $in: Array.isArray(category) ? category : [category] };
+      // Ensure `category` is an array
+      const categoryArray = Array.isArray(category) ? category : [category];
+
+      // If "men" or "women" is present and "unisex" is not, add "unisex"
+      if ((categoryArray.includes("men") || categoryArray.includes("women")) && !categoryArray.includes("unisex")) {
+        categoryArray.push("unisex");
+      }
+
+      query.category = { $in: categoryArray };
     }
 
     // Handle sorting
     if (sort_by) {
       sort = get_mongo_sort_object(sort_by);
     }
-
 
 
     // Pagination logic

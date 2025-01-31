@@ -25,18 +25,22 @@ const productSchema = new Schema({
     },
     price: {
         type: Number,
-        required: [true, "Please enter the product price"]
+        required: [true, "Please enter the product price"],
+        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     cost_price: {
         type: Number,
-        required: [true, "Please enter the product cost price"]
+        required: [true, "Please enter the product cost price"],
+        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     compare_price: {
         type: Number,
+        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     size: {
         type: Number,
-        required: [true, "Please enter the product size"]
+        required: [true, "Please enter the product size"],
+        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     brand: {
         type: String,
@@ -54,6 +58,7 @@ const productSchema = new Schema({
         type: Number,
         required: [true, "Please enter the product stock quantity"],
         default: 1,
+        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     size_desc: {
         type: String,

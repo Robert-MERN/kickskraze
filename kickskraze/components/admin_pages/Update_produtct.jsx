@@ -232,19 +232,22 @@ const Create_product = ({ axios }) => {
                     error = 'Please enter the shoes stock quantity';
                 }
                 break;
-            case 'size_desc':
-                if (!value) {
-                    error = 'Please enter the shoes size description';
-                }
-                break;
-            case 'shoes_desc':
-                if (!value) {
-                    error = 'Please enter the shoes description';
-                }
-                break;
+            // case 'size_desc':
+            //     if (!value) {
+            //         error = 'Please enter the shoes size description';
+            //     }
+            //     break;
+            // case 'shoes_desc':
+            //     if (!value) {
+            //         error = 'Please enter the shoes description';
+            //     }
+            //     break;
             case 'media':
                 if (!value.length) {
                     error = 'Please add the shoes media';
+                }
+                if (value.length && value.every(e => e.type !== "image")) {
+                    error = 'Please add atleast 1 image to the media';
                 }
                 break;
             default:
