@@ -62,11 +62,11 @@ const productSchema = new Schema({
     },
     size_desc: {
         type: String,
-        required: [true, "Please enter the product size description"]
+        // required: [true, "Please enter the product size description"]
     },
     shoes_desc: {
         type: String,
-        required: [true, "Please enter the product description"]
+        // required: [true, "Please enter the product description"]
     },
     featured: {
         type: Boolean,
