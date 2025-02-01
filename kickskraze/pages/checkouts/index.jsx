@@ -1,5 +1,6 @@
 import Checkouts_page from '@/components/Checkouts_page'
 import Checkouts_navbar from '@/components/utilities/Checkouts_navbar'
+import axios from 'axios'
 import Head from 'next/head'
 
 
@@ -18,7 +19,7 @@ export default function Home() {
                     </div>
                 </div>
                 <div className='w-full min-h-[calc(100vh-70px)] 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] lg:px-[40px]' >
-                    <Checkouts_page />
+                    <Checkouts_page axios={axios} />
                 </div>
             </div>
         </>

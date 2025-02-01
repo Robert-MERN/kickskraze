@@ -146,7 +146,7 @@ const Navbar = () => {
         if (!trending_results.length) {
             fetch();
         }
-    }, [anchorEl, trending_results]);
+    }, [anchorEl]);
 
 
     return (

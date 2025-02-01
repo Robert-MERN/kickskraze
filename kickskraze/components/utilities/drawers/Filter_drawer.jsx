@@ -44,7 +44,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
 
     useEffect(() => {
-        if (drawer_state.filter_drawer) {
+        if (drawer_state.filter_drawer && !Object.entries(filter_options).length) {
             get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
         }
     }, [drawer_state.filter_drawer]);

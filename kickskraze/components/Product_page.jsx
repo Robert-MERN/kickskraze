@@ -79,7 +79,7 @@ const Product_page = ({ axios }) => {
                         src={item.url}
                         controls
                         muted
-                        className='w-full h-[280px] sm:h-[400px] md:h-[530px] lg:h-[500px] xl:h-[550px] object-cover'
+                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-cover object-center'
                     />
                 </div>
                 :
@@ -88,7 +88,7 @@ const Product_page = ({ axios }) => {
                         <img
                             src={item.url}
                             alt="Zoomable"
-                            className='w-full h-[280px] sm:h-[400px] md:h-[530px] lg:h-[500px] xl:h-[550px] object-cover'
+                            className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-cover object-center'
                         />
                     </div>
                 </Zoom>
@@ -119,7 +119,7 @@ const Product_page = ({ axios }) => {
 
 
     return (
-        <div className='w-full px-[20px] pt-[15px] md:pt-[30px] '>
+        <div className='w-full px-[20px] lg:px-[60px] pt-[15px] md:pt-[30px] '>
             {is_loading ?
                 <>
                     <Fade>
@@ -148,7 +148,7 @@ const Product_page = ({ axios }) => {
                                     <Skeleton
                                         animation="wave"
                                         variant='rounded'
-                                        className='bg-stone-100 w-full h-[35vh] lg:h-[60vh]'
+                                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px]'
                                     />
                                 </div>
                             </div>
@@ -282,7 +282,7 @@ const Product_page = ({ axios }) => {
                     <>
                         {/* Breadcrumbs */}
                         <Fade>
-                            <Breadcrumbs className='text-gray-400 text-[13px] md:text-[15px]' separator={<NavigateNextIcon fontSize="small" />} >
+                            <Breadcrumbs className='text-gray-400 text-[13px] md:text-[15px] whitespace-nowrap' separator={<NavigateNextIcon fontSize="small" />} >
                                 <Link
                                     className='hover:underline active:text-gray-600'
                                     underline="hover"
@@ -293,7 +293,7 @@ const Product_page = ({ axios }) => {
                                     Home
                                 </Link>
 
-                                <p>
+                                <p className='line-clamp-1 text-ellipsis overflow-hidden'>
                                     {product?.title || "Product"}
                                 </p>
                             </Breadcrumbs>
@@ -510,7 +510,7 @@ const Product_page = ({ axios }) => {
                                                     <Skeleton
                                                         variant='rounded'
                                                         animation="wave"
-                                                        className='bg-stone-100 w-full h-[140px]  md:h-[170px]'
+                                                        className='bg-stone-100 w-full h-[230px] md:h-[250px] '
                                                     />
                                                     <Skeleton
                                                         variant='text'
@@ -590,8 +590,8 @@ const Product_page = ({ axios }) => {
                                                         >
                                                             <div className='relative'>
 
-                                                                <div className={`"w-[220px] h-[160px] md:h-[200px] overflow-hidden shadow-sm`}>
-                                                                    <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-[220px] h-[160px] md:h-[200px] hover:scale-[1.1] object-contain transition-all duration-500`} />
+                                                                <div className={`"shadow-sm`}>
+                                                                    <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-[220px] h-[230px] md:h-[250px] object-cover object-center`} />
                                                                 </div>
 
                                                                 {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&

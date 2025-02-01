@@ -21,7 +21,7 @@ export const condition_list = [
     { condition: "very good", _id: "1", icon: <ThumbUpOffAltIcon className="mr-3" /> },
     { condition: "excellent", _id: "2", icon: <ThumbUpAltIcon className="mr-3" /> },
     { condition: "premium", _id: "3", icon: <WorkspacePremiumIcon className="mr-3" /> },
-    { condition: "premium+", _id: "4", icon: <VerifiedIcon className="mr-3" /> },
+    { condition: "premium +", _id: "4", icon: <VerifiedIcon className="mr-3" /> },
 ];
 
 export const brand_list = [

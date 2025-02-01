@@ -23,9 +23,8 @@ export const sort_product_media = (media) => {
         if (images.length) {
             final_arr = images.sort((a, b) => b.thumbnail - a.thumbnail);
         }
-        if (videos.length) {
-            final_arr.concat(videos);
-        }
+        final_arr = [...final_arr, ...videos];
+
         return final_arr.map(e => ({ url: e.url, type: e.type, thumbnail: e.url }));
     }
     return [];

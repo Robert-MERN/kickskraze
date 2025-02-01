@@ -11,6 +11,7 @@ import product_1 from "@/public/images/product_1.jpg"
 import { MdVerifiedUser } from "react-icons/md";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import useStateContext from '@/context/ContextProvider';
+import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 
 const Cart_page = () => {
@@ -116,9 +117,9 @@ const Cart_page = () => {
 
                                     {/* Product info */}
                                     <div className='flex w-full h-full gap-4' >
-                                        <div className='w-[60px] sm:w-[100px] h-[60px] sm:h-[100px] object-contain'>
+                                        <div className='w-[60px] sm:w-[100px] h-[60px] sm:h-[100px] rounded-md overflow-hidden'>
                                             <Link href={`/product?id=${item._id}`}>
-                                                <Image src={product_1} alt="product" className='w-[60px] sm:w-[100px] h-[60px] sm:h-[100px] object-contain' />
+                                                <img src={select_thumbnail_from_media(item.media)} alt="product" className='w-[60px] sm:w-[100px] h-[60px] sm:h-[100px] object-cover rounded-md' />
                                             </Link>
                                         </div>
                                         <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >

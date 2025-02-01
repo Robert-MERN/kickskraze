@@ -83,7 +83,7 @@ export default async function handler(req, res) {
 
     // Pagination logic
     const pageNumber = Number(page) || 1; // Default to page 1
-    const pageSize = Number(limit) || 50; // Default to 50 items per page
+    const pageSize = Number(limit) || 52; // Default to 50 items per page
     const skip = (pageNumber - 1) * pageSize;
 
     // Fetch total count of filtered documents

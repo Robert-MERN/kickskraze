@@ -109,10 +109,14 @@ const Collection_page = ({ axios }) => {
 
     const [should_fetch, set_should_fetch] = useState("neutral");
 
+
+
     useEffect(() => {
-        get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
-        if (should_fetch === "query_0" || should_fetch === "query_1") {
-            set_should_fetch("neutral");
+        if (!Object.entries(filter_options).length) {
+            get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
+            if (should_fetch === "query_0" || should_fetch === "query_1") {
+                set_should_fetch("neutral");
+            }
         }
     }, []);
 
@@ -124,30 +128,39 @@ const Collection_page = ({ axios }) => {
     }, [filter_options]);
 
 
+
+
     useEffect(() => {
         if (!router.isReady) return;
         const query_filters = configure_query_filters(router.query);
         if (filters.length && query_filters.length) {
+            // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+
             set_should_fetch("query_1");
             add_query_filters(query_filters, set_filters);
-        } else {
+        } else if (filters.length && !query_filters.length) {
             set_should_fetch("query_0");
+            // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
         }
-        // Initalizing and Reseting Filters
     }, [router.isReady, router.query, filter_options]);
+
+
+
+
+
 
 
     useEffect(() => {
         if (!router.isReady) return;
         const timer = setTimeout(() => {
-            if (filters.length && (should_fetch === "query_0" || should_fetch === "query_1")) {
+            if (filters.length && filters.every(e => Object.values(e)[0] !== undefined && Object.values(e)[0] !== null) && (should_fetch === "query_0" || should_fetch === "query_1")) {
                 get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_is_loading);
             }
         }, 250);
         return () => clearTimeout(timer);
-    }, [filters, router.isReady, should_fetch]);
+    }, [router.isReady, filters, filter_options, should_fetch]);
 
 
 
@@ -230,7 +243,7 @@ const Collection_page = ({ axios }) => {
     ];
 
     const [show_more_payload, set_show_more_payload] = useState({
-        limit: 50,
+        limit: 52,
         page: 1,
         hasMore: false,
         count: 0,
@@ -576,10 +589,10 @@ const Collection_page = ({ axios }) => {
                                     <button onClick={() => change_grid(2)} className={`border border-stone-500 p-1`} >
                                         <TfiLayoutColumn2Alt className={`text-[22px] text-stone-800 ${grid === 2 ? "opacity-[1]" : "opacity-[.5]"} transition-all`} />
                                     </button>
-                                    <button onClick={() => change_grid(3)} className={`border border-stone-500 p-1 hidden lg:block`} >
+                                    <button onClick={() => change_grid(3)} className={`border border-stone-500 p-1 hidden xl:block`} >
                                         <TfiLayoutColumn3Alt className={`text-[22px] text-stone-800 ${grid === 3 ? "opacity-[1]" : "opacity-[.5]"} transition-all`} />
                                     </button>
-                                    <button onClick={() => change_grid(4)} className={`border border-stone-500 p-1 hidden lg:block`} >
+                                    <button onClick={() => change_grid(4)} className={`border border-stone-500 p-1 hidden xl:block`} >
                                         <TfiLayoutColumn4Alt className={`text-[22px] text-stone-800 ${grid === 4 ? "opacity-[1]" : "opacity-[.5]"} transition-all`} />
                                     </button>
                                 </div>
@@ -636,33 +649,41 @@ const Collection_page = ({ axios }) => {
                         {is_loading ?
                             [...Array(16)].map((_, i) => (
                                 <Fade key={i}>
-                                    <div className='p-4'>
+                                    <div className={`p-2 md:p-4 flex gap-2 ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}>
                                         <Skeleton
                                             variant='rounded'
                                             animation="wave"
-                                            className='bg-stone-100 w-full h-[140px]  md:h-[170px]'
+                                            className={`
+                                                ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
+                                                ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}
+                                                ${grid === 3 ? "w-full h-[320px] xl:h-[420px]" : ""}
+                                                ${grid === 4 ? "w-full h-[300px]" : ""}
+                                                bg-stone-100
+                                            `}
                                         />
-                                        <Skeleton
-                                            variant='text'
-                                            animation="wave"
-                                            className='bg-stone-100 w-[140px] md:w-[160px]'
-                                        />
-                                        <div className='mt-4 flex flex-col gap-1' >
+                                        <div>
                                             <Skeleton
-                                                variant='rounded'
+                                                variant='text'
                                                 animation="wave"
-                                                className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                className='bg-stone-100 w-[140px] md:w-[160px]'
                                             />
-                                            <Skeleton
-                                                variant='rounded'
-                                                animation="wave"
-                                                className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
-                                            />
-                                            <Skeleton
-                                                variant='rounded'
-                                                animation="wave"
-                                                className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
-                                            />
+                                            <div className='mt-4 flex flex-col gap-1' >
+                                                <Skeleton
+                                                    variant='rounded'
+                                                    animation="wave"
+                                                    className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                />
+                                                <Skeleton
+                                                    variant='rounded'
+                                                    animation="wave"
+                                                    className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
+                                                />
+                                                <Skeleton
+                                                    variant='rounded'
+                                                    animation="wave"
+                                                    className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
+                                                />
+                                            </div>
                                         </div>
                                     </div>
                                 </Fade>
@@ -675,8 +696,15 @@ const Collection_page = ({ axios }) => {
                                                 className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
                                             >
                                                 <div className='relative'>
-                                                    <div className={`${grid === 1 ? "w-full sm:w-[250px] md:[300px] 2xl:w-[350px] h-[275px] md:h-[250px] xl:h-[265px]" : grid === 2 ? "w-full h-[150px] sm:h-[200px] md:h-[260px] xl:h-[430px]" : grid === 3 ? "w-full h-[220px]  xl:h-[275px]" : "w-full h-[140px] xl:h-[200px]"} overflow-hidden shadow-sm`}>
-                                                        <img alt="" src={select_thumbnail_from_media(product.media)} className={`${grid === 1 ? "w-full sm:w-[250px] md:[300px] 2xl:w-[350px] h-[275px] md:h-[250px] xl:h-[265px]" : grid === 2 ? "w-full h-[150px] sm:h-[200px] md:h-[260px] xl:h-[430px]" : grid === 3 ? "w-full h-[220px]  xl:h-[275px]" : "w-full h-[140px] xl:h-[200px]"} object-contain object-center lg:hover:scale-[1.1] transition-all duration-500`} />
+                                                    <div className={`overflow-hidden shadow-sm`}>
+                                                        <img alt="" src={select_thumbnail_from_media(product.media)} className={`
+
+                                                        ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
+                                                        ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}
+                                                        ${grid === 3 ? "w-full h-[320px] xl:h-[420px]" : ""}
+                                                        ${grid === 4 ? "w-full h-[300px]" : ""}
+                                                            
+                                                            overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500`} />
                                                     </div>
                                                     {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                                                         <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
@@ -716,11 +744,11 @@ const Collection_page = ({ axios }) => {
                         }
                     </div>
 
-                    {show_more_payload.hasMore &&
+                    {(show_more_payload.hasMore && !is_loading) &&
                         <Fade>
                             <div className='my-[50px] w-full flex justify-center items-center'>
                                 <button
-                                    disabled={!show_more_payload.hasMore}
+                                    disabled={!show_more_payload.hasMore && is_loading && show_more_loading}
                                     onClick={show_more_payload_func} className='font-bold text-black hover:text-white active:opacity-50 transition-all py-[12px] w-full md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
 
                                     {show_more_loading ?

@@ -16,7 +16,7 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfuly conneted with DB");
 
-        // saving new product
+        // Getting filter value with pipeline
         const filter_values = await Products.aggregate([
             {
                 $group: {
@@ -37,9 +37,15 @@ export default async function handler(req, res) {
                     sort_by: "created-descending", // Static field for sort_by
                     _id: 0,
                 }
+            },
+            {
+                $addFields: {
+                    sizes: { $sortArray: { input: "$sizes", sortBy: 1 } }, // Sort sizes numerically (ascending)
+                    brands: { $sortArray: { input: "$brands", sortBy: 1 } }, // Sort brands alphabetically (ascending)
+                }
             }
         ]);
-
+        
         // sending success response to client
         return res.status(200).json(filter_values[0]);
 

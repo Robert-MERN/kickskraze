@@ -139,7 +139,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
     if (!trending_results.length) {
       fetch();
     }
-  }, [drawer_state.search_drawer, trending_results]);
+  }, [drawer_state.search_drawer]);
 
   const view_more_btn = () => {
     toggle_drawer("search_drawer")
@@ -228,7 +228,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                           <div className='relative'>
                             <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
 
-                              <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-contain transition-all duration-500`} />
+                              <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-cover transition-all duration-500`} />
 
                               {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                                 <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
@@ -354,7 +354,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                         <div className='relative'>
                           <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
 
-                            <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-contain transition-all duration-500`} />
+                            <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-cover transition-all duration-500`} />
 
                             {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                               <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >

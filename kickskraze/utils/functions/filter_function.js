@@ -48,7 +48,7 @@ export const filter_method = (newObj, set_state) => {
 export const convert_to_query_string = (filter) => {
     return filter
         .map((obj) => {
-            return Object.entries(obj).map(e => e.join("=")); // Encode key-value pair
+            return Object.entries(obj).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`); // Encode key-value pair
         }).join("&");
 }
 

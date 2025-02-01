@@ -322,10 +322,14 @@ export const ContextProvider = ({ children }) => {
             } else {
                 res = await axios.get(`/api/get_all_products?${filters}`);
             }
-            if (res && res.data && res.data.products) {
-                set_state(res?.data?.products);
-                set_show_more(prev => ({ ...prev, hasMore: res?.data?.meta?.hasMore, count: res?.data?.meta?.filteredCount }));
+            if (show_more) {
+                if (res?.data?.products?.length) {
+                    set_state((prev) => ([...prev, ...res.data.products]));
+                }
+            } else {
+                set_state(res?.data?.products || []);
             }
+            set_show_more(prev => ({ ...prev, hasMore: res?.data?.meta?.hasMore, count: res?.data?.meta?.filteredCount }));
         } catch (err) {
             set_snackbar_alert({
                 open: true,
@@ -531,7 +535,6 @@ export const ContextProvider = ({ children }) => {
             });
 
             localStorage.removeItem("cart");
-            localStorage.removeItem("info");
             set_cart([])
 
             router.push(`/checkouts/${res.data._id}`)

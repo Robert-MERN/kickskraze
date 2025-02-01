@@ -169,7 +169,7 @@ const Layout = ({ children }) => {
                 < a
                     target='_blank'
                     href="https://wa.me/923102223511"
-                    className={`p-[12px] md:p-[14px] lg:p-[16px] fixed bottom-[75px] lg:bottom-[35px] right-[20px] lg:right-[30px] bg-[#25D366] rounded-full ${styles.whatsapp_shaky} z-[9999]`}
+                    className={`p-[12px] md:p-[14px] lg:p-[16px] fixed bottom-[75px] lg:bottom-[35px] right-[20px] lg:right-[30px] bg-[#25D366] rounded-full ${styles.whatsapp_shaky} z-[16]`}
                 >
 
                     <WhatsAppIcon className='text-white text-[28px] md:text-[32px] lg:text-[36px]' />
