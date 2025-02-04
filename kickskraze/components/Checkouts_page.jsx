@@ -9,12 +9,19 @@ import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import useStateContext from '@/context/ContextProvider';
-
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import { FormHelperText, IconButton } from '@mui/material';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 
 const Checkouts_page = ({ axios }) => {
 
-    const { confirm_order_api, set_API_loading } = useStateContext();
+    const { confirm_order_api, set_API_loading, set_snackbar_alert } = useStateContext();
 
     useEffect(() => {
         if (document.querySelector(".MuiCheckbox-root")) {
@@ -72,10 +79,7 @@ const Checkouts_page = ({ axios }) => {
     }
 
     const calc_gross_total_amount = (obj) => {
-        if (obj.order_method === "delivery") {
-            return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-        }
-        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
     }
 
 
@@ -94,7 +98,7 @@ const Checkouts_page = ({ axios }) => {
         total_items: "",
         coupon_code: "",
         special_instructions: "",
-        order_method: "delivery",
+        payment_method: "",
         errors: {
             email: "",
             firstName: "",
@@ -102,15 +106,30 @@ const Checkouts_page = ({ axios }) => {
             address: "",
             city: "",
             phone: "",
+            payment_method: "",
         }
     }
     const [order_details, set_order_details] = useState(default_order_details);
 
     const [is_loading, set_is_loading] = useState(true)
 
-    const order_method = {
-        deivery: "Cash on Delivery (COD)"
-    }
+    const payment_method = {
+        cod: "Cash on Delivery (COD)",
+        jazzcash: "Pay with JazzCash (JazzCash)",
+        easypaisa: "Pay with EasyPaisa (EasyPaisa)",
+        sadapay: "Pay with SadaPay (SadaPay)",
+        nayapay: "Pay with NayaPay (NayaPay)",
+        bank: "Bank Transfer (Bank)",
+    };
+
+    const payment_method_icons = {
+        cod: <img src="/images/cod.png" className='w-[32px] h-[32px] object-contain mr-[6px] ml-2' />,
+        jazzcash: <img src="/images/jazzcash.png" className='w-[40px] h-[40px] object-contain mr-[3px] ml-1' />,
+        easypaisa: <img src="/images/easypaisa.png" className='w-[27px] h-[27px] object-contain mx-[10px]' />,
+        sadapay: <img src="/images/sadapay.png" className='w-[38px] h-[38px] object-contain mx-[5px]' />,
+        nayapay: <img src="/images/nayapay.png" className='w-[35px] h-[35px] object-contain mx-[6px]' />,
+        bank: <AccountBalanceIcon className='ml-[10px] mr-[10px] text-[26px]' />,
+    };
 
     const handleChange = (event) => {
         const { name, value } = event.target;
@@ -171,6 +190,11 @@ const Checkouts_page = ({ axios }) => {
                     error = 'Please enter your city';
                 }
                 break;
+            case 'payment_method':
+                if (!value) {
+                    error = 'Please select your payment method';
+                }
+                break;
             case 'phone':
                 if (!value) {
                     error = 'Please enter your phone';
@@ -219,6 +243,122 @@ const Checkouts_page = ({ axios }) => {
         }
     }
 
+
+    const bank_accounts = {
+        easypaisa_muneeb: {
+            heading: "EasyPaisa Account Details:",
+            icon: <img src="/images/easypaisa.png" className='w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-contain ml-[5px]' />,
+            bank_name: "EasyPaisa / Telenor Microfinance Bank",
+            account_title: "Muneeb Ahmed",
+            account_no: "03197705931",
+        },
+        easypaisa_babu: {
+            heading: "EasyPaisa Account Details:",
+            icon: <img src="/images/easypaisa.png" className='w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-contain ml-[5px]' />,
+            bank_name: "EasyPaisa / Telenor Microfinance Bank",
+            account_title: "MUHAMMAD SHEHROZ SHAHID",
+            account_no: "03152495096",
+        },
+        jazzcash_muneeb: {
+            icon: <img src="/images/jazzcash.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "JazzCash Account Details:",
+            bank_name: "JazzCash Mobilink",
+            account_title: "Muneeb Ahmed",
+            account_no: "03197705931",
+        },
+        jazzcash_babu: {
+            icon: <img src="/images/jazzcash.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "JazzCash Account Details:",
+            bank_name: "JazzCash Mobilink",
+            account_title: "MUHAMMAD SHEHROZ SHAHID",
+            account_no: "03079077079",
+        },
+        sadapay_muneeb: {
+            icon: <img src="/images/sadapay.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "SadaPay Account Details:",
+            bank_name: "SadaPay",
+            account_title: "Muneeb Ahmed",
+            account_no: "03102223511",
+            iban: "PK03SADA0000003102223511",
+        },
+        sadapay_babu: {
+            icon: <img src="/images/sadapay.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "SadaPay Account Details:",
+            bank_name: "SadaPay",
+            account_title: "Muhammad Shahroz Shahid",
+            account_no: "03152495096",
+            iban: "PK42SADA0000003152495096",
+        },
+        nayapay_muneeb: {
+            icon: <img src="/images/nayapay.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "NayaPay Account Details:",
+            bank_name: "NayaPay",
+            account_title: "Muneeb Ahmed",
+            account_no: "03102223511",
+            iban: "PK39NAYA1234503102223511",
+        },
+        nayapay_babu: {
+            icon: <img src="/images/nayapay.png" className='w-[40px] h-[40px] md:w-[50px] md:h-[50px] object-contain' />,
+            heading: "NayaPay Account Details:",
+            bank_name: "NayaPay",
+            account_title: "MUHAMMAD SHEHROZ SHAHID",
+            account_no: "03152495096",
+            iban: "PK78NAYA1234503152495096",
+        },
+        bank_muneeb: {
+            icon: <AccountBalanceIcon className='text-[26px] md:text-[34px] ml-[7px]' />,
+            heading: "Bank Account Details:",
+            bank_name: "Meezan Bank",
+            account_title: "BEENISH RAHEEL",
+            account_no: "01870106443434",
+            iban: "PK26MEZN0001870106443434",
+        },
+        bank_babu: {
+            icon: <AccountBalanceIcon className='text-[26px] md:text-[34px] ml-[7px]' />,
+            heading: "Bank Account Details:",
+            bank_name: "Meezan Bank",
+            account_title: "MUHAMMAD SHEHROZ SHAHID",
+            account_no: "10270109202415",
+            iban: "PK56MEZN0010270109202415",
+        },
+    }
+
+    const copy_to_clipboard = async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            set_snackbar_alert({
+                open: true,
+                message: "Copied!",
+                severity: "primary",
+            })
+
+        } catch (err) {
+            console.error("Failed to copy text: ", err);
+            set_snackbar_alert({
+                open: true,
+                message: "Failed to copy!",
+                severity: "error",
+            });
+        }
+    };
+
+    const choose_ac = (_order_details) => {
+        const { payment_method, purchase } = _order_details;
+
+        if (purchase.every(e => e.brand === "Converse" || e.brand === "Vans")) {
+            const account = bank_accounts[`${payment_method}_babu`];
+            if (account) return account;
+            return null
+        } else {
+            const account = bank_accounts[`${payment_method}_muneeb`];
+            if (account) return account;
+            return null
+        };
+
+    }
+
+
+
     return (
         <div className='w-full px-[20px] flex flex-col lg:flex-row'>
 
@@ -229,7 +369,80 @@ const Checkouts_page = ({ axios }) => {
 
                 : Boolean(order_details.purchase.length) ?
                     <>
-                        <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-4 lg:border-r border-stone-200 tracking-wider">
+
+                        {/* Product Details for Mobile view */}
+                        <div className="flex-[1] lg:hidden">
+                            <div className="md:px-[40px] pt-[40px] flex flex-col gap-2">
+                                {/* Product price */}
+
+                                {order_details.purchase.map((item) => (
+                                    <div key={item._id} className="w-full border-stone-300 flex items-center justify-between  my-1">
+                                        <div className="flex items-center gap-5">
+                                            <Badge
+                                                badgeContent={item.quantity}
+                                                color="info"
+                                                showZero
+                                            >
+                                                <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                    <img
+                                                        alt=""
+                                                        src={select_thumbnail_from_media(item.media)}
+                                                        className="w-[65px] h-[65px] object-cover"
+                                                    />
+                                                </div>
+                                            </Badge>
+                                            <div className="text-stone-800 text-[14px] font-medium">
+                                                <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
+                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
+                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
+                                            </div>
+                                        </div>
+                                        <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
+                                            Rs. {Number(item.price).toLocaleString("en-US")}
+                                        </p>
+                                    </div>
+                                ))}
+
+
+                                {/* Subtotal of Order */}
+                                <div className="w-full mt-6 border-stone-300 flex items-center justify-between ">
+                                    <p className="text-[14px] md:text-[16px] font-medium text-stone-800">
+                                        Subtotal {(calc_total_items(order_details.purchase) > 1) && `• ${calc_total_items(order_details.purchase)}  items`}
+                                    </p>
+                                    <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
+                                        Rs. {calc_total_amount(order_details.purchase).toLocaleString("en-US")}
+                                    </p>
+                                </div>
+
+                                {/* Shipping Cost */}
+                                <div className="w-full border-stone-300 flex items-center justify-between ">
+                                    <p className="text-[14px] md:text-[16px] font-medium text-stone-800">
+                                        Shipping
+                                    </p>
+                                    <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
+                                        Rs. {Number(order_details.delivery_charges).toLocaleString("en-US")}
+                                    </p>
+                                </div>
+
+                                {/* Total */}
+                                <div className="w-full border-stone-300 flex items-center justify-between  mt-6">
+                                    <p className="text-[18px] md:text-[20px] font-bold text-stone-800">TOTAL:</p>
+                                    <p className="text-[18px] md:text-[20px] font-bold text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
+                                        <span className='text-[13px] md:text-[14px] text-gray-600 font-normal pr-[6px]'>
+                                            PKR
+                                        </span>
+                                        <span>
+                                            Rs. {calc_gross_total_amount(order_details).toLocaleString("en-US")}
+                                        </span>
+                                    </p>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+                        {/* Form */}
+                        <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-4 lg:border-r border-stone-200 r">
                             <h1 className='text-[20px] font-bold'>Contact</h1>
 
                             <TextField
@@ -351,31 +564,179 @@ const Checkouts_page = ({ axios }) => {
                                 variant="outlined"
                                 className='w-full cursor-pointer'
                                 sx={style_textfield_2}
-                                slotProps={{
-                                    input: {
-                                        readOnly: true,
-                                        endAdornment: <InputAdornment position="end" className='text-stone-800'>Rs. {
-                                            Number(order_details.delivery_charges).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
-                                        }</InputAdornment>,
-                                    },
+                                inputProps={{
+                                    readOnly: true, // Read-only input
+                                    style: { cursor: "default" }, // Ensure pointer style is applied to the input element
+                                }}
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end" className='text-stone-800'>Rs. {order_details.delivery_charges}.00</InputAdornment>,
                                 }}
                             />
 
                             <h1 className='text-[20px] font-bold pt-4'>Payment</h1>
-                            <TextField
-                                value={order_method[order_details.order_method] || "Cash on Delivery (COD)"}
+                            <FormControl
+                                className='w-full'
                                 variant="outlined"
-                                className='w-full cursor-pointer'
-                                sx={style_textfield_2}
-                                slotProps={{
-                                    input: {
-                                        readOnly: true,
-                                    },
-                                }}
-                            />
+
+                                error={Boolean(order_details.errors.payment_method)}
+                                sx={style_textfield}
+                            >
+                                <InputLabel>Payment Method</InputLabel>
+                                <Select
+                                    name="payment_method"
+                                    label="Payment Method"
+                                    onChange={handleChange}
+                                    value={order_details.payment_method}
+                                    renderValue={(select) => payment_method[select]}
+                                >
+                                    <MenuItem disabled value="">
+                                        <em>Select Payment Method</em>
+                                    </MenuItem>
+                                    {Object.entries(payment_method).map(([key, value]) => (
+                                        <MenuItem key={key} value={key} >
+                                            {payment_method_icons[key]}
+                                            <p>{value}</p>
+                                        </MenuItem>
+
+                                    ))}
+                                </Select>
+                                {Boolean(order_details.errors.payment_method) && <FormHelperText>{order_details.errors.payment_method}</FormHelperText>}
+                            </FormControl>
+
+                            {(order_details.payment_method && choose_ac(order_details)) &&
+                                <div className='text-[17px] mt-5 text-stone-700'>
+
+
+                                    <div className='flex items-center gap-2 mb-6'>
+                                        {choose_ac(order_details).icon}
+                                        <p className='text-[19px] md:text-[21px] text-stone-700 font-bold '>
+                                            {choose_ac(order_details).heading}
+                                        </p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center gap-4 text-[15px] md:text-[17px] pl-[7px] pr-[11px]'>
+                                        <p className='font-bold whitespace-nowrap'>Bank Name:</p>
+                                        <p className='text-ellipsis line-clamp-1 overflow-hidden'>{choose_ac(order_details).bank_name}</p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center gap-4 text-[15px] md:text-[17px] pl-[7px] pr-[11px] mt-[4px]'>
+                                        <p className='font-bold whitespace-nowrap'>Account Title:</p>
+                                        <p>{choose_ac(order_details).account_title}</p>
+                                    </div>
+
+                                    <div className='flex justify-between items-center gap-4 text-[15px] md:text-[17px] pl-[7px]'>
+                                        <p className='font-bold whitespace-nowrap text-center'>Account No:</p>
+                                        <p>
+                                            {choose_ac(order_details).account_no}
+                                            <Tooltip
+                                                title="Copy"
+                                                placement="top"
+                                                arrow
+                                                componentsProps={{
+                                                    tooltip: {
+                                                        sx: {
+                                                            backgroundColor: 'black',
+                                                            color: 'white', // Text color
+                                                            fontSize: '12px', // Adjust text size
+                                                            padding: '10px', // Optional: adjust padding
+                                                            width: 'fit',
+                                                            textAlign: 'center'
+                                                        },
+                                                    },
+                                                }}
+                                            >
+                                                <IconButton onClick={() => copy_to_clipboard(choose_ac(order_details).account_no)}>
+                                                    <ContentCopyIcon className='text-[18px] text-stone-800' />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </p>
+                                    </div>
+
+                                    {choose_ac(order_details).iban &&
+                                        <div className='flex justify-between items-center gap-4 text-[15px] md:text-[17px] pl-[7px]'>
+                                            <p className='font-bold whitespace-nowrap'>IBAN:</p>
+                                            <p>
+                                                {choose_ac(order_details).iban}
+                                                <Tooltip
+                                                    title="Copy"
+                                                    placement="top"
+                                                    arrow
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: 'black',
+                                                                color: 'white', // Text color
+                                                                fontSize: '12px', // Adjust text size
+                                                                padding: '10px', // Optional: adjust padding
+                                                                width: 'fit',
+                                                                textAlign: 'center'
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <IconButton onClick={() => copy_to_clipboard(choose_ac(order_details).iban)}>
+                                                        <ContentCopyIcon className='text-[18px] text-stone-800' />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </p>
+                                        </div>
+                                    }
+
+                                    {/* Send Screenshot Section */}
+                                    <div className='flex flex-col md:flex-row md:justify-between md:items-center mt-8 md:h-[50px] gap-1 md:gap-0 pl-[7px]'>
+                                        <p className='flex gap-2 items-center md:justify-start justify-between text-[15px] md:text-[17px]'>
+                                            <strong className='flex items-center gap-1'>
+                                                <WhatsAppIcon />
+                                                WhatsApp:
+                                            </strong>
+
+                                            <span className="flex items-center">
+                                                <a className='hover:underline' target='_blank' href="https://wa.me/923102223511">03102223511</a>
+                                                <Tooltip
+                                                    title="Copy"
+                                                    placement="top"
+                                                    arrow
+                                                    componentsProps={{
+                                                        tooltip: {
+                                                            sx: {
+                                                                backgroundColor: 'black',
+                                                                color: 'white', // Text color
+                                                                fontSize: '12px', // Adjust text size
+                                                                padding: '10px', // Optional: adjust padding
+                                                                width: 'fit',
+                                                                textAlign: 'center'
+                                                            },
+                                                        },
+                                                    }}
+                                                >
+                                                    <IconButton onClick={() => copy_to_clipboard("+923102223511")}>
+                                                        <ContentCopyIcon className='text-[18px] text-stone-800' />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </span>
+                                        </p>
+                                        <div className='w-full md:w-fit flex md:block justify-end pr-[11px] md:pr-0'>
+                                            <a
+                                                target='_blank'
+                                                href="https://wa.me/923102223511"
+                                                type='button'
+                                                className='w-fit px-[10px] md:px-[12px] py-[6px] md:py-[8px] text-white bg-stone-950 text-[13px] md:text-[15px] transition-all rounded font-medium active:opacity-75'>
+                                                Send Screenshot
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <p className='mt-6 md:mt-4 text-gray-500 text-[16px] md:text-[18px] pl-[7px] pr-[11px]'>
+                                        <strong className='mr-1 text-stone-800'>Note:</strong>
+                                        Please share the payment screenshot on the given WhatsApp number. We'll confirm your order once received. Thank you!
+                                    </p>
+
+
+                                </div>
+                            }
 
                             {/* Complete Order Button */}
-                            <button type='submit' className='w-full py-[16px] flex justify-center items-center text-white bg-stone-950 font-bold text-[14px] md:text-[15px] hover:bg-white hover:text-stone-800 border border-stone-500 tracking-widest transition-all duration-300 rounded mt-6 lg:mb-20'>
+                            <button type='submit' className='w-full py-[10px] md:py-[16px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] md:text-[15px] hover:bg-white hover:text-stone-800 border border-stone-500  transition-all duration-300 rounded mt-6 lg:mb-20'>
                                 COMPLETE ORDER
                             </button>
                         </form>
@@ -398,7 +759,7 @@ const Checkouts_page = ({ axios }) => {
                                                     <img
                                                         alt=""
                                                         src={select_thumbnail_from_media(item.media)}
-                                                        className="w-[65px] h-[65px] object-contain"
+                                                        className="w-[65px] h-[65px] object-cover"
                                                     />
                                                 </div>
                                             </Badge>

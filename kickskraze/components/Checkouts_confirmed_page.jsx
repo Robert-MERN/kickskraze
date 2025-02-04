@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
+import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 
 const Checkouts_page = ({ axios, order_id }) => {
@@ -35,10 +36,7 @@ const Checkouts_page = ({ axios, order_id }) => {
     }
 
     const calc_gross_total_amount = (obj) => {
-        if (obj.order_method === "delivery") {
-            return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-        }
-        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
     }
 
 
@@ -331,8 +329,8 @@ const Checkouts_page = ({ axios, order_id }) => {
                                             <CheckIcon className='scale-[1.2]' />
                                         </div>
                                         <div>
-                                            <p className='text-[14px] text-gray-500 line-clamp-1 text-ellipsis overflow-hidden'>Confirmation #{"FHYWATYP3"}</p>
-                                            <p className='text-[20px] font-bold text-stone-900 line-clamp-1 text-ellipsis overflow-hidden'>Thank you, {"Muneeb"}!</p>
+                                            <p className='text-[14px] text-gray-500 line-clamp-1 text-ellipsis overflow-hidden'>Confirmation #{confirmed_order._id}</p>
+                                            <p className='text-[20px] font-bold text-stone-900 line-clamp-1 text-ellipsis overflow-hidden'>Thank you, {`${confirmed_order.firstName} ${confirmed_order.lastName}`}!</p>
                                         </div>
                                     </div>
 
@@ -346,13 +344,13 @@ const Checkouts_page = ({ axios, order_id }) => {
 
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Contact information</p>
-                                        <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden'>{"test@gmail.com"}</p>
+                                        <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden'>{confirmed_order.email}</p>
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Shipping address</p>
                                         <p className='text-[16px] text-stone-700'>{"Nazimabad"}</p>
-                                        <p className='text-[16px] text-stone-700'>{"Karachi"} {"76400"}</p>
+                                        <p className='text-[16px] text-stone-700'>{`${confirmed_order.city} ${confirmed_order.postalCode ? confirmed_order.postalCode : ""}`}</p>
                                         <p className='text-[16px] text-stone-700'>{"Pakistan"}</p>
-                                        <p className='text-[16px] text-stone-700'>{"03102223511"}</p>
+                                        <p className='text-[16px] text-stone-700'>{confirmed_order.phone}</p>
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Shipping method</p>
                                         <p className='text-[16px] text-stone-700'>Delivery Charges</p>
@@ -373,7 +371,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                     <div className="sticky top-0 md:px-[40px] py-[40px] flex flex-col gap-2">
                                         {/* Product price */}
 
-                                        {order_details.purchase.map((item) => (
+                                        {confirmed_order.purchase.map((item) => (
                                             <div key={item._id} className="w-full border-stone-300 flex items-center justify-between  my-1">
                                                 <div className="flex items-center gap-5">
                                                     <Badge
@@ -382,10 +380,10 @@ const Checkouts_page = ({ axios, order_id }) => {
                                                         showZero
                                                     >
                                                         <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                            <Image
-                                                                alt="product"
-                                                                src={product_1}
-                                                                className="w-[65px] h-[65px] object-contain"
+                                                            <img
+                                                                alt=""
+                                                                src={select_thumbnail_from_media(item.media)}
+                                                                className="w-[65px] h-[65px] object-cover"
                                                             />
                                                         </div>
                                                     </Badge>
@@ -405,10 +403,10 @@ const Checkouts_page = ({ axios, order_id }) => {
                                         {/* Subtotal of Order */}
                                         <div className="w-full mt-6 border-stone-300 flex items-center justify-between ">
                                             <p className="text-[14px] md:text-[16px] font-medium text-stone-800">
-                                                Subtotal {(calc_total_items(order_details.purchase) > 1) && `• ${calc_total_items(order_details.purchase)}  items`}
+                                                Subtotal {(calc_total_items(confirmed_order.purchase) > 1) && `• ${calc_total_items(confirmed_order.purchase)}  items`}
                                             </p>
                                             <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
-                                                Rs. {calc_total_amount(order_details.purchase).toLocaleString("en-US")}
+                                                Rs. {calc_total_amount(confirmed_order.purchase).toLocaleString("en-US")}
                                             </p>
                                         </div>
 
@@ -418,7 +416,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                                 Shipping
                                             </p>
                                             <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
-                                                Rs. {Number(order_details.delivery_charges).toLocaleString("en-US")}
+                                                Rs. {Number(confirmed_order.delivery_charges).toLocaleString("en-US")}
                                             </p>
                                         </div>
 
@@ -430,7 +428,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                                     PKR
                                                 </span>
                                                 <span>
-                                                    Rs. {calc_gross_total_amount(order_details).toLocaleString("en-US")}
+                                                    Rs. {calc_gross_total_amount(confirmed_order).toLocaleString("en-US")}
                                                 </span>
                                             </p>
                                         </div>

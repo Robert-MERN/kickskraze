@@ -1,3 +1,4 @@
+import { select_thumbnail_from_media } from "./produc_fn"
 
 export const purchase_items_displayer = (orders) => {
 
@@ -20,7 +21,7 @@ export const purchase_items_displayer = (orders) => {
                                     style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                     <tr>
                                         <td align="center" style="padding:0;Margin:0;font-size:0px">
-                                        <img src=${item.image[0]}
+                                        <img src=${select_thumbnail_from_media(item.media)}
                                             alt="" width="70" height="70" class="adapt-img"
                                             style="display:block;font-size:14px;border:0;outline:none;text-decoration:none;object-fit:cover;">
                                         </td>
@@ -56,8 +57,8 @@ export const purchase_items_displayer = (orders) => {
                                                 style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px"
                                             >
 
-                                              size: ${item.size}
-                                              condition: ${item.condition}
+                                              size: ${item.size}<br/>
+                                              condition: ${item.condition}<br/>
                                               brand: ${item.brand}
                                             </p>
                                         </td>

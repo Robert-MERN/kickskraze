@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { LuBadgePercent } from "react-icons/lu";
 import { PiGift } from "react-icons/pi";
@@ -17,12 +17,16 @@ import mid_banner_2 from "@/public/images/home_banner_mid_2.webp"
 import sm_banner_1 from "@/public/images/sm_banner_1.jpg"
 import sm_banner_2 from "@/public/images/sm_banner_2.jpg"
 import sm_banner_3 from "@/public/images/sm_banner_3.jpg"
-import { products } from '@/models/product_schema';
-import product_image from "@/public/images/product_image.webp"
 import Link from 'next/link';
+import useStateContext from '@/context/ContextProvider';
+import { CircularProgress, Skeleton } from '@mui/material';
+import { Fade } from 'react-reveal';
+import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { convert_to_query_string } from '@/utils/functions/filter_function';
 
 
-const Landing_page = () => {
+
+const Landing_page = ({ axios }) => {
 
 
     const top_categories = [
@@ -47,10 +51,53 @@ const Landing_page = () => {
             src: new_balance,
         },
         {
-            category: "Asics",
+            category: "ASICS",
             src: asics,
         },
     ]
+
+    const {
+        get_all_products_api,
+        fetched_products_for_landing: products,
+        set_fetched_products_for_landing: set_products,
+        products_for_landing_loading: is_loading,
+        set_products_for_landing_loading: set_is_loading,
+    } = useStateContext();
+
+
+    const [show_more_loading, set_show_more_loading] = useState(false);
+    const [query, set_query] = useState("");
+    const [is_action_loading, set_is_action_loading] = useState(false);
+
+
+    const [show_more_payload, set_show_more_payload] = useState({
+        limit: 50,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+
+    useEffect(() => {
+        if (!products.length) {
+            get_all_products_api(axios, "", set_products, set_show_more_payload, set_is_loading);
+        }
+    }, []);
+
+    const category_change_btn = (category) => {
+        set_query(category);
+        get_all_products_api(axios, `category=${category}`, set_products, set_show_more_payload, set_is_action_loading);
+    };
+
+    const show_more_payload_func = () => {
+        set_show_more_payload(prev => ({ ...prev, page: prev.page + 1 }));
+    };
+
+    useEffect(() => {
+        const { page, limit } = show_more_payload;
+        if (page > 1) {
+            get_all_products_api(axios, `category=${query}`, set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
+        }
+    }, [show_more_payload.page]);
 
 
 
@@ -131,58 +178,180 @@ const Landing_page = () => {
 
 
 
-            {/* Categories For Genders */}
             <div className='w-full text-stone-900 text-center flex flex-col items-center  my-12 gap-4'>
-                <p className='text-[20px] md:text-[26px] font-medium' >NEW LIFE FOR OLD SOLES</p>
 
-                <div className='hidden md:flex gap-3 items-center mt-[30px]'>
-                    <button className='hover:bg-stone-800 hover:text-white text-[17px] w-[220px] py-[14px] font-semibold bg-transparent text-stone-800 transition-all border border-stone-200 active:opacity-75'>Men</button>
-                    <button className='hover:bg-stone-800 hover:text-white text-[17px] w-[220px] py-[14px] font-semibold bg-transparent text-stone-800 transition-all border border-stone-200 active:opacity-75'>Women</button>
-                    <button className='hover:bg-stone-800 hover:text-white text-[17px] w-[220px] py-[14px] font-semibold bg-transparent text-stone-800 transition-all border border-stone-200 active:opacity-75'>Kids</button>
-                </div>
+                {is_loading ?
+                    <Fade>
+                        <div className='w-full flex justify-center'>
+                            <Skeleton
+                                variant='rounded'
+                                animation="wave"
+                                className='bg-stone-100 w-[30%] h-[20px] md:h-[26px]'
+                            />
+                        </div>
 
+                        <div className='hidden md:flex gap-3 items-center mt-[30px]'>
+                            <Skeleton
+                                variant='rounded'
+                                animation="wave"
+                                className='bg-stone-100 h-[45px] w-[220px]'
+                            />
+                            <Skeleton
+                                variant='rounded'
+                                animation="wave"
+                                className='bg-stone-100 h-[45px] w-[220px]'
+                            />
+                            <Skeleton
+                                variant='rounded'
+                                animation="wave"
+                                className='bg-stone-100 h-[45px] w-[220px]'
+                            />
+                        </div>
+                    </Fade>
+                    :
+                    <>
+                        <p className='text-[20px] md:text-[26px] font-medium hidden md:block' >NEW LIFE FOR OLD SOLES</p>
+                        {/* Categories For Genders */}
+                        <div className='hidden md:flex gap-3 items-center mt-[30px]'>
+                            <button
+                                onClick={() => category_change_btn("men")}
+                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("men") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
+                            >
+                                Men
+                            </button>
+                            <button
+                                onClick={() => category_change_btn("women")}
+                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("women") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
+                            >
+                                Women
+                            </button>
+                            <button
+                                onClick={() => category_change_btn("kids")}
+                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("kids") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
+                            >
+                                Kids
+                            </button>
+                        </div>
+                    </>
+                }
 
                 {/* Products */}
-                <div className='hidden md:grid md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-left' >
-                    {products.map((product, i) => (
-                        <Link href={`/product?id=${product._id}`} key={i}>
-                            <div
-                                className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer`}
-                            >
-                                <div className='relative'>
-                                    <div className={`"w-full h-[220px] overflow-hidden shadow-sm`}>
+                {is_loading || is_action_loading ?
+                    <>
 
-                                        <Image alt="Product" src={product_image} className={`w-full h-[220px] hover:scale-[1.1] object-contain transition-all duration-500`} />
-
-
-                                    </div>
-                                    <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
-                                        -66%
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col gap-1'>
-                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                        <span className='text-[15px] font-bold text-black'>
-                                            Rs. {product.price.toLocaleString("en-US")}
-                                        </span>
-                                        {" "}
-                                        <span className='text-[13px] line-through text-red-600'>
-                                            Rs. {product.price.toLocaleString("en-US")}
-                                        </span>
-                                    </p>
-                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                </div>
+                        <Fade>
+                            <div className='hidden md:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 w-full' >
+                                {[...Array(15)].map((_, i) => (
+                                    <Fade key={i}>
+                                        <div className={`p-2 md:p-4 flex gap-2 flex-col`}>
+                                            <Skeleton
+                                                variant='rounded'
+                                                animation="wave"
+                                                className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] cursor-progress`}
+                                            />
+                                            <div>
+                                                <Skeleton
+                                                    variant='text'
+                                                    animation="wave"
+                                                    className='bg-stone-100 w-[140px] md:w-[160px]'
+                                                />
+                                                <div className='mt-4 flex flex-col gap-1' >
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                    />
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
+                                                    />
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Fade>
+                                ))}
                             </div>
-                        </Link>
-                    ))}
-                </div>
+                        </Fade>
+                    </>
+                    : Boolean(products.length) ?
+                        <>
+
+                            <div className='hidden md:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-left w-ful' >
+                                {products.map((product) => (
+                                    <Fade key={product._id} >
+                                        <Link href={`/product?product_id=${product._id}`} >
+                                            <div
+                                                className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer`}
+                                            >
+                                                <div className='relative'>
+                                                    <div className={`"w-full overflow-hidden shadow-sm`}>
+
+                                                        <img alt="Product" src={select_thumbnail_from_media(product.media)} className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] lg:hover:scale-[1.1] object-cover transition-all duration-500`} />
+
+
+                                                    </div>
+
+                                                    {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
+                                                        <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
+                                                            -{calculate_discount_precentage(product.price, product.compare_price)}%
+                                                        </p>
+                                                    }
+                                                </div>
+
+
+                                                <div className='flex flex-col gap-1'>
+                                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
+                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
+                                                        <span className='text-[15px] font-bold text-black'>
+                                                            Rs. {product.price.toLocaleString("en-US")}
+                                                        </span>
+                                                        {" "}
+                                                        {Boolean(product.compare_price) &&
+                                                            <span className='text-[13px] line-through text-red-600'>
+                                                                Rs. {product.compare_price.toLocaleString("en-US")}
+                                                            </span>
+                                                        }
+                                                    </p>
+                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                    </Fade>
+                                ))}
+                            </div>
+
+                            {(show_more_payload.hasMore && !is_loading) &&
+                                <Fade>
+
+                                    <div className='w-full hidden md:flex justify-center my-8 '>
+                                        <button
+                                            onClick={show_more_payload_func}
+                                            disabled={!show_more_payload.hasMore && is_loading && show_more_loading}
+                                            className='hover:bg-stone-800 hover:text-white text-[17px] w-[275px] py-[10px] font-bold bg-transparent text-stone-800 transition-all border border-stone-500 active:opacity-75'
+                                        >
+                                            {show_more_loading ?
+                                                <CircularProgress size={17} color='inherit' />
+                                                :
+                                                "Show More"}
+                                        </button>
+                                    </div>
+                                </Fade>
+                            }
+                        </>
+                        :
+                        <></>
+                }
 
 
 
+                <h1 className='text-[20px] md:text-[26px] font-medium md:hidden' >NEW LIFE FOR OLD SOLES</h1>
 
                 <div className="w-full text-center text-[44px] font-medium bg-contain relative md:hidden">
                     <div className='static' >
@@ -235,9 +404,7 @@ const Landing_page = () => {
             </div>
 
 
-            <div className='w-full hidden md:flex justify-center my-8 '>
-                <button className='hover:bg-stone-800 hover:text-white text-[17px] w-[275px] py-[10px] font-bold bg-transparent text-stone-800 transition-all border border-stone-500 active:opacity-75'>SHOW MORE</button>
-            </div>
+
 
             {/* <App_footer /> */}
 

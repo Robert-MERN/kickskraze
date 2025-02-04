@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 
 
 
+
 const StateContext = createContext();
 
 export const ContextProvider = ({ children }) => {
@@ -106,7 +107,7 @@ export const ContextProvider = ({ children }) => {
                 if (!direct) {
                     set_snackbar_alert({
                         open: true,
-                        message: "Can't add this item to the cart, due to limited stock!",
+                        message: "Item already added to your cart!",
                         severity: "warning"
                     });
                 }
@@ -205,6 +206,9 @@ export const ContextProvider = ({ children }) => {
 
     const [fetched_products_for_collection, set_fetched_products_for_collection] = useState([]);
     const [products_for_collection_loading, set_products_for_collection_loading] = useState(true);
+
+    const [fetched_products_for_landing, set_fetched_products_for_landing] = useState([]);
+    const [products_for_landing_loading, set_products_for_landing_loading] = useState(true);
 
 
     //<----------------------- API Calls and Handlers [Back-end] ----------------------->
@@ -331,11 +335,13 @@ export const ContextProvider = ({ children }) => {
             }
             set_show_more(prev => ({ ...prev, hasMore: res?.data?.meta?.hasMore, count: res?.data?.meta?.filteredCount }));
         } catch (err) {
+            console.error(err);
             set_snackbar_alert({
                 open: true,
                 message: err.response.data.message,
                 severity: "error",
             })
+
         } finally {
             // finish loading
             set_is_loading(false);
@@ -633,7 +639,9 @@ export const ContextProvider = ({ children }) => {
                 product_id, set_product_id,
 
                 fetched_products_for_collection, set_fetched_products_for_collection,
+                fetched_products_for_landing, set_fetched_products_for_landing,
                 products_for_collection_loading, set_products_for_collection_loading,
+                products_for_landing_loading, set_products_for_landing_loading,
 
                 API_loading, set_API_loading,
 

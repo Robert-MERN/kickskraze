@@ -4,7 +4,6 @@ import { IoClose } from "react-icons/io5";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from 'next/link';
 import style from "@/styles/home.module.css";
-import { products } from '@/models/product_schema';
 import { useRouter } from 'next/router';
 import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
@@ -126,19 +125,23 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
   useEffect(() => {
     const fetch = async () => {
       if (drawer_state.search_drawer) {
-        set_is_trending_loading(true)
-        try {
-          await get_all_products_api(axios, "featured=true", set_trending_results, set_show_more_payload, set_fake_is_loading);
-        } catch (err) {
-          console.error(err);
-        } finally {
-          set_is_trending_loading(false)
-        }
+        if (!trending_results.length) {
+          set_is_trending_loading(true)
+          try {
+            await get_all_products_api(axios, "featured=true", set_trending_results, set_show_more_payload, set_fake_is_loading);
+          } catch (err) {
+            console.error(err);
+          } finally {
+            set_is_trending_loading(false)
+          }
+        };
+      } else {
+        set_results([]);
+        setSearchTerm("");
+        setDebouncedTerm("");
       }
     }
-    if (!trending_results.length) {
-      fetch();
-    }
+    fetch();
   }, [drawer_state.search_drawer]);
 
   const view_more_btn = () => {
@@ -174,7 +177,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
           </button>
         </div>
 
-        {searchTerm ?
+        {Boolean(searchTerm) ?
 
           <>
             <div className='w-full py-[12px] px-[20px] border-b border-stone-200 mb-4' >
@@ -221,7 +224,11 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                 <>
                   <div className="grid grid-cols-2 px-[20px] gap-2">
                     {results.slice(0, 2).map((product) => (
-                      <Link href={`/product?product_id=${product._id}`} key={product._id}>
+                      <Link
+                        href={`/product?product_id=${product._id}`}
+                        key={product._id}
+                        onClose={() => toggle_drawer("search_drawer")}
+                      >
                         <div
                           className={`p-1 flex flex-col gap-2 cursor-pointer`}
                         >
@@ -275,8 +282,6 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
             }
           </>
           :
-
-
           <>
             <div className='w-full py-[12px] px-[20px] border-b border-stone-200' >
               <p className='text-[17px] font-bold select-none' >TRENDING NOW</p>
@@ -284,7 +289,11 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
 
             <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[110px] overflow-y-auto ${style.scroll_bar}`}>
               {trending_options.map((each, index) => (
-                <Link onClick={() => toggle_drawer("search_drawer")} href={each.link} key={index}>
+                <Link
+                  onClick={() => toggle_drawer("search_drawer")}
+                  href={each.link}
+                  key={index}
+                >
                   <div className='px-[10px] py-[8px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-2 text-[14px] font-semibold transition-all' >
                     <SearchIcon className="text-[20px]" />
                     <p className='capitalize'>{each.option}</p>
@@ -347,7 +356,11 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
               : (trending_results.length) ?
                 <div className="grid grid-cols-2 px-[20px] gap-2">
                   {trending_results.slice(0, 2).map((product) => (
-                    <Link href={`/product?product_id=${product._id}`} key={product._id}>
+                    <Link
+                      href={`/product?product_id=${product._id}`}
+                      key={product._id}
+                      onClose={() => toggle_drawer("search_drawer")}
+                    >
                       <div
                         className={`p-1 flex flex-col gap-2 cursor-pointer`}
                       >

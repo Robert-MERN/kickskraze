@@ -53,19 +53,19 @@ const Footer = () => {
                             </li>
                         </Link>
 
-                        <Link href="/collection?gender=men">
+                        <Link href="/collection?category=men">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Men
                             </li>
                         </Link>
 
-                        <Link href="/collection?gender=women">
+                        <Link href="/collection?category=women">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Women
                             </li>
                         </Link>
 
-                        <Link href="/collection?gender=kids">
+                        <Link href="/collection?category=kids">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Kids
                             </li>
@@ -130,7 +130,7 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-bold pb-4' >Follow Us</p>
                     <div className='flex items-center gap-6 pb-4'>
-                        <Link className='' href="https://www.instagram.com/kickskraze.pk/profilecard/?igsh=Z3dvcDk3eXRlN3Z1" target='_blank'>
+                        <Link className='' href="https://www.instagram.com/kickskraze.pk?igsh=Z3dvcDk3eXRlN3Z1&utm_source=qr" target='_blank'>
                             <FaSquareInstagram className='text-[26px] text-stone-800 hover:opacity-75 active:opacity-50 transition-all' />
                         </Link>
                         <Link className='' href="https://www.facebook.com/share/152nJBR4YZ/?mibextid=wwXIfr">

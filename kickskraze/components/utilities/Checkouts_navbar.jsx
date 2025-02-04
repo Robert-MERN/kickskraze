@@ -2,7 +2,7 @@ import React from 'react'
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
 import { FiShoppingCart } from "react-icons/fi";
-
+import Link from 'next/link';
 
 
 const Checkouts_navbar = () => {
@@ -11,11 +11,13 @@ const Checkouts_navbar = () => {
             <div className='w-full flex justify-between items-center md:px-[40px]'>
 
                 <div>
-                    <Image
-                        alt="logo"
-                        src={logo}
-                        className='w-[100px] object-contain'
-                    />
+                    <Link href="/"> 
+                        <Image
+                            alt="logo"
+                            src={logo}
+                            className='w-[100px] object-contain'
+                        />
+                    </Link>
                 </div>
 
                 <div>

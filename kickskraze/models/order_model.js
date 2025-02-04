@@ -15,14 +15,22 @@ const ordersSchema = new Schema(
         },
         lastName: {
             type: String,
-            required: [true, "Please enter your Last Name"]
+            required: [true, "Please enter your last name"]
+        },
+        city: {
+            type: String,
+            required: [true, "Please enter your city"]
+        },
+        postal_code: {
+            type: String,
         },
         address: {
             type: String,
+            required: [true, "Please enter your postal code"]
         },
         phone: {
             type: String,
-            required: [true, "Please type your Phone no."]
+            required: [true, "Please type your phone no."]
         },
         delivery_charges: {
             type: Number,
@@ -42,9 +50,9 @@ const ordersSchema = new Schema(
             type: Number,
             required: [true, "Total items value is missing"]
         },
-        order_method: {
+        payment_method: {
             type: String,
-            default: "delivery"
+            default: "cod"
         }
     },
     { timestamps: true }

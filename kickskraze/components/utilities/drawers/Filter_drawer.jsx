@@ -192,7 +192,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
                                 <div className='pb-[15px] border-b border-stone-300'>
                                     <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
-                                    <div className={`flex flex-wrap justify-start gap-3 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                    <div className={`flex flex-wrap justify-start gap-2 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
                                         {filter_options.sizes.map((each, index) => (
                                             <button
                                                 key={index}
@@ -220,7 +220,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                             <Fade>
                                 <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
                                     <h1 className='text-[17px] text-stone-900 mb-3'>Condition</h1>
-                                    <div className={`max-h-[150px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                    <div className={`max-h-[155px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
                                         {filter_options.conditions.map((each, index) => (
                                             <button
                                                 key={index}

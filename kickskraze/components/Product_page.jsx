@@ -8,8 +8,6 @@ import Zoom from "react-medium-image-zoom";
 import "react-medium-image-zoom/dist/styles.css";
 import Carousel from 'react-multi-carousel';
 import 'react-multi-carousel/lib/styles.css';
-import product_image from "@/public/images/product_image.webp"
-import Image from 'next/image';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -17,7 +15,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useStateContext from '@/context/ContextProvider';
 import { useRouter } from 'next/router';
 import { Skeleton } from '@mui/material';
-import { products } from '@/models/product_schema';
 import { calculate_discount_precentage, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
 import Fade from 'react-reveal/Fade';
 
@@ -79,7 +76,7 @@ const Product_page = ({ axios }) => {
                         src={item.url}
                         controls
                         muted
-                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-cover object-center'
+                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-contain object-center bg-black'
                     />
                 </div>
                 :
@@ -364,28 +361,41 @@ const Product_page = ({ axios }) => {
                                         <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'>Condition: {product.condition}</p>
                                     </div>
 
+                                    {Boolean(product.stock) ?
+                                        <>
+                                            <Fade>
+                                                <div className='w-full mt-6 xl:mt-6'>
+                                                    {/* Checkout Button */}
+                                                    < button onClick={() => add_item_to_cart(product)} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
+                                                        ADD TO CART
+                                                    </button>
+                                                </div>
+                                            </Fade>
 
-                                    <Fade>
-                                        <div className='w-full mt-6 xl:mt-6'>
-                                            {/* Checkout Button */}
-                                            < button onClick={() => add_item_to_cart(product)} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
-                                                ADD TO CART
-                                            </button>
-                                        </div>
-                                    </Fade>
+                                            <Fade>
 
-                                    <Fade>
+                                                <div className='w-full my-6 xl:mt-8'>
+                                                    {/* Checkout Button */}
+                                                    <button onClick={() => {
+                                                        add_item_to_cart(product, "direct");
+                                                        router.push("/checkouts");
+                                                    }} className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500  transition-all duration-300'>
+                                                        BUY IT NOW
+                                                    </button>
+                                                </div>
+                                            </Fade>
+                                        </>
+                                        :
+                                        <Fade>
+                                            <div className='w-full mt-6 xl:mt-6'>
+                                                {/* Checkout Button */}
+                                                < button disabled className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] opacity-60'>
+                                                    SOLD OUT
+                                                </button>
+                                            </div>
+                                        </Fade>
 
-                                        <div className='w-full my-6 xl:mt-8'>
-                                            {/* Checkout Button */}
-                                            <button onClick={() => {
-                                                add_item_to_cart(product, "direct");
-                                                router.push("/checkouts");
-                                            }} className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500  transition-all duration-300'>
-                                                BUY IT NOW
-                                            </button>
-                                        </div>
-                                    </Fade>
+                                    }
 
                                     <Fade>
                                         <div className='w-full my-6 xl:my-8'>

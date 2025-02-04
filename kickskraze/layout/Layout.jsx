@@ -164,7 +164,7 @@ const Layout = ({ children }) => {
 
             {children}
 
-            {!router.pathname.includes("/admin") &&
+            {(router.pathname.includes("/collection") || router.pathname === ("/")) &&
 
                 < a
                     target='_blank'

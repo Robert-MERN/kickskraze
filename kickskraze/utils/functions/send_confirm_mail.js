@@ -30,7 +30,8 @@ export default async function send_confirm_mail(res, orders) {
 
         return { success: true, message: "mail-sent" };
     } catch (err) {
-        return res.status(501).json({ status: false, message: err.message });
+        console.error(err)
+        return { success: true, message: "mail-send-failed" };
     }
 
 }

@@ -261,6 +261,8 @@ const Collection_page = ({ axios }) => {
     }, [show_more_payload.page]);
 
 
+
+
     return (
         <div className='w-full px-[20px] pt-[15px] md:pt-[30px] '>
             <div className='w-full flex gap-4' >
@@ -391,7 +393,7 @@ const Collection_page = ({ axios }) => {
 
                                     <div className='pb-[15px] border-b border-stone-300'>
                                         <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
-                                        <div className={`flex flex-wrap justify-start gap-3 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                        <div className={`flex flex-wrap justify-start gap-2 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
                                             {filter_options.sizes.map((each, index) => (
                                                 <button
                                                     key={index}
@@ -419,7 +421,7 @@ const Collection_page = ({ axios }) => {
                                 <Fade>
                                     <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
                                         <h1 className='text-[17px] text-stone-900 mb-3'>Condition</h1>
-                                        <div className={`max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                        <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
                                             {filter_options.conditions.map((each, index) => (
                                                 <button
                                                     key={index}
@@ -749,7 +751,8 @@ const Collection_page = ({ axios }) => {
                             <div className='my-[50px] w-full flex justify-center items-center'>
                                 <button
                                     disabled={!show_more_payload.hasMore && is_loading && show_more_loading}
-                                    onClick={show_more_payload_func} className='font-bold text-black hover:text-white active:opacity-50 transition-all py-[12px] w-full md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
+                                    onClick={show_more_payload_func}
+                                    className='font-bold text-black hover:text-white active:opacity-50 transition-all py-[12px] w-full md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
 
                                     {show_more_loading ?
                                         <CircularProgress size={17} color='inherit' />

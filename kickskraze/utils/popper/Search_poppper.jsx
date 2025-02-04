@@ -102,7 +102,6 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                 <Fade {...TransitionProps} timeout={350}>
                     <div
                         className="w-[600px] py-[15px] px-[20px] bg-white rounded-md text-stone-950 shadow-lg border"
-                    // onMouseLeave={onClose} // Optional: close when mouse leaves
                     >
                         {searchTerm ?
                             <>
@@ -152,6 +151,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                     <Link
                                                         href={`/product?product_id=${product._id}`}
                                                         key={product._id}
+                                                        onClick={onClose}
                                                     >
                                                         <div
                                                             className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}
@@ -221,7 +221,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
 
                                 <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[120px] overflow-y-auto ${style.scroll_bar}`}>
                                     {trending_options.map((each, index) => (
-                                        <Link onClick={()=> setAnchorEl(null)} href={each.link} key={index}>
+                                        <Link onClick={onClose} href={each.link} key={index}>
                                             <div className='px-[8px] py-[6px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-1 text-[15px] font-medium transition-all' >
                                                 <SearchIcon className="text-[20px]" />
                                                 <p className='capitalize'>{each.option}</p>
@@ -289,6 +289,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                 <Link
                                                     href={`/product?product_id=${product._id}`}
                                                     key={product._id}
+                                                    onClick={onClose} 
                                                 >
                                                     <div
                                                         className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}

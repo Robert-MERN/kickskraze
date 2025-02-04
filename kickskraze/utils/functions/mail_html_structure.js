@@ -6,51 +6,57 @@ export const mail_html_structure = (order) => {
 
 
 
-const { _id, email,
-special_instructions,
-firstName,
-lastName,
-address,
-phone,
-delivery_charges,
-purchase,
-total_amount,
-total_items,
-location,
-branch,
-order_method,
-createdAt,
-} = order;
+  const { _id, email,
+    special_instructions,
+    firstName,
+    lastName,
+    city,
+    postal_code,
+    address,
+    phone,
+    delivery_charges,
+    purchase,
+    total_amount,
+    total_items,
+    payment_method,
+    createdAt,
+  } = order;
 
 
-// Calculator
-const calc_total_amount = (arr) => {
-return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
-}
+  // Calculator
+  const calc_total_amount = (arr) => {
+    return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+  }
 
 
-const calc_gross_total_amount = (obj) => {
-if (obj.order_method === "delivery") {
-return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-}
-return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0);
-}
+  const calc_gross_total_amount = (obj) => {
+    return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
+  }
 
 
-const date_formatter = (date) => {
-// Create a Date object
-const dateObject = new Date(date);
+  const date_formatter = (date) => {
+    // Create a Date object
+    const dateObject = new Date(date);
 
-// Format the date
-const options = { year: 'numeric', month: 'short', day: '2-digit' };
-return dateObject.toLocaleDateString('en-US', options);
-}
-
-
+    // Format the date
+    const options = { year: 'numeric', month: 'short', day: '2-digit' };
+    return dateObject.toLocaleDateString('en-US', options);
+  }
 
 
-const _html =
-`
+  const payment_methods = {
+    cod: "Cash on Delivery (COD)",
+    jazzcash: "Paid with JazzCash (JazzCash)",
+    easypaisa: "Paid with EasyPaisa (EasyPaisa)",
+    sadapay: "Paid with SadaPay (SadaPay)",
+    nayapay: "Paid with NayaPay (NayaPay)",
+    bank: "Paid via Bank Transfer (Bank)",
+  };
+
+  const copyright_year = new Date().getFullYear();
+
+  const _html =
+    `
 <!DOCTYPE html
   PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:o="urn:schemas-microsoft-com:office:office" lang="en">
@@ -816,10 +822,10 @@ const _html =
                               <tr>
                                 <td align="center"
                                   style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><a
-                                    target="_blank" href="https://pizzabuddies.store"
+                                    target="_blank" href="https://kickskraze.shop"
                                     style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px"><img
-                                      src="https://erxznja.stripocdn.email/content/guids/CABINET_8bb29616ee788f04c4f335df5b20476784d4c98f65083bf02f8e336996932ea3/images/blob_jaeuox.png"
-                                      alt="" width="250" title="Logo" class="img-4512"
+                                      src="https://kickskraze.shop/images/logo.png"
+                                      alt="" width="320" title="Logo" class="img-4512"
                                       style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></a>
                                 </td>
                               </tr>
@@ -864,7 +870,7 @@ const _html =
                                   <h6 class="es-m-txt-c"
                                     style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:16px;font-style:normal;font-weight:normal;line-height:19.2px;color:#333333">
                                     <strong>Order&nbsp;<a target="_blank"
-                                        href="https://pizzabuddies.store?order_id=${_id}"
+                                        href="https://kickskraze.shop/checkouts/${_id}"
                                         style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:16px;text-transform: uppercase">#${_id}</a></strong>
                                   </h6>
                                 </td>
@@ -889,7 +895,7 @@ const _html =
                               <tr>
                                 <td align="center" style="padding:0;Margin:0"><span class="es-button-border"
                                     style="border-style:solid;border-color:#e11d48;background:#e11d48;border-width:2px;display:inline-block;border-radius:6px;width:auto"><a
-                                      href="https://pizzabuddies.store?order_id=${_id}" target="_blank"
+                                      href="https://kickskraze.shop/checkouts/${_id}" target="_blank"
                                       class="es-button es-button-3343"
                                       style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#ffffff;font-size:18px;padding:10px 30px 10px 30px;display:inline-block;background:#e11d48;border-radius:6px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:21.6px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #e11d48;border-left-width:30px;border-right-width:30px">View
                                       your order</a></span></td>
@@ -929,7 +935,7 @@ const _html =
                                       ${calc_total_amount(purchase).toLocaleString("en-US")}</strong>
                                     <br>
 
-                                    ${order_method === "delivery" ? `
+                                    ${delivery_charges ? `
                                     Delivery: <strong>Rs.</strong>
                                     <strong>${delivery_charges.toLocaleString("en-US")}</strong>
                                   </p>
@@ -956,7 +962,7 @@ const _html =
 
                   ${special_instructions ?
 
-                  `
+      `
                   <tr>
                     <td align="left"
                       style="Margin:0;padding-right:20px;padding-left:20px;padding-bottom:10px;padding-top:20px"><!--[if mso]>
@@ -991,11 +997,11 @@ const _html =
 
                   `
 
-                  :
-                  ``
+      :
+      ``
 
 
-                  }
+    }
 
 
 
@@ -1034,8 +1040,7 @@ const _html =
                                     Invoice date:&nbsp;<strong>${date_formatter(createdAt)}</strong></p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Payment method: <strong>${order_method === "delivery" ? "Cash on Delivery (COD)" :
-                                      "Cash on Delivery (COD)"}</strong></p>
+                                    Payment method: <strong>${payment_methods[payment_method]}</strong></p>
                                 </td>
                               </tr>
                             </table>
@@ -1059,29 +1064,15 @@ const _html =
                               style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                               <tr>
                                 <td align="left" style="padding:0;Margin:0">
-                                  <p class="es-m-txt-l"
-                                    style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Delivery method: <strong>${order_method === "delivery" ? "Delivery Charges" :
-                                      "Pickup"}</strong>
-                                  </p>
-                                  ${location ? `
-                                  <p class="es-m-txt-l"
-                                    style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Customer location: <strong>${location}</strong>
-                                  </p>
-                                  `
-                                  :
-                                  ``
-                                  }
 
                                   <p class="es-m-txt-l"
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    ${order_method === "delivery" ? "Delivery address:" : "Pickup Address"}
+                                    Delivery address:  <strong> ${address}</strong>
                                   </p>
 
                                   <p class="es-m-txt-l"
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    <strong>${order_method === "delivery" ? address : branch}, Karachi,<br>Pakistan
+                                    <strong>${postal_code ? `${postal_code}, ` : ""} ${city},<br>Pakistan
                                     </strong>
 
                                   </p>
@@ -1112,11 +1103,11 @@ const _html =
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
                                     Got a question?&nbsp;Email us at <a target="_blank"
-                                      href="mailto:pizzabuddies@gmail.com?subject=Need%20a%20Help%20From%20Support&body=I%27d%20like%20to%20inform%20you..."
-                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">pizzabuddies@gmail.com</a>
-                                    or give us a call at <a target="_blank" href="tel:923152825015"
+                                      href="mailto:kickskraze@gmail.com?subject=Need%20a%20Help%20From%20Support&body=I%27d%20like%20to%20inform%20you..."
+                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">kickskraze@gmail.com</a>
+                                    or give us a call at <a target="_blank" href="tel:923102223511"
                                       style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">+92
-                                      315 2825 015</a>..</p>
+                                      310 2223 511</a>..</p>
                                 </td>
                               </tr>
                             </table>
@@ -1162,7 +1153,7 @@ const _html =
                                     <tr>
                                       <td align="center" valign="top" style="padding:0;Margin:0;padding-right:40px"><a
                                           target="_blank"
-                                          href="https://www.facebook.com/share/1YSxSEXS5L/?mibextid=wwXIfr"
+                                          href="https://www.facebook.com/share/152nJBR4YZ/?mibextid=wwXIfr"
                                           style="mso-line-height-rule:exactly;text-decoration:underline;color:#333333;font-size:12px"><img
                                             title="Facebook"
                                             src="https://erxznja.stripocdn.email/content/assets/img/social-icons/logo-colored/facebook-logo-colored.png"
@@ -1170,7 +1161,7 @@ const _html =
                                             style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></a>
                                       </td>
                                       <td align="center" valign="top" style="padding:0;Margin:0;padding-right:40px"><a
-                                          target="_blank" href="https://www.instagram.com/_pizzabuddies"
+                                          target="_blank" href="https://www.instagram.com/kickskraze.pk?igsh=Z3dvcDk3eXRlN3Z1&utm_source=qr"
                                           style="mso-line-height-rule:exactly;text-decoration:underline;color:#333333;font-size:12px"><img
                                             title="Instagram"
                                             src="https://erxznja.stripocdn.email/content/assets/img/social-icons/logo-colored/instagram-logo-colored.png"
@@ -1185,10 +1176,10 @@ const _html =
                                 <td align="center" style="padding:0;Margin:0;padding-bottom:35px">
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:18px;letter-spacing:0;color:#333333;font-size:12px">
-                                    Pizza Buddies © 2021 All Rights Reserved.</p>
+                                    KicksKraze © ${copyright_year} All Rights Reserved.</p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:18px;letter-spacing:0;color:#333333;font-size:12px">
-                                    Shop no. 25 Lakhani Tower Ahsanabad, Sector-1, Gulshan-e-Maymar, Sindh, Karachi,
+                                    Chishti Naggar, Sector-11-1/2, Orangi Town, Sindh, Karachi,
                                     Pakistan.</p>
                                 </td>
                               </tr>
@@ -1203,7 +1194,7 @@ const _html =
                                       <td align="center" valign="top" width="100.00%"
                                         style="Margin:0;border:0;padding-top:5px;padding-bottom:5px;padding-right:5px;padding-left:5px">
                                         <div style="vertical-align:middle;display:block">
-                                          <a target="_blank" href="https://pizzabuddies.store"
+                                          <a target="_blank" href="https://kickskraze.shop"
                                             style="mso-line-height-rule:exactly;text-decoration:none;font-family:arial, 'helvetica neue', helvetica, sans-serif;display:block;color:#999999;font-size:12px">
                                             Visit Us 
                                           </a>
@@ -1234,5 +1225,5 @@ const _html =
 </html>`
 
 
-return _html
+  return _html
 }

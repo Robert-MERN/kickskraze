@@ -44,7 +44,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
                 </div>
 
                 <div onClick={() => toggle_drawer("collection_drawer")} className='flex justify-between items-center py-[12px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
-                    <p className='text-[17px] font-semibold select-none' >Colection</p>
+                    <p className='text-[17px] font-semibold select-none' >Collection</p>
                     <FaAngleRight className='scale-[1.05] text-stone-500' />
                 </div>
 
