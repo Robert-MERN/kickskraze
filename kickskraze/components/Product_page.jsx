@@ -662,7 +662,7 @@ const Product_page = ({ axios }) => {
 
                                             {related_products.filter(e => e._id !== product._id).slice(0, 18).map((product) => (
                                                 <Fade key={product._id}>
-                                                    <Link href={`/product?id=${product._id}`} >
+                                                    <Link href={`/product?product_id=${product._id}`} >
                                                         <div
                                                             className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}
                                                         >

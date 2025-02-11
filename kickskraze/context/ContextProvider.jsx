@@ -102,6 +102,7 @@ export const ContextProvider = ({ children }) => {
             const updated_cart = [...prev_cart];
             const index = updated_cart.findIndex((each) => each._id === item._id)
             updated_cart.splice(index, 1);
+            save_cart(updated_cart);
             return updated_cart;
         });
     }
@@ -151,10 +152,12 @@ export const ContextProvider = ({ children }) => {
 
             if (Number(item.quantity - 1) < 1) {
                 updated_cart.splice(index, 1);
+                save_cart(updated_cart);
                 return updated_cart;
             }
             const new_item = { ...item, quantity: item.quantity - 1 }
             updated_cart.splice(index, 1, new_item);
+            save_cart(updated_cart);
             return updated_cart;
         });
     }

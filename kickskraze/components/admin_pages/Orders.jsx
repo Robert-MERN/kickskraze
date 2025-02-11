@@ -178,6 +178,8 @@ const Orders = ({ axios }) => {
     useEffect(() => {
         if (!orders.length) {
             get_all_orders_api(axios, set_orders, set_is_loading);
+        } else {
+            set_is_loading(false);
         }
     }, []);
 
