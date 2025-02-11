@@ -14,13 +14,13 @@ export default async function send_confirm_mail(res, orders) {
         const transport = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: 'rackeragency@gmail.com',
-                pass: 'phtspmtkanwfyhkc'
+                user: 'ms.kickskraze@gmail.com',
+                pass: 'ccyqhgoqklxbsrzc'
             },
         });
         const mailOptions = {
             from: `KicksKraze <rackeragency@gmail.com>`,
-            to: "rackeragency@gmail.com",
+            to: "ms.kickskraze@gmail.com",
             subject: `ORDER CONFIRMED #${_id}`,
             html: mail_html_structure(orders)
         };

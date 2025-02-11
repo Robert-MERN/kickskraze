@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Popper, Skeleton } from "@mui/material";
 import { calculate_discount_precentage, select_thumbnail_from_media } from '../functions/produc_fn';
 
-const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, debouncedTerm, searchTerm, results, trending_results,
+const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, debouncedTerm, searchTerm, results, trending_results,
     is_loading, is_trending_loading, show_more_payload, router }) => {
 
     const trending_options = [
@@ -56,7 +56,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
 
     const view_more_btn = () => {
         setAnchorEl(null);
-        router.push(`/collection?search=${debouncedTerm}`)
+        router.push(`/admin/all-products?search=${debouncedTerm}`)
     }
 
     return (
@@ -149,7 +149,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                             <div className="grid grid-cols-3 gap-2">
                                                 {results.slice(0, 3).map((product) => (
                                                     <Link
-                                                        href={`/product?product_id=${product._id}`}
+                                                        href={`/admin/update-product?product_id=${product._id}`}
                                                         key={product._id}
                                                         onClick={onClose}
                                                     >
@@ -287,7 +287,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                         <div className="grid grid-cols-3 gap-2">
                                             {trending_results.slice(0, 3).map((product) => (
                                                 <Link
-                                                    href={`/product?product_id=${product._id}`}
+                                                    href={`/admin/update-product?product_id=${product._id}`}
                                                     key={product._id}
                                                     onClick={onClose} 
                                                 >
@@ -342,4 +342,4 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
 };
 
 
-export default SearchPopper
+export default SearchPopperAdmin

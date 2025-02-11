@@ -12,6 +12,7 @@ import {
     remove_group_items_from_filters_realtime_update,
     remove_all_items_from_filters_realtime_update,
     find_filter,
+    convert_to_query_string,
 } from '@/utils/functions/filter_function';
 import { Fade } from 'react-reveal';
 import { Skeleton } from '@mui/material';
@@ -26,6 +27,13 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         filter_options,
         set_filter_options,
         get_filter_values_api,
+        get_all_products_api,
+        fetched_products_for_collection: products,
+        set_fetched_products_for_collection: set_products,
+        products_for_collection_loading: is_loading,
+        set_products_for_collection_loading: set_is_loading,
+        show_more_payload, 
+        set_show_more_payload
     } = useStateContext();
 
 
@@ -33,15 +41,46 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
 
 
+
     useEffect(() => {
         document.querySelectorAll(".MuiCheckbox-root").forEach((each, _) => each.style = "color: #292524")
     }, []);
 
+    // APPLYING FILTER AND REMOVING FILTERS LOGICS
+    const timerRef = useRef(null);
 
-    const apply_filter = (filter_obj) => {
-        filter_method(filter_obj, set_filters);
+    const apply_filter = async (filter_obj) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
+        if (Object.keys(filter_obj).includes("price_gte") || Object.keys(filter_obj).includes("price_lte")) {
+            timerRef.current = setTimeout(async () => {
+                const FILTERS = await filter_method(filter_obj, set_filters);
+                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+            }, 300);
+        } else {
+            const FILTERS = await filter_method(filter_obj, set_filters);
+            get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        }
+    };
+
+    const remove_item_from_filters_realtime_update_fn = async (set_filters, e, filter_options) => {
+        const FILTERS = await remove_item_from_filters_realtime_update(set_filters, e, filter_options);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
     }
 
+    const remove_group_items_from_filters_realtime_update_fn = async (set_filters, obj_key) => {
+        const FILTERS = await remove_group_items_from_filters_realtime_update(set_filters, obj_key);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+    }
+
+    const remove_all_items_from_filters_realtime_update_fn = (filter_options, set_filters) => {
+        const FILTERS = remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+    }
+
+    // <-----------End Here ----------->
 
     useEffect(() => {
         if (drawer_state.filter_drawer && !Object.entries(filter_options).length) {
@@ -163,7 +202,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                     <div className='pb-[15px] border-b border-stone-300 mb-[30px]'>
 
                                         <button
-                                            onClick={() => remove_all_items_from_filters_realtime_update(filter_options, set_filters)}
+                                            onClick={() => remove_all_items_from_filters_realtime_update_fn(filter_options, set_filters)}
                                             className='text-[16px] text-stone-600 mb-3 underline underline-offset-4'
                                         >
                                             Clear all
@@ -173,7 +212,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                             {filters_realtime_update(filter_options, filters).map((e, index) => (
                                                 <Fade key={index}>
                                                     <button
-                                                        onClick={() => remove_item_from_filters_realtime_update(set_filters, e, filter_options)
+                                                        onClick={() => remove_item_from_filters_realtime_update_fn(set_filters, e, filter_options)
                                                         }
                                                         className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
                                                     >
@@ -206,7 +245,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                     </div>
                                     {filters.some(e => Object.keys(e)[0] === "size") &&
                                         <button
-                                            onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "size")
+                                            onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "size")
                                             }
                                             className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                             Clear all
@@ -237,7 +276,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                     </div>
                                     {filters.some(e => Object.keys(e)[0] === "condition") &&
                                         <button
-                                            onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "condition")
+                                            onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "condition")
                                             }
                                             className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                             Clear all
@@ -267,7 +306,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                     </div>
                                     {filters.some(e => Object.keys(e)[0] === "brand") &&
                                         <button
-                                            onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "brand")
+                                            onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "brand")
                                             }
                                             className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                             Clear all
@@ -290,6 +329,9 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                                                     onChange={(e, new_prices) => {
                                                         apply_filter({ price_gte: Number(new_prices[0]) });
                                                         apply_filter({ price_lte: Number(new_prices[1]) });
+
+                                                        filter_method({ price_gte: Number(new_prices[0]) }, set_filters);
+                                                        filter_method({ price_lte: Number(new_prices[1]) }, set_filters);
                                                     }}
                                                     valueLabelDisplay="auto"
                                                     step={50}
@@ -340,7 +382,10 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                             <Fade>
                                 <div className='mt-[20px] mb-[50px] w-full'>
                                     <button
-                                        onClick={() => toggle_drawer("filter_drawer")}
+                                        onClick={() => {
+                                            // get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_is_loading)
+                                            toggle_drawer("filter_drawer");
+                                        }}
                                         className='bg-black font-bold text-white hover:opacity-75 active:opacity-50 transition-all py-[10px] w-full' >
                                         Apply
                                     </button>

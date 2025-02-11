@@ -3,6 +3,7 @@ import FaceIcon from '@mui/icons-material/Face';
 import Face4Icon from '@mui/icons-material/Face4';
 import WcIcon from '@mui/icons-material/Wc';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
+import { nanoid } from 'nanoid';
 
 // Icons For Condition List
 import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
@@ -27,403 +28,407 @@ export const condition_list = [
 export const brand_list = [
     {
         "brand": "Adidas",
-        "_id": 1
+        "_id": nanoid(8)
     },
     {
         "brand": "And 1",
-        "_id": 2
+        "_id": nanoid(8)
     },
     {
         "brand": "Anko",
-        "_id": 3
+        "_id": nanoid(8)
     },
     {
         "brand": "Armani Jeans",
-        "_id": 4
+        "_id": nanoid(8)
     },
     {
         "brand": "ASICS",
-        "_id": 5
+        "_id": nanoid(8)
     },
     {
         "brand": "Athletic",
-        "_id": 6
+        "_id": nanoid(8)
     },
     {
         "brand": "Bench",
-        "_id": 7
+        "_id": nanoid(8)
     },
     {
         "brand": "Blowfish",
-        "_id": 8
+        "_id": nanoid(8)
     },
     {
         "brand": "Brooks",
-        "_id": 9
+        "_id": nanoid(8)
     },
     {
         "brand": "Camper",
-        "_id": 10
+        "_id": nanoid(8)
     },
     {
         "brand": "Carters",
-        "_id": 11
+        "_id": nanoid(8)
     },
     {
         "brand": "Caterpillar",
-        "_id": 12
+        "_id": nanoid(8)
     },
     {
         "brand": "Champion",
-        "_id": 13
+        "_id": nanoid(8)
     },
     {
         "brand": "Cloudsurfer",
-        "_id": 14
+        "_id": nanoid(8)
     },
     {
         "brand": "Coach",
-        "_id": 15
+        "_id": nanoid(8)
     },
     {
         "brand": "Columbia Drainmaker",
-        "_id": 16
+        "_id": nanoid(8)
     },
     {
         "brand": "Converse",
-        "_id": 17
+        "_id": nanoid(8)
     },
     {
         "brand": "Cruyff",
-        "_id": 18
+        "_id": nanoid(8)
     },
     {
         "brand": "DC",
-        "_id": 19
+        "_id": nanoid(8)
     },
     {
         "brand": "Decathlon",
-        "_id": 20
+        "_id": nanoid(8)
     },
     {
         "brand": "Diadora",
-        "_id": 21
+        "_id": nanoid(8)
     },
     {
         "brand": "Diesel",
-        "_id": 22
+        "_id": nanoid(8)
     },
     {
         "brand": "Dockers",
-        "_id": 23
+        "_id": nanoid(8)
     },
     {
         "brand": "DSG",
-        "_id": 24
+        "_id": nanoid(8)
     },
     {
         "brand": "ECCO",
-        "_id": 25
+        "_id": nanoid(8)
     },
     {
         "brand": "Escalante Altra",
-        "_id": 26
+        "_id": nanoid(8)
     },
     {
         "brand": "Esmara",
-        "_id": 27
+        "_id": nanoid(8)
     },
     {
         "brand": "Esprit",
-        "_id": 28
+        "_id": nanoid(8)
     },
     {
         "brand": "etnies",
-        "_id": 29
+        "_id": nanoid(8)
     },
     {
         "brand": "FC EST. 1972",
-        "_id": 30
+        "_id": nanoid(8)
     },
     {
         "brand": "Fila",
-        "_id": 31
+        "_id": nanoid(8)
     },
     {
         "brand": "Fred Perry",
-        "_id": 32
+        "_id": nanoid(8)
     },
     {
         "brand": "Furla",
-        "_id": 33
+        "_id": nanoid(8)
     },
     {
         "brand": "FUSION4",
-        "_id": 34
+        "_id": nanoid(8)
     },
     {
         "brand": "G-Star Raw",
-        "_id": 35
+        "_id": nanoid(8)
     },
     {
         "brand": "Gabor",
-        "_id": 36
+        "_id": nanoid(8)
     },
     {
         "brand": "Gemo Sneaker",
-        "_id": 37
+        "_id": nanoid(8)
     },
     {
         "brand": "GEOX",
-        "_id": 38
+        "_id": nanoid(8)
     },
     {
         "brand": "Gerry Weber",
-        "_id": 39
+        "_id": nanoid(8)
     },
     {
         "brand": "Graceland",
-        "_id": 40
+        "_id": nanoid(8)
     },
     {
         "brand": "Guess",
-        "_id": 41
+        "_id": nanoid(8)
     },
     {
         "brand": "Hinson",
-        "_id": 42
+        "_id": nanoid(8)
     },
     {
         "brand": "Hoka",
-        "_id": 43
+        "_id": nanoid(8)
     },
     {
         "brand": "Jack & Jones",
-        "_id": 44
+        "_id": nanoid(8)
     },
     {
         "brand": "Joma",
-        "_id": 45
+        "_id": nanoid(8)
     },
     {
         "brand": "jordan",
-        "_id": 46
+        "_id": nanoid(8)
     },
     {
         "brand": "Kappa",
-        "_id": 47
+        "_id": nanoid(8)
     },
     {
         "brand": "Keds",
-        "_id": 48
+        "_id": nanoid(8)
     },
     {
         "brand": "Kenji",
-        "_id": 49
+        "_id": nanoid(8)
     },
     {
         "brand": "Lacoste",
-        "_id": 50
+        "_id": nanoid(8)
     },
     {
         "brand": "Le Coq Sportif",
-        "_id": 51
+        "_id": nanoid(8)
     },
     {
         "brand": "Legero",
-        "_id": 52
+        "_id": nanoid(8)
     },
     {
         "brand": "Levi's",
-        "_id": 53
+        "_id": nanoid(8)
     },
     {
         "brand": "Lotto",
-        "_id": 54
+        "_id": nanoid(8)
     },
     {
         "brand": "Massimo Dutti",
-        "_id": 55
+        "_id": nanoid(8)
     },
     {
         "brand": "Merrell",
-        "_id": 56
+        "_id": nanoid(8)
     },
     {
         "brand": "mizuno",
-        "_id": 57
+        "_id": nanoid(8)
     },
     {
         "brand": "Native",
-        "_id": 58
+        "_id": nanoid(8)
     },
     {
         "brand": "Nautica",
-        "_id": 59
+        "_id": nanoid(8)
     },
     {
         "brand": "New Balance",
-        "_id": 60
+        "_id": nanoid(8)
     },
     {
         "brand": "Newfeel",
-        "_id": 61
+        "_id": nanoid(8)
     },
     {
         "brand": "Next",
-        "_id": 62
+        "_id": nanoid(8)
     },
     {
         "brand": "Nike",
-        "_id": 63
+        "_id": nanoid(8)
     },
     {
         "brand": "Nine West",
-        "_id": 64
+        "_id": nanoid(8)
     },
     {
         "brand": "Noclaim",
-        "_id": 65
+        "_id": nanoid(8)
+    },
+    {
+        "brand": "On Cloud",
+        "_id": nanoid(8)
     },
     {
         "brand": "Old Navy",
-        "_id": 66
+        "_id": nanoid(8)
     },
     {
         "brand": "Onitsuka Tiger",
-        "_id": 67
+        "_id": nanoid(8)
     },
     {
         "brand": "Pantofola D'oro",
-        "_id": 68
+        "_id": nanoid(8)
     },
     {
         "brand": "Pierre Cardin",
-        "_id": 69
+        "_id": nanoid(8)
     },
     {
         "brand": "Primark",
-        "_id": 70
+        "_id": nanoid(8)
     },
     {
         "brand": "Pull&Bear",
-        "_id": 71
+        "_id": nanoid(8)
     },
     {
         "brand": "Puma",
-        "_id": 72
+        "_id": nanoid(8)
     },
     {
         "brand": "Quechua",
-        "_id": 73
+        "_id": nanoid(8)
     },
     {
         "brand": "Reebok",
-        "_id": 74
+        "_id": nanoid(8)
     },
     {
         "brand": "Roots",
-        "_id": 75
+        "_id": nanoid(8)
     },
     {
         "brand": "Salomon",
-        "_id": 76
+        "_id": nanoid(8)
     },
     {
         "brand": "Saucony",
-        "_id": 77
+        "_id": nanoid(8)
     },
     {
         "brand": "Shaq",
-        "_id": 78
+        "_id": nanoid(8)
     },
     {
         "brand": "Skechers",
-        "_id": 79
+        "_id": nanoid(8)
     },
     {
         "brand": "Sneaky Steve",
-        "_id": 80
+        "_id": nanoid(8)
     },
     {
         "brand": "Sperry",
-        "_id": 81
+        "_id": nanoid(8)
     },
     {
         "brand": "Steve Madden",
-        "_id": 82
+        "_id": nanoid(8)
     },
     {
         "brand": "Straye",
-        "_id": 83
+        "_id": nanoid(8)
     },
     {
         "brand": "Stride Rite",
-        "_id": 84
+        "_id": nanoid(8)
     },
     {
         "brand": "Sun68",
-        "_id": 85
+        "_id": nanoid(8)
     },
     {
         "brand": "Super Soft",
-        "_id": 86
+        "_id": nanoid(8)
     },
     {
         "brand": "SUPERDRY",
-        "_id": 87
+        "_id": nanoid(8)
     },
     {
         "brand": "Supra",
-        "_id": 88
+        "_id": nanoid(8)
     },
     {
         "brand": "Tams",
-        "_id": 89
+        "_id": nanoid(8)
     },
     {
         "brand": "Tarmak",
-        "_id": 90
+        "_id": nanoid(8)
     },
     {
         "brand": "Tex",
-        "_id": 91
+        "_id": nanoid(8)
     },
     {
         "brand": "The North Face",
-        "_id": 92
+        "_id": nanoid(8)
     },
     {
         "brand": "Timberland",
-        "_id": 93
+        "_id": nanoid(8)
     },
     {
         "brand": "Tommy Hilfiger",
-        "_id": 94
+        "_id": nanoid(8)
     },
     {
         "brand": "Toms",
-        "_id": 95
+        "_id": nanoid(8)
     },
     {
         "brand": "Under Armour",
-        "_id": 96
+        "_id": nanoid(8)
     },
     {
         "brand": "Vans",
-        "_id": 97
+        "_id": nanoid(8)
     },
     {
         "brand": "Vty",
-        "_id": 98
+        "_id": nanoid(8)
     },
     {
         "brand": "Wittner",
-        "_id": 99
+        "_id": nanoid(8)
     },
     {
         "brand": "Zara",
-        "_id": 100
+        "_id": nanoid(8)
     }
 ];
 

@@ -1,6 +1,7 @@
 import React, { useState, createContext, useContext, useEffect } from 'react'
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/router';
+import { MetaPixel } from '@/lib/fpixel';
 
 
 
@@ -28,11 +29,13 @@ export const ContextProvider = ({ children }) => {
     const default_modals_state = {
         logout_modal: false,
         delete_product_modal: false,
+        view_order_modal: false,
+        delete_order_modal: false,
     };
     const [modals_state, set_modals_state] = useState(default_modals_state);
 
     const toggle_modal = (modal) => {
-        set_modals_state(prev => ({ ...default_modals_state, [modal]: !prev[modal] }));
+        set_modals_state(prev => ({ ...prev, [modal]: !prev[modal] }));
     };
 
     // Drawer Logic
@@ -41,9 +44,12 @@ export const ContextProvider = ({ children }) => {
         collection_drawer: false,
         search_drawer: false,
         sort_drawer: false,
+        sort_drawer_admin: false,
         filter_drawer: false,
+        filter_drawer_admin: false,
         food_menu_drawer: false,
         admin_menu_drawer: false,
+        view_order_drawer: false,
     }
     const [drawer_state, set_drawer_state] = useState(default_drawer_state);
 
@@ -51,7 +57,7 @@ export const ContextProvider = ({ children }) => {
         if (drawer.includes("collection_drawer")) {
             set_drawer_state(prev => ({ ...default_drawer_state, [drawer]: !prev[drawer], menu_drawer: true }));
         } else {
-            set_drawer_state(prev => ({ ...default_drawer_state, [drawer]: !prev[drawer] }));
+            set_drawer_state(prev => ({ ...prev, [drawer]: !prev[drawer] }));
         }
     };
 
@@ -65,6 +71,18 @@ export const ContextProvider = ({ children }) => {
 
     // Cart Logic
     const [cart, set_cart] = useState([]);
+
+    const convert_product_to_meta = (product) => {
+        const meta_product = {
+            content_ids: [product._id],
+            content_name: product.title,
+            content_type: "product",
+            content_category: "Shoes",
+            value: product.price.toFixed(2),
+            currency: "PKR",
+        }
+        return meta_product;
+    }
 
     useEffect(() => {
         const saved_cart = JSON.parse(localStorage.getItem("cart"));
@@ -112,6 +130,7 @@ export const ContextProvider = ({ children }) => {
                     });
                 }
                 save_cart(updated_cart)
+                MetaPixel.trackEvent("InitiateCheckout", convert_product_to_meta(item));
                 return updated_cart;
             }
             set_snackbar_alert({
@@ -120,6 +139,7 @@ export const ContextProvider = ({ children }) => {
                 severity: "success"
             });
             save_cart([...updated_cart, { ...item, quantity: 1 }]);
+            MetaPixel.trackEvent("AddToCart", convert_product_to_meta(item));
             return [...updated_cart, { ...item, quantity: 1 }];
         });
     }
@@ -210,6 +230,36 @@ export const ContextProvider = ({ children }) => {
     const [fetched_products_for_landing, set_fetched_products_for_landing] = useState([]);
     const [products_for_landing_loading, set_products_for_landing_loading] = useState(true);
 
+    const [stored_path, set_stored_path] = useState("");
+
+    const [show_more_payload, set_show_more_payload] = useState({
+        limit: 52,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+
+
+    // Admin Page [Cloned from user collection page]
+    const [filters_admin, set_filters_admin] = useState([]);
+    const [filter_options_admin, set_filter_options_admin] = useState({});
+    const [fetched_products_for_collection_admin, set_fetched_products_for_collection_admin] = useState([]);
+    const [products_for_collection_admin_loading, set_products_for_collection_admin_loading] = useState(true);
+    const [stored_path_admin, set_stored_path_admin] = useState("");
+    const [show_more_payload_admin, set_show_more_payload_admin] = useState({
+        limit: 52,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+
+
+    // View Order Modal Admin Page
+    const [order_id, set_order_id] = useState("");
+    const [orders, set_orders] = useState([]);
+
+    // Product Page Client
+    const [stored_product_id, set_stored_product_id] = useState("");
 
     //<----------------------- API Calls and Handlers [Back-end] ----------------------->
 
@@ -323,17 +373,23 @@ export const ContextProvider = ({ children }) => {
             let res;
             if (show_more) {
                 res = await axios.get(`/api/get_all_products?${filters}&${show_more}`);
-            } else {
-                res = await axios.get(`/api/get_all_products?${filters}`);
-            }
-            if (show_more) {
                 if (res?.data?.products?.length) {
                     set_state((prev) => ([...prev, ...res.data.products]));
                 }
             } else {
-                set_state(res?.data?.products || []);
-            }
-            set_show_more(prev => ({ ...prev, hasMore: res?.data?.meta?.hasMore, count: res?.data?.meta?.filteredCount }));
+                res = await axios.get(`/api/get_all_products?${filters}`);
+                if (res?.data?.products?.length) {
+                    set_state(res?.data?.products || []);
+                }
+            };
+
+
+            set_show_more(prev => ({
+                ...prev,
+                hasMore: res?.data?.meta?.hasMore,
+                count: res?.data?.meta?.filteredCount,
+                page: res?.data?.meta?.currentPage,
+            }));
         } catch (err) {
             console.error(err);
             set_snackbar_alert({
@@ -557,23 +613,51 @@ export const ContextProvider = ({ children }) => {
     }
 
 
-    // Cancel Order API
-    const cancel_order_api = async (axios, order_id, set_is_loading) => {
+    // Delete Order API
+    const delete_order_api = async (axios, order_id, set_is_loading) => {
         set_is_loading(true);
         try {
-            const res = await axios.post(`/api/cancel_order?order_id=${order_id}`);
+            const res = await axios.put(`/api/delete_order?order_id=${order_id}`);
             set_snackbar_alert({
                 open: true,
                 message: res.data.message,
                 severity: "success",
             })
+            return true;
 
         } catch (err) {
             set_snackbar_alert({
                 open: true,
                 message: err.response.data.message,
                 severity: "error",
-            })
+            });
+            return false;
+        } finally {
+            set_is_loading(false);
+        }
+    };
+
+
+    // Update Order API
+    const update_order_api = async (axios, order_id, data, set_is_loading) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.put(`/api/update_order?order_id=${order_id}`, data);
+            set_snackbar_alert({
+                open: true,
+                message: res.data.message,
+                severity: "success",
+            });
+
+            return true;
+
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error",
+            });
+            return false;
         } finally {
             set_is_loading(false);
         }
@@ -604,13 +688,15 @@ export const ContextProvider = ({ children }) => {
         set_is_loading(true);
         try {
             const res = await axios.get(`/api/get_all_orders`);
-            set_state(res.data);
+            set_state(res.data || []);
+            return true;
         } catch (err) {
             set_snackbar_alert({
                 open: true,
                 message: err.response.data.message,
                 severity: "error",
-            })
+            });
+            return false;
         } finally {
             set_is_loading(false);
 
@@ -634,6 +720,12 @@ export const ContextProvider = ({ children }) => {
                 cart, set_cart, save_cart, sum_of_cart, delete_item_from_cart, add_item_to_cart,
                 substract_item_from_cart,
 
+                stored_product_id, set_stored_product_id,
+
+                stored_path, set_stored_path,
+
+                show_more_payload, set_show_more_payload,
+
                 product_details, set_product_details, update_product_details,
                 set_update_product_details, default_update_product_details, default_product_details,
                 product_id, set_product_id,
@@ -643,6 +735,11 @@ export const ContextProvider = ({ children }) => {
                 products_for_collection_loading, set_products_for_collection_loading,
                 products_for_landing_loading, set_products_for_landing_loading,
 
+                filters_admin, set_filters_admin, filter_options_admin, set_filter_options_admin,
+                fetched_products_for_collection_admin, set_fetched_products_for_collection_admin,
+                products_for_collection_admin_loading, set_products_for_collection_admin_loading, stored_path_admin, set_stored_path_admin,
+                show_more_payload_admin, set_show_more_payload_admin,
+
                 API_loading, set_API_loading,
 
                 progress_of_loading, set_progress_of_loading,
@@ -650,10 +747,11 @@ export const ContextProvider = ({ children }) => {
                 create_product_api, get_all_products_api, get_filter_values_api, update_product_api,
                 delete_product_api, add_user_api, get_product_api, get_all_products_title_api,
 
+                orders, set_orders, order_id, set_order_id,
 
                 login_api,
 
-                confirm_order_api, cancel_order_api, get_order_api, get_all_orders_api,
+                confirm_order_api, delete_order_api, get_order_api, get_all_orders_api, update_order_api,
 
             }}
         >

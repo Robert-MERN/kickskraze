@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-import Image from 'next/image';
-import product_1 from "@/public/images/product_1.jpg"
 import Badge from "@mui/material/Badge";
 import CheckIcon from '@mui/icons-material/Check';
 import { Skeleton } from '@mui/material';
@@ -39,6 +37,15 @@ const Checkouts_page = ({ axios, order_id }) => {
         return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
     }
 
+    // Payment Methods
+    const payment_method = {
+        cod: "Cash on Delivery (COD)",
+        jazzcash: "Paid with JazzCash (JazzCash)",
+        easypaisa: "Paid with EasyPaisa (EasyPaisa)",
+        sadapay: "Paid with SadaPay (SadaPay)",
+        nayapay: "Paid with NayaPay (NayaPay)",
+        bank: "Bank Transfer (Bank)",
+    };
 
     // validate Order ID
     const isValidObjectId = (id) => {
@@ -330,7 +337,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                         </div>
                                         <div>
                                             <p className='text-[14px] text-gray-500 line-clamp-1 text-ellipsis overflow-hidden'>Confirmation #{confirmed_order._id}</p>
-                                            <p className='text-[20px] font-bold text-stone-900 line-clamp-1 text-ellipsis overflow-hidden'>Thank you, {`${confirmed_order.firstName} ${confirmed_order.lastName}`}!</p>
+                                            <p className='text-[20px] font-bold text-stone-900 line-clamp-1 text-ellipsis overflow-hidden'>Thank you, {`${confirmed_order.firstName || ""} ${confirmed_order.lastName || ""}`}!</p>
                                         </div>
                                     </div>
 
@@ -344,25 +351,38 @@ const Checkouts_page = ({ axios, order_id }) => {
 
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Contact information</p>
-                                        <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden'>{confirmed_order.email}</p>
+                                        <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden'>{confirmed_order.email || ""}</p>
+
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Shipping address</p>
-                                        <p className='text-[16px] text-stone-700'>{"Nazimabad"}</p>
-                                        <p className='text-[16px] text-stone-700'>{`${confirmed_order.city} ${confirmed_order.postalCode ? confirmed_order.postalCode : ""}`}</p>
+                                        <p className='text-[16px] text-stone-700'>{confirmed_order.address || ""}</p>
+                                        <p className='text-[16px] text-stone-700'>{`${confirmed_order.city || ""} ${confirmed_order.postalCode ? confirmed_order.postalCode : ""}`}</p>
                                         <p className='text-[16px] text-stone-700'>{"Pakistan"}</p>
-                                        <p className='text-[16px] text-stone-700'>{confirmed_order.phone}</p>
+                                        <p className='text-[16px] text-stone-700'>{confirmed_order.phone || ""}</p>
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Shipping method</p>
                                         <p className='text-[16px] text-stone-700'>Delivery Charges</p>
 
 
+                                        {confirmed_order.special_instructions &&
+                                            <>
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Special instructions</p>
+                                                <p className='text-[16px] text-stone-700'>{confirmed_order.special_instructions || ""}</p>
+                                            </>
+                                        }
+
+
+
 
                                         <p className='text-[16px] font-bold text-stone-900 mt-3'>Payment method</p>
-                                        <p className='text-[16px] text-stone-700'>Cash on Delivery (COD) • Rs. {Number("5600").toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                                        <p className='text-[16px] text-stone-700'>{
+                                            payment_method[confirmed_order.payment_method] ?
+                                                `${payment_method[confirmed_order.payment_method]} • Rs. ${calc_gross_total_amount(confirmed_order).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                                :
+                                                ""
+                                        }
+                                        </p>
 
-
-
-                                        <div></div>
                                     </div>
                                 </div>
 

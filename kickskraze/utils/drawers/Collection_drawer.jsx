@@ -13,59 +13,59 @@ const Collection_drawer = ({ drawer_state, toggle_drawer }) => {
         },
         {
             option: "Nike",
-            link: "/collection",
+            link: "/collection?brand=Nike",
         },
         {
             option: "Asics",
-            link: "/collection",
+            link: "/collection?brand=ASICS",
         },
         {
             option: "Skechers",
-            link: "/collection",
+            link: "/collection?brand=Skechers",
         },
         {
             option: "Converse",
-            link: "/collection",
+            link: "/collection?brand=Converse",
         },
         {
             option: "Adidas",
-            link: "/collection",
+            link: "/collection?brand=Adidas",
         },
         {
             option: "Fila",
-            link: "/collection",
+            link: "/collection?brand=Fila",
         },
         {
-            option: "Under Armor",
-            link: "/collection",
+            option: "Under Armour",
+            link: "/collection?brand=Under%20Armour",
         },
         {
             option: "Saucony",
-            link: "/collection",
+            link: "/collection?brand=Saucony",
         },
         {
             option: "New Balance",
-            link: "/collection",
+            link: "/collection?brand=New%20Balance",
         },
         {
             option: "Hoka",
-            link: "/collection",
+            link: "/collection?brand=Hoka",
         },
         {
             option: "Reebok",
-            link: "/collection",
+            link: "/collection?brand=Reebok",
         },
         {
             option: "Puma",
-            link: "/collection",
+            link: "/collection?brand=Puma",
         },
         {
             option: "On Cloud",
-            link: "/collection",
+            link: "/collection?brand=On%20Cloud",
         },
         {
             option: "Orthofeet",
-            link: "/collection",
+            link: "/collection?brand=Orthofeet",
         },
     ]
 

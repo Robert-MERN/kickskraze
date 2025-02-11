@@ -2,16 +2,19 @@ import React, { useState } from 'react'
 import Drawer from '@mui/material/Drawer';
 import { IoClose } from "react-icons/io5";
 import useStateContext from '@/context/ContextProvider';
-import { filter_method, find_filter } from '@/utils/functions/filter_function';
+import { convert_to_query_string, filter_method, find_filter } from '@/utils/functions/filter_function';
 
-
-const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
+const Sort_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
 
     const {
-        filters,
-        set_filters,
+        get_all_products_api,
+        filters_admin: filters,
+        set_filters_admin: set_filters,
         fetched_products_for_collection: products,
-        products_for_collection_loading: is_loading,
+        set_fetched_products_for_collection: set_products,
+        products_for_collection_admin_loading: is_loading,
+        set_products_for_collection_admin_loading: set_is_loading,
+        set_show_more_payload_admin: set_show_more_payload,
     } = useStateContext()
 
     // Sorting options
@@ -43,8 +46,9 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
 
     ]
 
-    const select_option = (obj) => {
-        filter_method(obj, set_filters);
+    const select_option = async (obj) => {
+        const FILTERS = await filter_method(obj, set_filters);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
         close();
     }
 
@@ -52,14 +56,14 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
         <>
             {(!is_loading && Boolean(products.length) && Boolean(find_filter(filters, "sort_by"))) ?
                 <Drawer
-                    open={drawer_state.sort_drawer}
-                    onClose={() => toggle_drawer("sort_drawer")}
+                    open={drawer_state.sort_drawer_admin}
+                    onClose={() => toggle_drawer("sort_drawer_admin")}
                     anchor='bottom'
                 >
                     <div className='w-full tracking-wider text-stone-950 transition-all duration-300'>
                         <div className='flex justify-between w-full items-center py-[15px] px-[20px] border-b border-stone-200' >
                             <p className='text-[20px] font-bold select-none' >SORT BY:</p>
-                            <button onClick={() => toggle_drawer("sort_drawer")} className='active:opacity-75' >
+                            <button onClick={() => toggle_drawer("sort_drawer_admin")} className='active:opacity-75' >
                                 <IoClose className='text-stone-400 scale-[2.4]' />
                             </button>
                         </div>
@@ -68,7 +72,7 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
                             <button
                                 onClick={() => {
                                     select_option({ sort_by: each.option });
-                                    toggle_drawer("sort_drawer")
+                                    toggle_drawer("sort_drawer_admin")
                                 }}
                                 key={index}
                                 className={`w-full text-left py-[10px] px-[20px] ${find_filter(filters, "sort_by").sort_by === each.option ? "bg-gray-100 font-bold" : ""} transition-all`} >
@@ -87,4 +91,4 @@ const Sort_drawer = ({ drawer_state, toggle_drawer }) => {
     )
 }
 
-export default Sort_drawer
+export default Sort_drawer_admin

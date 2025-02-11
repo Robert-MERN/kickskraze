@@ -52,7 +52,13 @@ const ordersSchema = new Schema(
         },
         payment_method: {
             type: String,
-            default: "cod"
+        },
+        status: {
+            type: String,
+            default: "booked"
+        },
+        tracking_no: {
+            type: String,
         }
     },
     { timestamps: true }
@@ -65,6 +71,8 @@ const ordersSchema = new Schema(
 
 
 
-const Db = connection.useDb("Kickskraze")
+// Use a global variable to prevent multiple instances of the DB
+const Db = connection.useDb("Kickskraze");
+
 const Orders = Db.models.Orders || Db.model('Orders', ordersSchema);
 export default Orders

@@ -17,13 +17,68 @@ import { useRouter } from 'next/router';
 import { Skeleton } from '@mui/material';
 import { calculate_discount_precentage, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
 import Fade from 'react-reveal/Fade';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import { MetaPixel } from '@/lib/fpixel';
+
+
+const VideoThumbnail = ({ videoUrl }) => {
+    const [thumbnail, setThumbnail] = useState(null);
+
+    useEffect(() => {
+        const generateThumbnail = async (videoUrl) => {
+            return new Promise((resolve, reject) => {
+                const video = document.createElement("video");
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+
+                video.src = videoUrl;
+                video.crossOrigin = "anonymous"; // Prevent CORS issues
+                video.load();
+
+                video.onloadedmetadata = () => {
+                    // Seek to middle of the video
+                    video.currentTime = video.duration / 2;
+                };
+
+                video.onseeked = () => {
+                    // Set canvas size
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    // Convert canvas to image
+                    const thumbnailUrl = canvas.toDataURL("image/jpeg");
+                    resolve(thumbnailUrl);
+                };
+
+                video.onerror = (err) => reject(err);
+            });
+        };
+
+        generateThumbnail(videoUrl)
+            .then((url) => setThumbnail(url))
+            .catch(() => setThumbnail(null)); // Handle errors gracefully
+    }, [videoUrl]);
+
+    if (!thumbnail) return <p></p>;
+
+    return (
+        <div className='relative' >
+            <img src={thumbnail} alt="Video Thumbnail" className="w-full h-[56.25px] md:h-[69px] object-cover" />
+            <div className='absolute inset-0 right-0 left-0 top-0 bottom-0 w-full h-full bg-[rgba(0,0,0,.3)] flex items-center justify-center'  >
+                <PlayArrowIcon className='text-[rgba(255,255,255,0.8)] text-[34px]' />
+            </div>
+        </div>
+    );
+};
+
 
 
 const Product_page = ({ axios }) => {
 
     const router = useRouter();
 
-    const { get_product_api, get_all_products_api, add_item_to_cart } = useStateContext();
+    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart } = useStateContext();
     const [is_loading, set_is_loading] = useState(true);
     const [product, set_product] = useState({});
 
@@ -47,14 +102,29 @@ const Product_page = ({ axios }) => {
     useEffect(() => {
         if (!router.isReady) return;
         const { product_id } = router.query;
-        get_product_api(axios, product_id, product, set_product, set_is_loading)
+        set_stored_product_id(product_id);
+        if (!Object.entries(product).length || stored_product_id !== product_id) {
+            get_product_api(axios, product_id, product, set_product, set_is_loading)
+        }
     }, [router.query, router.isReady])
 
+
+    const convert_product_to_meta = (product) => {
+        const meta_product = {
+            content_ids: [product._id],
+            content_name: product.title,
+            content_type: "product",
+            content_category: "Shoes",
+            value: product.price.toFixed(2),
+            currency: "PKR",
+        }
+        return meta_product;
+    }
 
 
     // Related Product Fetching
     const [show_more_payload, set_show_more_payload] = useState({
-        limit: 50,
+        limit: 52,
         page: 1,
         hasMore: false,
         count: 0,
@@ -63,10 +133,14 @@ const Product_page = ({ axios }) => {
     const [is_RP_loading, set_is_RP_loading] = useState();
     // Fetching Related Products
     useEffect(() => {
-        if (Object.entries(product).length) {
+        if (Object.entries(product).length && !related_products.length) {
+
+            MetaPixel.trackEvent("ViewContent", convert_product_to_meta(product));
             get_all_products_api(axios, `size=${product.size}`, set_related_products, set_show_more_payload, set_is_RP_loading);
         }
-    }, [product])
+    }, [product]);
+
+
 
     const renderZoomedImage = (item) => (
         <>
@@ -76,7 +150,7 @@ const Product_page = ({ axios }) => {
                         src={item.url}
                         controls
                         muted
-                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-contain object-center bg-black'
+                        className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-contain object-center'
                     />
                 </div>
                 :
@@ -94,24 +168,18 @@ const Product_page = ({ axios }) => {
     );
 
 
-    const renderThumbnail = (item) => (
-        <>
-            {item.type === "video" ? (
-                <video
-                    src={item.thumbnail}
-                    className='w-full h-[56.25px] md:h-[69px] object-cover'
-                    muted
-                    controls={false}
-                />
-            ) : (
-                <img
-                    src={item.thumbnail}
-                    alt="Thumbnail"
-                    className='w-full h-[56.25px] md:h-[69px] object-cover'
-                />
-            )}
-        </>
-    );
+    const renderThumbnail = (item) => {
+
+        return (
+            <>
+                {item.type === "video" ? (
+                    <VideoThumbnail videoUrl={item.thumbnail} />
+                ) : (
+                    <img src={item.thumbnail} alt="Thumbnail" className="w-full h-[56.25px] md:h-[69px] object-cover" />
+                )}
+            </>
+        )
+    };
 
 
 

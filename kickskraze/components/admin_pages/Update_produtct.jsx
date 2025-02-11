@@ -14,6 +14,8 @@ import { brand_list, category_list, condition_list, countries } from '@/utils/sh
 import { TbShoppingBagEdit } from "react-icons/tb";
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import { GiConverseShoe } from "react-icons/gi";
+import { useRouter } from 'next/router';
+import mongoose from 'mongoose';
 
 
 const Create_product = ({ axios }) => {
@@ -22,11 +24,29 @@ const Create_product = ({ axios }) => {
 
     const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api } = useStateContext();
 
+    const router = useRouter();
+
     const [products_title, set_products_title] = useState([]);
 
+    // validate Order ID
+    const isValidObjectId = (id) => {
+        if (typeof id !== "string") return false;
+        try {
+            return new mongoose.Types.ObjectId(id); // If valid, it returns the ObjectId
+        } catch (error) {
+            return false; // Invalid ID
+        }
+    };
+
     useEffect(() => {
-        get_all_products_title_api(axios, set_products_title, set_API_loading);
-    }, [product_id]);
+        if (!router.isReady) return;
+
+        if (isValidObjectId(router.query?.product_id)) {
+            set_product_id(router.query.product_id);
+        } else {
+            get_all_products_title_api(axios, set_products_title, set_API_loading);
+        }
+    }, [router.isReady, router.query]);
 
 
 
@@ -330,7 +350,8 @@ const Create_product = ({ axios }) => {
 
 
 
-                await update_product_api(axios, product_id, formData, set_API_loading, reset_all);
+                await update_product_api(axios, product_id, formData, set_API_loading,
+                    isValidObjectId(router.query?.product_id) ? () => { } : reset_all);
 
             }
         } catch (err) {
@@ -739,9 +760,15 @@ const Create_product = ({ axios }) => {
 
 
                             <div className="flex gap-4 items-center my-[30px]">
-                                <button onClick={reset_all} type='button' className='w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-stone-200 text-stone-700 hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px]'>
-                                    CANCEL
-                                </button>
+                                {isValidObjectId(router.query?.product_id) ?
+                                    <button onClick={() => { router.push("/admin/update-product"); reset_all() }} type='button' className='w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-stone-200 text-stone-700 hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px]'>
+                                        CANCEL
+                                    </button>
+                                    :
+                                    <button onClick={reset_all} type='button' className='w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-stone-200 text-stone-700 hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px]'>
+                                        CANCEL
+                                    </button>
+                                }
 
                                 <button type='submit' className='w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-emerald-600 text-white hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px]'>
                                     UPDATE

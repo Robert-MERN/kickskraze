@@ -76,6 +76,9 @@ const productSchema = new Schema({
 }, { timestamps: true })
 
 
-const Db = connection.useDb("Kickskraze")
-const Products = Db.models.Products || Db.model('Products', productSchema);
-export default Products
+// Use a global variable to prevent multiple instances of the DB
+const Db = connection.useDb("Kickskraze");
+
+const Products = Db.models.Products || Db.model("Products", productSchema);
+
+export default Products;

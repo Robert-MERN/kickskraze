@@ -93,7 +93,7 @@ const Admin_page = ({ admin_children }) => {
 
 
             {/* Form  */}
-            <div className={`min-h-[calc(100vh-70px)] px-[30px] lg:px-[40px] xl:px-[60px] py-[30px] ${pages_statements[Object.keys(pages_statements).find(e => router.pathname.includes(e))] ? "w-full lg:w-[700px] xl:w-[900px]" : "w-full lg:w-[calc(100vw-320px)]"}`}>
+            <div className={`min-h-[calc(100vh-70px)] px-[30px] lg:px-[40px] py-[30px] ${pages_statements[Object.keys(pages_statements).find(e => router.pathname.includes(e))] ? "w-full lg:w-[700px] xl:w-[900px]" : "w-full lg:w-[calc(100vw-320px)]"}`}>
 
                 {admin_children}
 

@@ -11,19 +11,19 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
     const slider_menu_options = [
         {
             option: "Men",
-            link: "/collection",
+            link: "/collection?category=men",
         },
         {
             option: "Women",
-            link: "/collection",
+            link: "/collection?category=women",
         },
         {
             option: "Kids",
-            link: "/collection",
+            link: "/collection?category=kids",
         },
         {
             option: "Exclusive",
-            link: "/collection",
+            link: "/collection?featured=true",
         },
     ]
 

@@ -12,6 +12,7 @@ import { MdVerifiedUser } from "react-icons/md";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import useStateContext from '@/context/ContextProvider';
 import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { MetaPixel } from '@/lib/fpixel';
 
 
 const Cart_page = () => {
@@ -55,7 +56,17 @@ const Cart_page = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
+    const convert_cart_to_meta = (cart) => {
+        const meta_cart = {
+            content_ids: cart.map(each => each._id),
+            contents: cart,
+            content_type: "product_group",
+            value: sum_of_cart().toFixed(2),
+            currency: "PKR",
+        }
+        return meta_cart
 
+    }
 
 
     return (
@@ -123,7 +134,7 @@ const Cart_page = () => {
                                             </Link>
                                         </div>
                                         <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
-                                            <p className='capitalize text-wrap' >{item.title}</p>
+                                            <p className='capitalize line-clamp-1 text-ellipsis overflow-hidden' >{item.title}</p>
                                             <p className='capitalize text-gray-400' >{item.size} / {item.condition}</p>
                                             <p className='capitalize text-gray-400'>{item.brand}</p>
 
@@ -256,7 +267,7 @@ const Cart_page = () => {
 
                                 {/* Checkout Button */}
                                 <Link href="/checkouts" >
-                                    <button className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[14px] md:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
+                                    <button onClick={() => MetaPixel.trackEvent("InitiateCheckout", convert_cart_to_meta(cart))} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[14px] md:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
                                         PROCEED TO CHECKOUT
                                     </button>
                                 </Link>

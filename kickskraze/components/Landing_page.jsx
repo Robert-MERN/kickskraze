@@ -361,7 +361,7 @@ const Landing_page = ({ axios }) => {
 
                     <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
                         <p className='text-white'>MEN</p>
-                        <Link href="/collection">
+                        <Link href="/collection?category=men">
                             <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
                         </Link>
                     </div>
@@ -377,7 +377,7 @@ const Landing_page = ({ axios }) => {
 
                     <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
                         <p className='text-white'>WOMEN</p>
-                        <Link href="/collection">
+                        <Link href="/collection?category=women">
                             <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
                         </Link>
                     </div>
@@ -393,7 +393,7 @@ const Landing_page = ({ axios }) => {
 
                     <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
                         <p className='text-white'>KIDS</p>
-                        <Link href="/collection">
+                        <Link href="/collection?category=kids">
                             <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
                         </Link>
                     </div>

@@ -17,6 +17,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import { FormHelperText, IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import { MetaPixel } from '@/lib/fpixel';
 
 
 const Checkouts_page = ({ axios }) => {
@@ -99,6 +100,7 @@ const Checkouts_page = ({ axios }) => {
         coupon_code: "",
         special_instructions: "",
         payment_method: "",
+        status: "booked",
         errors: {
             email: "",
             firstName: "",
@@ -239,7 +241,19 @@ const Checkouts_page = ({ axios }) => {
                 total_amount: calc_total_amount(purchase),
                 total_items: calc_total_items(purchase),
             }
+            const meta_body = {
+                content_ids: purchase.map((each)=> each._id),
+                content_type: "product_group",
+                content_category: "Shoes",
+                contents: purchase,
+                num_items: calc_total_items(purchase),
+                value: calc_gross_total_amount(order_details).toFixed(2),
+                currency: "PKR"
+            }
+            MetaPixel.trackEvent("Purchase", meta_body);
             confirm_order_api(axios, data_body, set_API_loading);
+
+
         }
     }
 

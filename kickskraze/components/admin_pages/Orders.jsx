@@ -1,24 +1,185 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { DataGrid, gridClasses } from '@mui/x-data-grid';
+import useStateContext from '@/context/ContextProvider';
+import { useRouter } from 'next/router';
+import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 
 
 
-const Orders = () => {
 
+const Orders = ({ axios }) => {
+
+    const router = useRouter();
+
+    const { get_all_orders_api, set_snackbar_alert, orders, set_orders, set_order_id, toggle_modal, toggle_drawer } = useStateContext();
+    const [is_loading, set_is_loading] = useState(true);
+    const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 13, });
+
+    const copy_to_clipboard = async (text, msg) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            set_snackbar_alert({
+                open: true,
+                message: msg ?? "Copied!",
+                severity: "primary",
+            })
+
+        } catch (err) {
+            console.error("Failed to copy text: ", err);
+            set_snackbar_alert({
+                open: true,
+                message: "Failed to copy!",
+                severity: "error",
+            });
+        }
+    };
+
+    // Payment Methods
+    const payment_method = {
+        cod: "Cash on Delivery (COD)",
+        jazzcash: "Paid with JazzCash (JazzCash)",
+        easypaisa: "Paid with EasyPaisa (EasyPaisa)",
+        sadapay: "Paid with SadaPay (SadaPay)",
+        nayapay: "Paid with NayaPay (NayaPay)",
+        bank: "Bank Transfer (Bank)",
+    };
+
+    // Order Status
+    const order_status = {
+        booked: {
+            value: "Booked",
+            color: "text-blue-700",
+        },
+        in_transit: {
+            value: "In Transit",
+            color: "text-fuchsia-600",
+        },
+        delivered: {
+            value: "Delivered",
+            color: "text-green-700",
+        },
+        rcp: {
+            value: "RCP",
+            color: "text-amber-500",
+        },
+        returned: {
+            value: "Returned",
+            color: "text-rose-600",
+        },
+    }
+
+    const date_formatter = (date) => {
+        // Create a Date object
+        const dateObject = new Date(date);
+
+        // Format the date
+        const options = { year: 'numeric', month: 'short', day: '2-digit' };
+        return dateObject.toLocaleDateString('en-US', options);
+    }
+
+
+    const view_order_btn = (id, format) => {
+        set_order_id(id);
+        if (format === "modal") {
+            toggle_modal("view_order_modal");
+        } else if (format === "drawer") {
+            toggle_drawer("view_order_drawer");
+        }
+    }
 
     const columns = [
-        { field: 'id', headerName: 'ID', width: 90 },
-        { field: 'name', headerName: 'Name', width: 150 },
-        { field: 'age', headerName: 'Age', width: 110 },
-        { field: 'email', headerName: 'Email', width: 200 },
+        {
+            field: '_id',
+            headerName: 'ID',
+            sortable: false,  // Disables sorting
+            filterable: false, // Disables filtering
+            width: 160,
+            renderCell: params => (<button className='hover:underline w-[140px] text-ellipsis overflow-hidden' onClick={() => copy_to_clipboard(params.row._id, "Order ID copied!")} >{params.row._id}</button>)
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Invoice Date',
+            width: 160,
+            renderCell: params => `${date_formatter(params.row.createdAt)}`
+        },
+        {
+            field: 'name',
+            headerName: 'Customer Name',
+            width: 170,
+            renderCell: (params) => `${params?.row?.firstName || ""} ${params?.row?.lastName || ""}`
+        },
+        {
+            field: 'city',
+            headerName: 'City',
+            width: 90,
+        },
+        {
+            field: 'phone',
+            headerName: 'Contact',
+            width: 110,
+            renderCell: params => (<button className='hover:underline' onClick={() => copy_to_clipboard(params.row.phone, "Contact copied!")} >{params.row.phone}</button>)
+        },
+        {
+            field: 'status',
+            headerName: 'Status',
+            width: 100,
+            renderCell: params => (
+                <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${order_status[params.row.status].color}`}>{order_status[params.row.status].value}</p>
+            )
+        },
+        {
+            field: 'total_items',
+            headerName: 'Items',
+            width: 90,
+            renderCell: params => `x ${params?.row?.total_items || ""}`
+        },
+        {
+            field: 'total_amount',
+            headerName: 'Total Amount',
+            width: 110,
+            renderCell: params => `Rs. ${Number(params.row.total_amount).toLocaleString("en-US")}`
+        },
+        {
+            field: 'payment_method',
+            headerName: 'Payment Method',
+            width: 230,
+            renderCell: params => payment_method[params?.row?.payment_method] || "",
+        },
+        {
+            field: 'tracking_no',
+            headerName: 'Tracking No.',
+            width: 150,
+            renderCell: params => Boolean(params.row.tracking_no) ?
+                <button className='hover:underline w-[140px] text-ellipsis overflow-hidden text-start' onClick={() => copy_to_clipboard(params.row.tracking_no, "Tacking Id copied!")} >
+                    {params.row.tracking_no || ""}
+                </button>
+                :
+                <p className='text-stone-400' >No Tracking</p>,
+        },
+        {
+            field: 'view_order',
+            headerName: 'View/Edit Order',
+            sortable: false,  // Disables sorting
+            filterable: false, // Disables filtering
+            width: 140,
+            renderCell: params => (<div className='flex items-center w-full h-full'>
+                <button onClick={() => view_order_btn(params.row._id, "modal")} className='text-[12px] bg-black rounded-md text-white h-fit w-fit px-[14px] py-[10px] hidden md:flex items-center justify-center leading-none hover:opacity-75 active:opacity-65 transition-all gap-2'>
+                    <ShoppingCartCheckoutIcon className='text-[18px]' />
+                    View Order
+                </button>
+                <button onClick={() => view_order_btn(params.row._id, "drawer")} className='text-[12px] bg-black rounded-md text-white h-fit w-fit px-[14px] py-[10px] md:hidden flex items-center justify-center leading-none hover:opacity-75 active:opacity-65 transition-all gap-2'>
+                    <ShoppingCartCheckoutIcon  className='text-[18px]' />
+                    View Order
+                </button>
+            </div>),
+        },
     ];
 
-    const rows = [
-        { id: 1, name: 'John Doe', age: 25, email: 'john.doe@example.com' },
-        { id: 2, name: 'Jane Smith', age: 30, email: 'jane.smith@example.com' },
-        { id: 3, name: 'Alice Johnson', age: 35, email: 'alice.johnson@example.com' },
-    ];
-
+    useEffect(() => {
+        if (!orders.length) {
+            get_all_orders_api(axios, set_orders, set_is_loading);
+        }
+    }, []);
 
 
     return (
@@ -34,11 +195,13 @@ const Orders = () => {
                     },
                 }}
                 columns={columns}
-                rows={rows}
-                pageSize={5}
-                checkboxSelection
-
-
+                rows={orders}
+                getRowId={row => row._id}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[6, 12]}
+                loading={is_loading}
+                rowSelection={false}
             />
         </div>
     )

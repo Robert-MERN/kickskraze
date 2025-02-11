@@ -19,6 +19,12 @@ const userSchema = new Schema({
 }, { timestamps: true });
 
 
-const Db = connection.useDb("Kickskraze")
+// Use a global variable to prevent multiple instances of the DB
+let Db = global._kickskrazeDb;
+
+if (!Db) {
+    Db = global._kickskrazeDb = connection.useDb("Kickskraze");
+}
+
 const Users = Db.models.Users || Db.model('Users', userSchema);
 export default Users

@@ -15,7 +15,7 @@ const Checkouts_navbar = () => {
                         <Image
                             alt="logo"
                             src={logo}
-                            className='w-[100px] object-contain'
+                            className='w-[220px] object-contain'
                         />
                     </Link>
                 </div>

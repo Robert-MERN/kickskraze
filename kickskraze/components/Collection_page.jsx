@@ -29,14 +29,15 @@ import { useRouter } from 'next/router';
 import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 // Sort Popover for Windows Screens
-const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters }) => {
+const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axios, get_all_products_api, convert_to_query_string, set_products, set_show_more_payload, set_is_loading }) => {
 
     const open = Boolean(anchorEl);
     const id = open ? "sort_popover" : undefined;
 
 
-    const select_option = (obj) => {
-        filter_method(obj, set_filters);
+    const select_option = async (obj) => {
+        const FILTERS = await filter_method(obj, set_filters);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
         close();
     }
 
@@ -88,6 +89,10 @@ const Collection_page = ({ axios }) => {
         set_fetched_products_for_collection: set_products,
         products_for_collection_loading: is_loading,
         set_products_for_collection_loading: set_is_loading,
+        stored_path,
+        set_stored_path,
+        show_more_payload,
+         set_show_more_payload
     } = useStateContext();
 
 
@@ -98,32 +103,27 @@ const Collection_page = ({ axios }) => {
     const [filter_options_loading, set_filter_options_loading] = useState(false);
 
 
+
     useEffect(() => {
         document.querySelectorAll(".MuiCheckbox-root").forEach((each, _) => each.style = "color: #292524")
     }, []);
 
 
-    const apply_filter = (filter_obj) => {
-        filter_method(filter_obj, set_filters);
-    }
-
-    const [should_fetch, set_should_fetch] = useState("neutral");
 
 
 
     useEffect(() => {
         if (!Object.entries(filter_options).length) {
             get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
-            if (should_fetch === "query_0" || should_fetch === "query_1") {
-                set_should_fetch("neutral");
-            }
         }
     }, []);
 
+    const [clone_filters, set_clone_filters] = useState([]); // Tihs is has nothing to with showing data but to prevent multiple fetchings.
     useEffect(() => {
-        if (Object.keys(filter_options).length) {
+        if (Object.keys(filter_options).length && !filters.length) {
             // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+            remove_all_items_from_filters_realtime_update(filter_options, set_clone_filters);
         }
     }, [filter_options]);
 
@@ -133,16 +133,15 @@ const Collection_page = ({ axios }) => {
     useEffect(() => {
         if (!router.isReady) return;
         const query_filters = configure_query_filters(router.query);
-        if (filters.length && query_filters.length) {
+        if (filters.length && query_filters.length && router.asPath !== stored_path) {
             // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
-
-            set_should_fetch("query_1");
+            remove_all_items_from_filters_realtime_update(filter_options, set_clone_filters);
             add_query_filters(query_filters, set_filters);
-        } else if (filters.length && !query_filters.length) {
-            set_should_fetch("query_0");
+        } else if (filters.length && !query_filters.length && router.asPath !== stored_path) {
             // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+            remove_all_items_from_filters_realtime_update(filter_options, set_clone_filters);
         }
     }, [router.isReady, router.query, filter_options]);
 
@@ -154,13 +153,61 @@ const Collection_page = ({ axios }) => {
 
     useEffect(() => {
         if (!router.isReady) return;
-        const timer = setTimeout(() => {
-            if (filters.length && filters.every(e => Object.values(e)[0] !== undefined && Object.values(e)[0] !== null) && (should_fetch === "query_0" || should_fetch === "query_1")) {
-                get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_is_loading);
+
+        const fetch = async () => {
+            console.log("Different Path: ", router.asPath !== stored_path)
+            if (router.asPath !== stored_path) {
+
+                let FILTERS = filters;
+                const query_filters = configure_query_filters(router.query);
+                if (query_filters.length) {
+                    FILTERS = await add_query_filters(query_filters, set_clone_filters);
+                }
+                if ((filters.length === 3 || (filters.length >= 3 && Object.keys(router.query).length)) && filters.every(e => Object.values(e)[0] !== undefined && Object.values(e)[0] !== null)) {
+                    get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+                }
             }
-        }, 250);
-        return () => clearTimeout(timer);
-    }, [router.isReady, filters, filter_options, should_fetch]);
+        }
+        fetch();
+    }, [router.isReady, filters]);
+
+
+
+    // APPLYING FILTER AND REMOVING FILTERS LOGICS
+    const timerRef = useRef(null);
+
+    const apply_filter = async (filter_obj) => {
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+        }
+
+        if (Object.keys(filter_obj).includes("price_gte") || Object.keys(filter_obj).includes("price_lte")) {
+            timerRef.current = setTimeout(async () => {
+                const FILTERS = await filter_method(filter_obj, set_filters);
+                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+            }, 300);
+        } else {
+            const FILTERS = await filter_method(filter_obj, set_filters);
+            get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        }
+    };
+
+    const remove_item_from_filters_realtime_update_fn = async (set_filters, e, filter_options) => {
+        const FILTERS = await remove_item_from_filters_realtime_update(set_filters, e, filter_options);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+    }
+
+    const remove_group_items_from_filters_realtime_update_fn = async (set_filters, obj_key) => {
+        const FILTERS = await remove_group_items_from_filters_realtime_update(set_filters, obj_key);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+    }
+
+    const remove_all_items_from_filters_realtime_update_fn = (filter_options, set_filters) => {
+        const FILTERS = remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+    }
+
+    // <-----------End Here ----------->
 
 
 
@@ -242,13 +289,6 @@ const Collection_page = ({ axios }) => {
 
     ];
 
-    const [show_more_payload, set_show_more_payload] = useState({
-        limit: 52,
-        page: 1,
-        hasMore: false,
-        count: 0,
-    });
-
     const show_more_payload_func = () => {
         set_show_more_payload(prev => ({ ...prev, page: prev.page + 1 }));
     };
@@ -259,6 +299,19 @@ const Collection_page = ({ axios }) => {
             get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
         }
     }, [show_more_payload.page]);
+
+    useEffect(() => {
+        if (!router.isReady) return;
+        const timer = setTimeout(() => {
+            if (router.asPath !== stored_path && filters.length && filters.every(e => Object.values(e)[0] !== undefined && Object.values(e)[0] !== null)) {
+                set_stored_path(router.asPath);
+            }
+        }, 500)
+        return () => clearTimeout(timer);
+    }, [router.isReady, router.asPath, filters]);
+
+
+
 
 
 
@@ -364,7 +417,7 @@ const Collection_page = ({ axios }) => {
                                         <div className='pb-[15px] border-b border-stone-300 mb-[30px]'>
 
                                             <button
-                                                onClick={() => remove_all_items_from_filters_realtime_update(filter_options, set_filters)}
+                                                onClick={() => remove_all_items_from_filters_realtime_update_fn(filter_options, set_filters)}
                                                 className='text-[16px] text-stone-600 mb-3 underline underline-offset-4'
                                             >
                                                 Clear all
@@ -374,7 +427,7 @@ const Collection_page = ({ axios }) => {
                                                 {filters_realtime_update(filter_options, filters).map((e, index) => (
                                                     <Fade key={index} >
                                                         <button
-                                                            onClick={() => remove_item_from_filters_realtime_update(set_filters, e, filter_options)
+                                                            onClick={() => remove_item_from_filters_realtime_update_fn(set_filters, e, filter_options)
                                                             }
                                                             className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
                                                         >
@@ -407,7 +460,7 @@ const Collection_page = ({ axios }) => {
                                         </div>
                                         {filters.some(e => Object.keys(e)[0] === "size") &&
                                             <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "size")
+                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "size")
                                                 }
                                                 className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                                 Clear all
@@ -438,7 +491,7 @@ const Collection_page = ({ axios }) => {
                                         </div>
                                         {filters.some(e => Object.keys(e)[0] === "condition") &&
                                             <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "condition")
+                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "condition")
                                                 }
                                                 className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                                 Clear all
@@ -468,7 +521,7 @@ const Collection_page = ({ axios }) => {
                                         </div>
                                         {filters.some(e => Object.keys(e)[0] === "brand") &&
                                             <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update(set_filters, "brand")
+                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "brand")
                                                 }
                                                 className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                                 Clear all
@@ -490,6 +543,8 @@ const Collection_page = ({ axios }) => {
                                                     onChange={(e, new_prices) => {
                                                         apply_filter({ price_gte: Number(new_prices[0]) });
                                                         apply_filter({ price_lte: Number(new_prices[1]) });
+                                                        filter_method({ price_gte: Number(new_prices[0]) }, set_filters)
+                                                        filter_method({ price_lte: Number(new_prices[1]) }, set_filters)
                                                     }}
                                                     valueLabelDisplay="auto"
                                                     step={50}
@@ -555,7 +610,7 @@ const Collection_page = ({ axios }) => {
                 {/* Product Section */}
                 <div className='flex-[5]'>
                     {/* Header */}
-                    <div className='w-full flex justify-between items-center py-[15px] lg:py-0 mb-[30px] sticky lg:static top-0 bg-white z-[12] lg:z-0 px-[16px]' >
+                    <div className='w-full flex justify-between items-center py-[15px] mb-[30px] lg:pt-[10px] lg:mb-[15px] sticky  top-0 bg-white z-[12] px-[16px]' >
 
                         <button onClick={() => toggle_drawer("filter_drawer")} className='flex gap-2 items-center lg:hidden'>
                             {is_loading ?
@@ -639,6 +694,12 @@ const Collection_page = ({ axios }) => {
                                         sort_options={sort_options}
                                         filters={filters}
                                         set_filters={set_filters}
+                                        axios={axios}
+                                        get_all_products_api={get_all_products_api}
+                                        convert_to_query_string={convert_to_query_string}
+                                        set_products={set_products}
+                                        set_show_more_payload={set_show_more_payload}
+                                        set_is_loading={set_is_loading}
                                     />
                                 </>
                                 :

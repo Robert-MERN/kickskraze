@@ -1,48 +1,57 @@
-export const filter_method = (newObj, set_state) => {
-    set_state((prevObjects) => {
-        // Check if an object with the same size exists
-        var index;
-        if (newObj.size) {
-            index = prevObjects.findIndex((obj) => obj.size === newObj.size);
-        };
+export const filter_method = async (newObj, set_state) => {
 
-        if (newObj.condition) {
-            index = prevObjects.findIndex((obj) => obj.condition === newObj.condition);
-        };
+    const FILTERS = await new Promise((resolve) => {
 
-        if (newObj.brand) {
-            index = prevObjects.findIndex((obj) => obj.brand === newObj.brand);
-        };
+        set_state((prevObjects) => {
+            // Check if an object with the same size exists
+            var index;
+            if (newObj.size) {
+                index = prevObjects.findIndex((obj) => obj.size === newObj.size);
+            };
+
+            if (newObj.condition) {
+                index = prevObjects.findIndex((obj) => obj.condition === newObj.condition);
+            };
+
+            if (newObj.brand) {
+                index = prevObjects.findIndex((obj) => obj.brand === newObj.brand);
+            };
 
 
-        if (Object.keys(newObj)[0] === "price_gte" || Object.keys(newObj)[0] === "price_lte" || Object.keys(newObj)[0] === "sort_by") {
-            index = prevObjects.findIndex((obj) => Object.keys(obj)[0] === Object.keys(newObj)[0]);
-            // If found, replace it
+            if (Object.keys(newObj)[0] === "price_gte" || Object.keys(newObj)[0] === "price_lte" || Object.keys(newObj)[0] === "sort_by") {
+                index = prevObjects.findIndex((obj) => Object.keys(obj)[0] === Object.keys(newObj)[0]);
+                // If found, replace it
+                if (index !== -1) {
+                    const updatedObjects = [...prevObjects];
+                    updatedObjects.splice(index, 1, newObj);
+                    resolve(updatedObjects);
+                    return updatedObjects;
+                }
+                resolve([...prevObjects, newObj]);
+                return [...prevObjects, newObj];
+            };
+
+
+
+
             if (index !== -1) {
+                // If found, remove it
                 const updatedObjects = [...prevObjects];
-                updatedObjects.splice(index, 1, newObj);
+
+                updatedObjects.splice(index, 1);
+                resolve(updatedObjects);
                 return updatedObjects;
+
+            } else {
+                // If not found, add it
+                resolve([...prevObjects, newObj])
+                return [...prevObjects, newObj];
             }
-            return [...prevObjects, newObj];
-        };
+        });
 
-
-
-
-        if (index !== -1) {
-            // If found, remove it
-            const updatedObjects = [...prevObjects];
-
-            updatedObjects.splice(index, 1);
-            return updatedObjects;
-
-        } else {
-            // If not found, add it
-            return [...prevObjects, newObj];
-        }
     });
 
-
+    return FILTERS;
 };
 
 export const convert_to_query_string = (filter) => {
@@ -82,33 +91,45 @@ export const filters_realtime_update = (filter_options, arr) => {
 
 };
 
-export const remove_item_from_filters_realtime_update = (set_arr, obj_val, filter_options) => {
-    set_arr((prev_arr) => {
-        if (obj_val.toString().includes("Rs.")) {
-            const without_prices_arr = [...prev_arr].filter(obj => Object.keys(obj) !== "price_gte" && Object.keys(obj) !== "price_lte");
-            const { price_gte, price_lte } = filter_options;
-            return [{ price_gte }, { price_lte }].concat(without_prices_arr);
-        }
-        const index = prev_arr.findIndex((obj) => Object.values(obj)[0] === obj_val);
-        if (index >= 0) {
-            const updated_arr = [...prev_arr];
-            updated_arr.splice(index, 1);
-            return updated_arr;
-        }
-        return prev_arr; // Return the original array if no match is found
+export const remove_item_from_filters_realtime_update = async (set_arr, obj_val, filter_options) => {
+    const FILTERS = await new Promise(resolve => {
+        set_arr((prev_arr) => {
+            if (obj_val.toString().includes("Rs.")) {
+                const without_prices_arr = [...prev_arr].filter(obj => Object.keys(obj) !== "price_gte" && Object.keys(obj) !== "price_lte");
+                const { price_gte, price_lte } = filter_options;
+
+                resolve([{ price_gte }, { price_lte }].concat(without_prices_arr));
+                return [{ price_gte }, { price_lte }].concat(without_prices_arr);
+            }
+            const index = prev_arr.findIndex((obj) => Object.values(obj)[0] === obj_val);
+            if (index >= 0) {
+                const updated_arr = [...prev_arr];
+                updated_arr.splice(index, 1);
+                resolve(updated_arr);
+                return updated_arr;
+            }
+            resolve(prev_arr);
+            return prev_arr; // Return the original array if no match is found
+        });
     });
+    return FILTERS;
 };
 
-export const remove_group_items_from_filters_realtime_update = (set_arr, obj_key) => {
-    set_arr((prev_arr) => {
-        const updated_arr = prev_arr.filter((obj) => Object.keys(obj)[0] !== obj_key);
-        return updated_arr;
+export const remove_group_items_from_filters_realtime_update = async (set_arr, obj_key) => {
+    const FILTERS = await new Promise(resolve => {
+        set_arr((prev_arr) => {
+            const updated_arr = prev_arr.filter((obj) => Object.keys(obj)[0] !== obj_key);
+            resolve(updated_arr);
+            return updated_arr;
+        });
     });
+    return FILTERS;
 };
 
 export const remove_all_items_from_filters_realtime_update = (filter_options, set_arr) => {
     const { sort_by, price_gte, price_lte } = filter_options;
     set_arr([{ sort_by }, { price_gte }, { price_lte }]);
+    return [{ sort_by }, { price_gte }, { price_lte }];
 };
 
 
@@ -129,7 +150,8 @@ export const configure_query_filters = (router_query) => {
     return [];
 };
 
-export const add_query_filters = (query_filters, set_filters) => {
+export const add_query_filters = async (query_filters, set_filters) => {
+    let FILTERS;
 
     const s_c_b = query_filters.filter(e => {
         const key = Object.keys(e)[0]
@@ -147,36 +169,45 @@ export const add_query_filters = (query_filters, set_filters) => {
     }
 
     if (!without_s_c_b.length && s_c_b.length) {
+        FILTERS = await new Promise((resolve) => {
+
+            set_filters(prev_arr => {
+                const copy_prev = [...prev_arr];
+                for (const each_query of s_c_b) {
+                    const matched_query_index = prev_arr.findIndex(e => {
+                        const existing = Object.entries(e)[0];
+                        const _new = Object.entries(each_query)[0];
+                        return (existing[0] === _new[0] && existing[1] === _new[1])
+                    });
+                    if (matched_query_index !== -1) {
+                        copy_prev.splice(matched_query_index, 1, each_query);
+                    } else {
+                        copy_prev.push(each_query);
+                    }
+                }
+                resolve(copy_prev);
+                return copy_prev;
+            })
+
+        })
+    }
+
+    FILTERS = await new Promise((resolve) => {
         set_filters(prev_arr => {
             const copy_prev = [...prev_arr];
-            for (const each_query of s_c_b) {
-                const matched_query_index = prev_arr.findIndex(e => {
-                    const existing = Object.entries(e)[0];
-                    const _new = Object.entries(each_query)[0];
-                    return (existing[0] === _new[0] && existing[1] === _new[1])
-                });
+            for (const each_query of without_s_c_b) {
+                const matched_query_index = prev_arr.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
                 if (matched_query_index !== -1) {
                     copy_prev.splice(matched_query_index, 1, each_query);
                 } else {
                     copy_prev.push(each_query);
                 }
             }
+            resolve(copy_prev)
             return copy_prev;
-        })
-    }
-
-    set_filters(prev_arr => {
-        const copy_prev = [...prev_arr];
-        for (const each_query of without_s_c_b) {
-            const matched_query_index = prev_arr.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
-            if (matched_query_index !== -1) {
-                copy_prev.splice(matched_query_index, 1, each_query);
-            } else {
-                copy_prev.push(each_query);
-            }
-        }
-        return copy_prev;
-    });
+        });
+    })
+    return FILTERS;
 }
 
 // Database function [BACK-END]

@@ -1,7 +1,12 @@
 
 export const get_cookie = (cookie_name, { req, res }) => {
     const cookie_header = req.headers.cookie || "";
-    const cookies = Object.fromEntries(cookie_header.split(";").map(e => e.split("=")));
+    const cookies = Object.fromEntries(cookie_header.split(";").map(e => {
+        const obj_arr = e.split("=");
+        const key = obj_arr[0].trim();
+        const value = obj_arr[1].trim();
+        return [key, value];
+    }));
     return cookies[cookie_name];
 }
 

@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
 import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { MetaPixel } from '@/lib/fpixel';
 
 
 
@@ -60,8 +61,8 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
 
 
   // Search Product Logic
-  const [searchTerm, setSearchTerm] = useState(""); // Input value
-  const [debouncedTerm, setDebouncedTerm] = useState(""); // Debounced value
+  const [searchTerm, setSearchTerm] = useState(null); // Input value
+  const [debouncedTerm, setDebouncedTerm] = useState(null); // Debounced value
   const [results, set_results] = useState([]); // Search results
   const [trending_results, set_trending_results] = useState([]); // Trending results
   const [is_loading, set_is_loading] = useState("default");
@@ -71,7 +72,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
 
   // Fetching Search products
   const [show_more_payload, set_show_more_payload] = useState({
-    limit: 50,
+    limit: 52,
     page: 1,
     hasMore: false,
     count: 0,
@@ -101,6 +102,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
     const fetchResults = async () => {
       try {
         await get_all_products_api(axios, `search=${debouncedTerm}`, set_results, set_show_more_payload, set_fake_is_loading);
+        MetaPixel.trackEvent("Search", { search_string: debouncedTerm });
       } catch (err) {
         console.error(err);
       } finally {
@@ -108,8 +110,10 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
       }
     };
 
-    fetchResults();
-  }, [debouncedTerm]);
+    if (drawer_state.search_drawer && debouncedTerm !== null) {
+      fetchResults();
+    }
+  }, [debouncedTerm, drawer_state.search_drawer]);
 
   useEffect(() => {
     if (is_loading === "ended" && !searchTerm) {
@@ -169,6 +173,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
           <input
             className="outline-none px-[15px] py-[3px] border border-stone-300 text-[17px] h-[50px] w-full"
             placeholder="Search products..."
+            value={searchTerm || ""}
             type="text"
             onChange={(event) => { setSearchTerm(event.target.value) }}
           />

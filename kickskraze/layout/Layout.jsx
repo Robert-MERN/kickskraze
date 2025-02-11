@@ -1,22 +1,27 @@
-import Collection_drawer from '@/components/utilities/drawers/Collection_drawer'
-import Menu_drawer from '@/components/utilities/drawers/Menu_drawer'
+import Collection_drawer from '@/utils/drawers/Collection_drawer'
+import Menu_drawer from '@/utils/drawers/Menu_drawer'
 import React, { useEffect, useState } from 'react'
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import { Backdrop, CircularProgress, Slide } from '@mui/material';
 import useStateContext from '@/context/ContextProvider';
-import Search_drawer from '@/components/utilities/drawers/Search_drawer';
-import Sort_drawer from '@/components/utilities/drawers/Sort_drawer';
-import Filter_drawer from '@/components/utilities/drawers/Filter_drawer';
+import Search_drawer from '@/utils/drawers/Search_drawer';
+import Sort_drawer from '@/utils/drawers/Sort_drawer';
+import Filter_drawer from '@/utils/drawers/Filter_drawer';
 import axios from "axios";
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import styles from "@/styles/home.module.css"
 import { useRouter } from 'next/router';
 import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
-import Admin_menu_drawer from "@/components/utilities/drawers/Admin_menu_drawer"
+import Admin_menu_drawer from "@/utils/drawers/Admin_menu_drawer"
 import Delete_product_modal from '@/utils/modals/Delete_product_modal';
 import Logout_modal from '@/utils/modals/Logout_modal';
+import Sort_drawer_admin from '@/utils/drawers/Sort_drawer_admin';
+import Filter_drawer_admin from '@/utils/drawers/Filter_drawer_admin';
+import View_order_modal from '@/utils/modals/View_order_modal';
+import Delete_order_modal from '@/utils/modals/Delete_order_modal';
+import View_order_drawer from '@/utils/drawers/View_order_drawer';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -128,8 +133,19 @@ const Layout = ({ children }) => {
             <Sort_drawer
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
+                axios={axios}
+            />
+            <Sort_drawer_admin
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+                axios={axios}
             />
             <Filter_drawer
+                axios={axios}
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Filter_drawer_admin
                 axios={axios}
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
@@ -137,6 +153,12 @@ const Layout = ({ children }) => {
             <Admin_menu_drawer
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
+            />
+            <View_order_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+                toggle_modal={toggle_modal}
+                axios={axios}
             />
 
             {/* Modals */}
@@ -159,7 +181,18 @@ const Layout = ({ children }) => {
                 set_update_product_details={set_update_product_details}
                 set_product_details={set_product_details}
                 default_product_details={default_product_details}
-
+            />
+            <View_order_modal
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
+                axios={axios}
+            />
+            <Delete_order_modal
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+                axios={axios}
             />
 
             {children}
