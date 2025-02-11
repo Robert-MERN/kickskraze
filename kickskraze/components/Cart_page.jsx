@@ -78,7 +78,7 @@ const Cart_page = () => {
                     className='hover:underline active:text-gray-600'
                     underline="hover"
                     color="inherit"
-                    href="/"
+                    href="/collection"
                 >
                     Home
                 </Link>
