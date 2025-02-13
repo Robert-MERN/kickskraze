@@ -297,9 +297,12 @@ const Create_product = ({ axios }) => {
                             formData.append("videoThumbnailFlags", isThumbnail); // Add thumbnail flag
                         } else if (item.type === "image") {
                             const options = {
-                                maxSizeMB: 1, // Compress to ~1MB
-                                maxWidthOrHeight: 1920, // Resize if needed
-                                useWebWorker: true, // Use Web Worker for better performance
+                                maxSizeMB: 0.5, // Target lower size (Cloudinary adjusts dynamically)
+                                maxWidthOrHeight: 800, // Resize like Cloudinary w_800
+                                useWebWorker: true, // Faster compression
+                                initialQuality: 0.8, // Start at 80% quality
+                                alwaysKeepResolution: false, // Allow resizing
+                                fileType: "image/webp"
                             };
                             const compressedFile = await imageCompression(file, options);
                             formData.append("images", compressedFile); // Add image file

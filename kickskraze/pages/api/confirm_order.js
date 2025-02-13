@@ -1,3 +1,4 @@
+import { csvQueue } from '@/lib/queue';
 import Orders from '@/models/order_model';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
@@ -29,6 +30,8 @@ export default async function handler(req, res) {
             const products = await Promise.all(orders.purchase.map((product) =>
                 Products.findByIdAndUpdate(product._id, { stock: 0 })
             ));
+
+            await csvQueue.add("updateCSV", {}); // Enqueue CSV update
             // sending success response to client
             return res.status(200).json(orders);
         }

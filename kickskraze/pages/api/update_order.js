@@ -1,3 +1,4 @@
+import { csvQueue } from '@/lib/queue';
 import Orders from '@/models/order_model';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
@@ -40,6 +41,9 @@ export default async function handler(req, res) {
                 await Products.findByIdAndUpdate(id, { stock: 1 });
             }
             await Orders.findByIdAndDelete(order_id);
+
+            await csvQueue.add("updateCSV", {}); // Enqueue CSV update
+
             return res.status(200).json({ success: true, message: "Order has been deleted." });
         }
 
@@ -56,6 +60,8 @@ export default async function handler(req, res) {
 
         // Update the order
         const updatedOrder = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
+
+        await csvQueue.add("updateCSV", {}); // Enqueue CSV update
 
         return res.status(200).json({ success: true, message: "Order has been successfully updated.", order: updatedOrder });
 

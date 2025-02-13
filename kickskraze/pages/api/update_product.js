@@ -1,3 +1,4 @@
+import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { deleteImages } from '@/utils/functions/destroy_cloudinary_image';
@@ -46,6 +47,8 @@ export default async function handler(req, res) {
                 await deleteImages(media, { req, res });
             }
         }
+
+        await csvQueue.add("updateCSV", {}); // Enqueue CSV update
 
         // sending success response to client
         return res.status(200).json({ status: true, message: "Product has been updated" });

@@ -1,3 +1,4 @@
+import { csvQueue } from '@/lib/queue';
 import Orders from '@/models/order_model';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
@@ -37,6 +38,8 @@ export default async function handler(req, res) {
         for (const id of deleted_purchase_ids) {
             await Products.findByIdAndUpdate(id, { stock: 1 });
         }
+
+        await csvQueue.add("updateCSV", {}); // Enqueue CSV update
         await Orders.findByIdAndDelete(order_id);
         return res.status(200).json({ success: true, message: "Order has been deleted." });
 
