@@ -1,7 +1,7 @@
 import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
-import { deleteImages } from '@/utils/functions/destroy_cloudinary_image';
+import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
 
 
 /**
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
             // Deleting the uploaded media, if any error occurs in MongoDB server after the successful upload of media on the Cloudinary server.
             const media = (Array.isArray(req.body.media) && req.body.media.length) ? req.body.media.filter(e => Boolean(e.recent)).map(e => e.url) : [];
             if (media.length) {
-                await deleteImages(media, { req, res });
+                await deleteFiles(media, { req, res });
             }
 
 

@@ -14,7 +14,9 @@ const Delete_product_modal = ({
     delete_product_api,
     default_update_product_details,
     set_update_product_details,
+    set_products_title,
     set_API_loading,
+    get_all_products_title_api,
 }) => {
 
     const handle_delete_menu = () => {
@@ -24,12 +26,15 @@ const Delete_product_modal = ({
             set_update_product_details(default_update_product_details)
         }
 
+
+
         delete_product_api(
             axios,
             product_id,
             set_API_loading,
             reset_all,
-            () => toggle_modal("delete_product_modal")
+            () => toggle_modal("delete_product_modal"),
+            ()=> get_all_products_title_api(axios, set_products_title, set_API_loading),
         );
     };
 

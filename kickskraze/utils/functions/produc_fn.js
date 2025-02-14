@@ -9,8 +9,11 @@ export const calculate_discount_precentage = (price, compare_price) => {
 };
 
 export const select_thumbnail_from_media = (media) => {
-    const images = media.filter(e => e.type === "image");
-    return images.sort((a, b) => b.thumbnail - a.thumbnail)[0].url;
+    const images = media.filter(e => String(e?.type) === "image");
+    if (images.length) {
+        return images.sort((a, b) => b.thumbnail - a.thumbnail)[0].url;
+    };
+    return "";
 
 }
 

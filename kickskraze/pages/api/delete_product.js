@@ -1,7 +1,7 @@
 import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
-import { deleteImages } from '@/utils/functions/destroy_cloudinary_image';
+import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
 
 /**
  * 
@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
         if (product.media && Array.isArray(product.media) && product.media.length) {
             const media = product.media.map(each => each.url);
-            await deleteImages(media, { req, res });
+            await deleteFiles(media, { req, res });
         }
 
         // Deleting product

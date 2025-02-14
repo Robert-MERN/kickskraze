@@ -264,6 +264,9 @@ export const ContextProvider = ({ children }) => {
     // Product Page Client
     const [stored_product_id, set_stored_product_id] = useState("");
 
+    // Update Product Page [Admin-Client]
+    const [products_title, set_products_title] = useState([]);
+
     //<----------------------- API Calls and Handlers [Back-end] ----------------------->
 
 
@@ -301,7 +304,7 @@ export const ContextProvider = ({ children }) => {
 
 
             // Perform the API call
-            const response = await axios.post("/api/upload_cloudinary_files", data, {
+            const response = await axios.post("/api/upload_bunnycdn_files", data, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -472,7 +475,7 @@ export const ContextProvider = ({ children }) => {
             }, incrementSpeed);
 
             // Perform the API call
-            const response = await axios.post("/api/upload_cloudinary_files", data, {
+            const response = await axios.post("/api/upload_bunnycdn_files", data, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
@@ -514,7 +517,7 @@ export const ContextProvider = ({ children }) => {
 
 
     // Delete Product API 
-    const delete_product_api = async (axios, product_id, set_is_loading, reset_states, toggle) => {
+    const delete_product_api = async (axios, product_id, set_is_loading, reset_states, toggle, refetch_products_title) => {
         // start loading
         set_is_loading(true);
         try {
@@ -530,6 +533,9 @@ export const ContextProvider = ({ children }) => {
             if (toggle) {
                 toggle();
             };
+            if (refetch_products_title) {
+                refetch_products_title();
+            }
         } catch (err) {
             set_snackbar_alert({
                 open: true,
@@ -724,6 +730,8 @@ export const ContextProvider = ({ children }) => {
                 substract_item_from_cart,
 
                 stored_product_id, set_stored_product_id,
+
+                products_title, set_products_title,
 
                 stored_path, set_stored_path,
 

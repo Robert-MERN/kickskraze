@@ -265,50 +265,38 @@ const Create_product = ({ axios }) => {
 
                 const formData = new FormData();
 
-                // Step 1: Filter media items that already have a Cloudinary URL
-                const unupdated_media = media.length
-                    ? media.filter((item) => item.url.includes("res.cloudinary.com"))
-                    : media;
 
-                if (unupdated_media.length) {
-                    for (const file of unupdated_media) {
-                        formData.append("media", JSON.stringify(file));
-                    }
-
-                }
 
                 // Append other data fields
                 Object.keys(otherData).forEach((key) => {
                     formData.append(key, otherData[key]);
                 });
-
                 // Append each file to FormData
-                for (let i = 0; i < media.length; i++) {
-                    const item = media[i];
+                for (const item of media) {
                     const isThumbnail = item.thumbnail ? "true" : "false";
 
-                    if (!item.url.includes("res.cloudinary.com")) {
-                        const FILE = await fetch(media[i].url); // Fetch the binary data
-                        const file = await FILE.blob();
 
-                        // Step 4: Handle videos and images
-                        if (item.type === "video") {
-                            formData.append("videos", file); // Add video file
-                            formData.append("videoThumbnailFlags", isThumbnail); // Add thumbnail flag
-                        } else if (item.type === "image") {
-                            const options = {
-                                maxSizeMB: 0.5, // Target lower size (Cloudinary adjusts dynamically)
-                                maxWidthOrHeight: 800, // Resize like Cloudinary w_800
-                                useWebWorker: true, // Faster compression
-                                initialQuality: 0.8, // Start at 80% quality
-                                alwaysKeepResolution: false, // Allow resizing
-                                fileType: "image/webp"
-                            };
-                            const compressedFile = await imageCompression(file, options);
-                            formData.append("images", compressedFile); // Add image file
-                            formData.append("imageThumbnailFlags", isThumbnail); // Add thumbnail flag
-                        }
+                    const FILE = await fetch(item.url); // Fetch the binary data
+                    const file = await FILE.blob();
+
+                    // Step 4: Handle videos and images
+                    if (item.type === "video") {
+                        formData.append("videos", file); // Add video file
+                        formData.append("videoThumbnailFlags", isThumbnail); // Add thumbnail flag
+                    } else if (item.type === "image") {
+                        const options = {
+                            maxSizeMB: 0.5, // Target lower size (Cloudinary adjusts dynamically)
+                            maxWidthOrHeight: 800, // Resize like Cloudinary w_800
+                            useWebWorker: true, // Faster compression
+                            initialQuality: 0.8, // Start at 80% quality
+                            alwaysKeepResolution: false, // Allow resizing
+                            fileType: "image/webp"
+                        };
+                        const compressedFile = await imageCompression(file, options);
+                        formData.append("images", compressedFile); // Add image file
+                        formData.append("imageThumbnailFlags", isThumbnail); // Add thumbnail flag
                     }
+
                 }
 
                 await create_product_api(axios, formData, set_API_loading, reset_all);

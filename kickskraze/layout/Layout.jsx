@@ -53,6 +53,8 @@ const Layout = ({ children }) => {
         default_product_details,
         progress_of_loading,
         get_all_products_api,
+        set_products_title,
+        get_all_products_title_api,
     } = useStateContext();
 
     // lock scroll when drawer opens
@@ -172,6 +174,8 @@ const Layout = ({ children }) => {
                 delete_product_api={delete_product_api}
                 default_update_product_details={default_update_product_details}
                 set_update_product_details={set_update_product_details}
+                set_products_title={set_products_title}
+                get_all_products_title_api={get_all_products_title_api}
             />
             <Logout_modal
                 modals_state={modals_state}

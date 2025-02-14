@@ -155,7 +155,6 @@ const Collection_page = ({ axios }) => {
         if (!router.isReady) return;
 
         const fetch = async () => {
-            console.log("Different Path: ", router.asPath !== stored_path)
             if (router.asPath !== stored_path) {
 
                 let FILTERS = filters;

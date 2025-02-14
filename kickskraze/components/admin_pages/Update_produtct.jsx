@@ -22,11 +22,10 @@ const Create_product = ({ axios }) => {
 
 
 
-    const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api } = useStateContext();
+    const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api, products_title, set_products_title } = useStateContext();
 
     const router = useRouter();
 
-    const [products_title, set_products_title] = useState([]);
 
     // validate Order ID
     const isValidObjectId = (id) => {
@@ -304,16 +303,14 @@ const Create_product = ({ axios }) => {
 
                 const formData = new FormData();
 
-                // Step 1: Filter media items that already have a Cloudinary URL
-                const unupdated_media = media.length
-                    ? media.filter((item) => item.url.includes("res.cloudinary.com"))
-                    : media;
+                // Step 1: Filter media items that already have a BunnyCDN URL
+                const unupdated_media = media.length ?
+                    media.filter((item) => item.url.includes("kickskraze.b-cdn.net")) : [];
 
                 if (unupdated_media.length) {
                     for (const file of unupdated_media) {
                         formData.append("media", JSON.stringify(file));
                     }
-
                 }
 
 
@@ -323,11 +320,10 @@ const Create_product = ({ axios }) => {
                 });
 
                 // Step 3: Process each media file
-                for (let i = 0; i < media.length; i++) {
-                    const item = media[i];
+                for (const item of media) {
                     const isThumbnail = item.thumbnail ? "true" : "false";
 
-                    if (!item.url.includes("res.cloudinary.com")) {
+                    if (!item.url.includes("kickskraze.b-cdn.net")) {
                         const FILE = await fetch(item.url); // Fetch the binary data
                         const file = await FILE.blob();
 
@@ -337,9 +333,12 @@ const Create_product = ({ axios }) => {
                             formData.append("videoThumbnailFlags", isThumbnail); // Add thumbnail flag
                         } else if (item.type === "image") {
                             const options = {
-                                maxSizeMB: 1, // Compress to ~1MB
-                                maxWidthOrHeight: 1920, // Resize if needed
-                                useWebWorker: true, // Use Web Worker for better performance
+                                maxSizeMB: 0.5, // Target lower size (Cloudinary adjusts dynamically)
+                                maxWidthOrHeight: 800, // Resize like Cloudinary w_800
+                                useWebWorker: true, // Faster compression
+                                initialQuality: 0.8, // Start at 80% quality
+                                alwaysKeepResolution: false, // Allow resizing
+                                fileType: "image/webp"
                             };
                             const compressedFile = await imageCompression(file, options);
                             formData.append("images", compressedFile); // Add image file
