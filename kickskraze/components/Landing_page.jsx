@@ -355,8 +355,8 @@ const Landing_page = ({ axios }) => {
 
                 <div className="w-full text-center text-[44px] font-medium bg-contain relative md:hidden">
                     <div className='static' >
-                        <Image alt="banner" src={sm_banner_1} className='object-contain w-[calc(100vh-20px)] sm:hidden block' />
-                        <Image alt="banner" src={mid_banner} className='object-contain w-[calc(100vh-20px)] hidden sm:block' />
+                        <Image alt="banner" style={{ width: "auto" }} src={sm_banner_1} className='object-contain w-[calc(100vh-20px)] sm:hidden block' />
+                        <Image alt="banner" style={{ width: "auto" }} src={mid_banner} className='object-contain w-[calc(100vh-20px)] hidden sm:block' />
                     </div>
 
                     <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >

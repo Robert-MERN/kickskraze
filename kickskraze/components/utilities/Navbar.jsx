@@ -24,6 +24,12 @@ const Navbar = () => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
     }, []);
 
+    const [cartQuantity, setCartQuantity] = useState(0);
+
+    useEffect(() => {
+        setCartQuantity(cart.reduce((sum, current) => sum + current.quantity, 0));
+    }, [cart]);
+
 
     // <--------------------------------- Search Logic and Search Popper Display Logic --------------------------------->
     // Search Product Logic
@@ -198,12 +204,12 @@ const Navbar = () => {
                             </Link>
                         </li>
                         <li>
-                            <button
-                                onClick={() => router.push("/collection?category=men")}
+                            <Link
                                 className={`font-semibold text-[15] xl:text-[17px] text-stone-800 active:text-stone-600 flex items-center border-[1px] border-transparent hover:border-b-stone-400 transition-all duration-100`}
+                                href="/collection?category=men"
                             >
                                 Men
-                            </button>
+                            </Link>
                         </li>
                         <li>
                             <Link
@@ -263,7 +269,7 @@ const Navbar = () => {
                 <div>
                     <Link href={"/cart"}>
                         <button className="active:text-stone-(400 text-stone-800 transition-all">
-                            <Badge badgeContent={cart.reduce((sum, current) => (sum + current.quantity), 0)} color="info" showZero>
+                            <Badge badgeContent={cartQuantity} color="info" showZero>
                                 <FiShoppingCart className="text-[24px]" />
                             </Badge>
                         </button>

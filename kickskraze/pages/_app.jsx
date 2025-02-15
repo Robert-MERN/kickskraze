@@ -40,7 +40,7 @@ export default function App({ Component, pageProps }) {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', ${process.env.FACEBOOK_META_PIXEL_ID});
+            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID});
             fbq('track', 'PageView');
           `,
         }}
@@ -51,7 +51,7 @@ export default function App({ Component, pageProps }) {
           height="1"
           width="1"
           style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${process.env.FACEBOOK_META_PIXEL_ID}&ev=PageView&noscript=1`}
+          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID}&ev=PageView&noscript=1`}
         />
       </noscript>
 
