@@ -1,8 +1,17 @@
+const PIXEL_ID_1 = process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1;
+const PIXEL_ID_2 = process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2;
+
 export const MetaPixel = {
   pageView: () => {
-    window.fbq && window.fbq("track", "PageView");
+    if (window.fbq) {
+      window.fbq("trackSingle", PIXEL_ID_1, "PageView");
+      window.fbq("trackSingle", PIXEL_ID_2, "PageView");
+    }
   },
   trackEvent: (event, data = {}) => {
-    window.fbq && window.fbq("track", event, data);
+    if (window.fbq) {
+      window.fbq("trackSingle", PIXEL_ID_1, event, data);
+      window.fbq("trackSingle", PIXEL_ID_2, event, data);
+    }
   },
 };

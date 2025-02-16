@@ -40,18 +40,24 @@ export default function App({ Component, pageProps }) {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID});
+             
+            // Initialize first pixel
+            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1});
+            fbq('track', 'PageView');
+            
+            // Initialize second pixel
+            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2});
             fbq('track', 'PageView');
           `,
         }}
       />
 
       <noscript>
-        <img
-          height="1"
-          width="1"
-          style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID}&ev=PageView&noscript=1`}
+        <img height="1" width="1" style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1}&ev=PageView&noscript=1`}
+        />
+        <img height="1" width="1" style={{ display: "none" }}
+          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2}&ev=PageView&noscript=1`}
         />
       </noscript>
 
