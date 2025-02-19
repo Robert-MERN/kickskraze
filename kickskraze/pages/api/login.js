@@ -38,11 +38,11 @@ export default async function handler(req, res) {
                 // creating plain payload to convert user obj into token
                 const plain_payload = plain_payload_maker(user);
                 // converting user object in token 
-                const token = await jwt.sign(plain_payload, process.env.JWT_KEY, { expiresIn: "1d" });
+                const token = await jwt.sign(plain_payload, process.env.JWT_KEY, { expiresIn: "365d" });
 
 
                 // cookie expires in 1 days
-                const expiry_date = 24 * 60 * 60;
+                const expiry_date = 365 * 24 * 60 * 60;
 
                 // now setting that token in cookies
                 set_cookie("user_account_token", token, { req, res, expires: expiry_date });

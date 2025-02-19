@@ -68,6 +68,7 @@ const Orders = ({ axios }) => {
         },
     }
 
+
     const date_formatter = (date) => {
         // Create a Date object
         const dateObject = new Date(date);
@@ -87,14 +88,27 @@ const Orders = ({ axios }) => {
         }
     }
 
+    const tracking_url = {
+        trax: "https://trax.pk/tracking/",
+        leapord: "https://www.leopardscourier.com/tracking",
+    };
+
     const columns = [
         {
             field: '_id',
             headerName: 'ID',
             sortable: false,  // Disables sorting
-            filterable: false, // Disables filtering
             width: 160,
-            renderCell: params => (<button className='hover:underline w-[140px] text-ellipsis overflow-hidden' onClick={() => copy_to_clipboard(params.row._id, "Order ID copied!")} >{params.row._id}</button>)
+            renderCell: params => (
+                <a
+                    onClick={() => copy_to_clipboard(params.row._id, "Order ID copied!")}
+                    href={`/checkouts/${params.row._id}`}
+                    target="_blank"
+                    className='hover:underline w-[140px] text-ellipsis overflow-hidden'
+                >
+                    {params.row._id}
+                </a>
+            )
         },
         {
             field: 'createdAt',
@@ -146,13 +160,31 @@ const Orders = ({ axios }) => {
             renderCell: params => payment_method[params?.row?.payment_method] || "",
         },
         {
+            field: 'store_name',
+            headerName: 'Store',
+            width: 120,
+        },
+        {
+            field: 'verification',
+            headerName: 'Verification',
+            width: 100,
+            renderCell: params => (
+                <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${params.row.verification === "verified" ? "text-green-700" : "text-stone-400"} capitalize`}>{params.row.verification}</p>
+            )
+        },
+        {
             field: 'tracking_no',
             headerName: 'Tracking No.',
             width: 150,
             renderCell: params => Boolean(params.row.tracking_no) ?
-                <button className='hover:underline w-[140px] text-ellipsis overflow-hidden text-start' onClick={() => copy_to_clipboard(params.row.tracking_no, "Tacking Id copied!")} >
+                <a
+                    onClick={() => copy_to_clipboard(params.row.tracking_no, "Tacking Id copied!")}
+                    href={tracking_url[params.row.courier_name]}
+                    target='_blank'
+                    className='hover:underline w-[140px] text-ellipsis overflow-hidden text-start cursor-pinter'
+                >
                     {params.row.tracking_no || ""}
-                </button>
+                </a>
                 :
                 <p className='text-stone-400' >No Tracking</p>,
         },
@@ -168,7 +200,7 @@ const Orders = ({ axios }) => {
                     View Order
                 </button>
                 <button onClick={() => view_order_btn(params.row._id, "drawer")} className='text-[12px] bg-black rounded-md text-white h-fit w-fit px-[14px] py-[10px] md:hidden flex items-center justify-center leading-none hover:opacity-75 active:opacity-65 transition-all gap-2'>
-                    <ShoppingCartCheckoutIcon  className='text-[18px]' />
+                    <ShoppingCartCheckoutIcon className='text-[18px]' />
                     View Order
                 </button>
             </div>),

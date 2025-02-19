@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from "@mui/material/Badge";
 import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
-import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import useStateContext from '@/context/ContextProvider';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -96,11 +96,14 @@ const Checkouts_page = ({ axios }) => {
         delivery_charges: 200,
         purchase: [],
         total_amount: "",
+        subtotal_amount: "",
         total_items: "",
         coupon_code: "",
         special_instructions: "",
         payment_method: "",
         status: "booked",
+        verification: "unverified",
+        store_name: "",
         errors: {
             email: "",
             firstName: "",
@@ -238,11 +241,13 @@ const Checkouts_page = ({ axios }) => {
             const data_body = {
                 ...other,
                 purchase,
-                total_amount: calc_total_amount(purchase),
+                subtotal_amount: calc_total_amount(purchase),
+                total_amount: calc_gross_total_amount(order_details),
                 total_items: calc_total_items(purchase),
+                store_name: select_store_name(purchase),
             }
             const meta_body = {
-                content_ids: purchase.map((each)=> each._id),
+                content_ids: purchase.map((each) => each._id),
                 content_type: "product_group",
                 content_category: "Shoes",
                 contents: purchase,
@@ -392,19 +397,21 @@ const Checkouts_page = ({ axios }) => {
                                 {order_details.purchase.map((item) => (
                                     <div key={item._id} className="w-full border-stone-300 flex items-center justify-between  my-1">
                                         <div className="flex items-center gap-5">
-                                            <Badge
-                                                badgeContent={item.quantity}
-                                                color="info"
-                                                showZero
-                                            >
-                                                <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                    <img
-                                                        alt=""
-                                                        src={select_thumbnail_from_media(item.media)}
-                                                        className="w-[65px] h-[65px] object-cover"
-                                                    />
-                                                </div>
-                                            </Badge>
+                                            <Link href={`/product?product_id=${item._id}`} target="_blank">
+                                                <Badge
+                                                    badgeContent={item.quantity}
+                                                    color="info"
+                                                    showZero
+                                                >
+                                                    <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                        <img
+                                                            alt=""
+                                                            src={select_thumbnail_from_media(item.media)}
+                                                            className="w-[65px] h-[65px] object-cover"
+                                                        />
+                                                    </div>
+                                                </Badge>
+                                            </Link>
                                             <div className="text-stone-800 text-[14px] font-medium">
                                                 <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                 <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
@@ -764,19 +771,21 @@ const Checkouts_page = ({ axios }) => {
                                 {order_details.purchase.map((item) => (
                                     <div key={item._id} className="w-full border-stone-300 flex items-center justify-between  my-1">
                                         <div className="flex items-center gap-5">
-                                            <Badge
-                                                badgeContent={item.quantity}
-                                                color="info"
-                                                showZero
-                                            >
-                                                <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                    <img
-                                                        alt=""
-                                                        src={select_thumbnail_from_media(item.media)}
-                                                        className="w-[65px] h-[65px] object-cover"
-                                                    />
-                                                </div>
-                                            </Badge>
+                                            <Link href={`/product?product_id=${item._id}`} target="_blank">
+                                                <Badge
+                                                    badgeContent={item.quantity}
+                                                    color="info"
+                                                    showZero
+                                                >
+                                                    <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                        <img
+                                                            alt=""
+                                                            src={select_thumbnail_from_media(item.media)}
+                                                            className="w-[65px] h-[65px] object-cover"
+                                                        />
+                                                    </div>
+                                                </Badge>
+                                            </Link>
                                             <div className="text-stone-800 text-[14px] font-medium">
                                                 <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                 <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>

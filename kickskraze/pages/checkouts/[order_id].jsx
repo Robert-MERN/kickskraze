@@ -16,7 +16,7 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Kickskraze | Checkouts</title>
+                <title>Kickskraze | Confirmed Order</title>
                 <meta name="description" content="Checkouts Page" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>

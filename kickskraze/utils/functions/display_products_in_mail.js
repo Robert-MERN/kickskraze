@@ -21,9 +21,11 @@ export const purchase_items_displayer = (orders) => {
                                     style="mso-table-lspace:0pt;mso-table-rspace:0pt;border-collapse:collapse;border-spacing:0px">
                                     <tr>
                                         <td align="center" style="padding:0;Margin:0;font-size:0px">
-                                        <img src=${select_thumbnail_from_media(item.media)}
-                                            alt="" width="70" height="70" class="adapt-img"
-                                            style="display:block;font-size:14px;border:0;outline:none;text-decoration:none;object-fit:cover;">
+                                            <a target="_blank" href="https://kickskraze.shop" style="mso-line-height-rule:exactly;         text-decoration:underline;color:#5C68E2;font-size:14px">
+                                               <img src=${select_thumbnail_from_media(item.media)}
+                                                    alt="" width="70" height="70" class="adapt-img"
+                                                    style="display:block;font-size:14px;border:0;outline:none;text-decoration:none;object-fit:cover;">
+                                            </a>
                                         </td>
                                     </tr>
                                 </table>

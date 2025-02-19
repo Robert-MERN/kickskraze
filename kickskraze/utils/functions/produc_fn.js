@@ -32,3 +32,15 @@ export const sort_product_media = (media) => {
     }
     return [];
 }
+
+
+export const select_store_name = (purchase = []) => {
+    // Validate that the argument is Array.
+    if (!Array.isArray(purchase)) return "";
+    if (!purchase.length) return "";
+
+    if (purchase.every(item => item.brand === "Converse" || item.brand === "Vans")) return "Barefoot";
+    if (purchase.every(item => item.brand !== "Converse" && item.brand !== "Vans")) return "Kickskraze";
+
+    return "Barefoot & Kickskraze";
+}

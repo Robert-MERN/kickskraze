@@ -157,7 +157,6 @@ const All_products = ({ axios }) => {
         if (!router.isReady) return;
 
         const fetch = async () => {
-            console.log("Different Path: ", router.asPath !== stored_path)
             if (router.asPath !== stored_path) {
 
                 let FILTERS = filters;
@@ -612,7 +611,7 @@ const All_products = ({ axios }) => {
                 {/* Product Section */}
                 <div className='flex-[5]'>
                     {/* Header */}
-                    <div className='w-full flex justify-between items-center py-[15px] mb-[30px] lg:pt-[10px] lg:mb-[15px] sticky  top-[70px] bg-white z-[12] px-[16px]' >
+                    <div className='w-full flex justify-between items-center py-[15px] mb-[30px] lg:pt-[10px] lg:mb-[15px] sticky  top-[70px] bg-white z-[4] px-[16px]' >
 
                         <button onClick={() => toggle_drawer("filter_drawer_admin")} className='flex gap-2 items-center lg:hidden'>
                             {is_loading ?

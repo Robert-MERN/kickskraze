@@ -46,6 +46,10 @@ const ordersSchema = new Schema(
             type: Number,
             required: [true, "Purchase items are missing"]
         },
+        subtotal_amount: {
+            type: Number,
+            required: [true, "Purchase items are missing"]
+        },
         total_items: {
             type: Number,
             required: [true, "Total items value is missing"]
@@ -58,6 +62,16 @@ const ordersSchema = new Schema(
             default: "booked"
         },
         tracking_no: {
+            type: String,
+        },
+        courier_name: {
+            type: String,
+        },
+        verification: {
+            type: String,
+            default: "unverified"
+        },
+        store_name: {
             type: String,
         }
     },

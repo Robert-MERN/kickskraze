@@ -1031,7 +1031,7 @@ export const mail_html_structure = (order) => {
                                     email:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank" href="mailto:${email}">${email}</a></strong></p>
                                      <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Contact:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank" href="tel:92${phone.slice(1)}">${phone}</a></strong></p>
+                                    Contact:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank" href="tel:+92${phone.slice(1)}">${phone}</a></strong></p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
                                     Order no:&nbsp;<strong style="text-transform: uppercase;">#${_id}</strong></p>
@@ -1103,9 +1103,9 @@ export const mail_html_structure = (order) => {
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
                                     Got a question?&nbsp;Email us at <a target="_blank"
-                                      href="mailto:kickskraze@gmail.com?subject=Need%20a%20Help%20From%20Support&body=I%27d%20like%20to%20inform%20you..."
-                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">kickskraze@gmail.com</a>
-                                    or give us a call at <a target="_blank" href="tel:923102223511"
+                                      href="mailto:ms.kickskraze@gmail.com?subject=Need%20a%20Help%20From%20Support&body=I%27d%20like%20to%20inform%20you..."
+                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">ms.kickskraze@gmail.com</a>
+                                    or give us a call at <a target="_blank" href="tel:+923102223511"
                                       style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px">+92
                                       310 2223 511</a>..</p>
                                 </td>

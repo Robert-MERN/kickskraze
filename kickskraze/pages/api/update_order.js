@@ -2,6 +2,7 @@ import { csvQueue } from '@/lib/queue';
 import Orders from '@/models/order_model';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
+import { select_store_name } from '@/utils/functions/produc_fn';
 import mongoose from 'mongoose';
 
 /**
@@ -9,6 +10,10 @@ import mongoose from 'mongoose';
  * @param {import('next').NextApiRequest} req 
  * @param {import('next').NextApiResponse} res 
  */
+
+const calc_total_amount = (arr) => {
+    return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+}
 export default async function handler(req, res) {
     console.log("Connecting with DB");
 

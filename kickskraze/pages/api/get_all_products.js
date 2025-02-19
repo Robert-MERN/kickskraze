@@ -24,7 +24,7 @@ export default async function handler(req, res) {
 
 
     // Extract query parameters
-    const { size, condition, brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
+    const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
 
     // Initialize a query object
     const query = {};
@@ -46,6 +46,12 @@ export default async function handler(req, res) {
       query.brand = { $in: Array.isArray(brand) ? brand : [brand] };
     }
 
+    // Handle 'hide_brand' filter
+    if (hide_brand && !query.brand) {
+      query.brand = { $nin: Array.isArray(hide_brand) ? hide_brand : [hide_brand] };
+    }
+
+
     // Handle 'price' filter (optional range logic)
     if (!isNaN(Number(price_gte)) && !isNaN(Number(price_lte))) {
       query.price = { $gte: price_gte, $lte: price_lte }; // Filter by price range
@@ -58,8 +64,13 @@ export default async function handler(req, res) {
     }
 
     // Handle "Search" filter
-    if (search) {
-      query.title = { $regex: search, $options: 'i' };
+    if (typeof search === "string") {
+      if (search === "") {
+        query.title = "";
+      };
+      if (search) {
+        query.title = { $regex: search, $options: 'i' };
+      }
     }
 
     // Handle "Category" filter

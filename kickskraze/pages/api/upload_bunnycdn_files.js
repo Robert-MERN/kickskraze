@@ -12,7 +12,7 @@ ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 
 const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
 const BUNNY_ACCESS_KEY = process.env.BUNNY_ACCESS_KEY;
-const BUNNY_PULL_ZONE = "https://kickskraze.b-cdn.net";
+const BUNNY_PULL_ZONE = "https://kickskraze.b-cdn.net/kickskraze";
 
 const object_mapping = (obj) => {
     let _obj = {};

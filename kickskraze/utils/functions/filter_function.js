@@ -55,7 +55,8 @@ export const filter_method = async (newObj, set_state) => {
 };
 
 export const convert_to_query_string = (filter) => {
-    return filter
+    const _filter = [...filter];
+    return _filter
         .map((obj) => {
             return Object.entries(obj).map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`); // Encode key-value pair
         }).join("&");
@@ -155,13 +156,13 @@ export const add_query_filters = async (query_filters, set_filters) => {
 
     const s_c_b = query_filters.filter(e => {
         const key = Object.keys(e)[0]
-        return (key === "size" || key === "condition" || key === "brand")
+        return (key === "size" || key === "condition" || key === "brand" || key === "hide_brand")
     });
 
 
     const without_s_c_b = query_filters.filter(e => {
         const key = Object.keys(e)[0]
-        return (key !== "size" && key !== "condition" && key !== "brand")
+        return (key !== "size" && key !== "condition" && key !== "brand" && key !== "hide_brand")
     });
 
     if (!without_s_c_b.length && !s_c_b.length) {
@@ -186,6 +187,7 @@ export const add_query_filters = async (query_filters, set_filters) => {
                     }
                 }
                 resolve(copy_prev);
+                console.log(copy_prev);
                 return copy_prev;
             })
 
@@ -196,7 +198,7 @@ export const add_query_filters = async (query_filters, set_filters) => {
         set_filters(prev_arr => {
             const copy_prev = [...prev_arr];
             for (const each_query of without_s_c_b) {
-                const matched_query_index = prev_arr.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
+                const matched_query_index = copy_prev.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
                 if (matched_query_index !== -1) {
                     copy_prev.splice(matched_query_index, 1, each_query);
                 } else {

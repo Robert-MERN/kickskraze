@@ -11,6 +11,7 @@ import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 const Checkouts_page = ({ axios, order_id }) => {
 
+    const { get_order_api, set_snackbar_alert } = useStateContext();
 
     useEffect(() => {
         if (document.querySelector(".MuiCheckbox-root")) {
@@ -56,7 +57,7 @@ const Checkouts_page = ({ axios, order_id }) => {
         }
     };
 
-    const { get_order_api } = useStateContext();
+
 
 
 
@@ -74,6 +75,71 @@ const Checkouts_page = ({ axios, order_id }) => {
     }, [order_id]);
 
 
+    const copy_to_clipboard = async (text, msg) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            set_snackbar_alert({
+                open: true,
+                message: msg ?? "Copied!",
+                severity: "primary",
+            })
+
+        } catch (err) {
+            console.error("Failed to copy text: ", err);
+            set_snackbar_alert({
+                open: true,
+                message: "Failed to copy!",
+                severity: "error",
+            });
+        }
+    };
+
+    const order_status = (order) => {
+        // If tracking number is unavailable
+        const tracking_no_unavailable = "You'll be able to track your order once the tracking number is available.";
+
+        // If tracking number is available
+        const tracking_url = {
+            trax: "https://trax.pk/tracking/",
+            leapord: "https://www.leopardscourier.com/tracking",
+        };
+        const anchor_tag = <strong>
+            <a
+                onClick={() => copy_to_clipboard(order.tracking_no, "Tacking Id copied!")}
+                className='underline cursor-pointer'
+                href={tracking_url[order.courier_name]}
+                target="_blank"
+            >
+                {order.tracking_no}
+            </a>
+        </strong>;
+        const tracking_no_available = <p>You can track your order by clicking on this tracking id: {anchor_tag}</p>
+
+        // All Status
+        const all_status = {
+            booked: {
+                title: "Your order is confirmed ✅",
+                description: "You'll receive a confirmation email with your order number shortly."
+            },
+            in_transit: {
+                title: "Your order is on the way 🚚",
+                description: order.tracking_no ? tracking_no_available : tracking_no_unavailable,
+            },
+            delivered: {
+                title: "Your order is delivered 📦✅",
+                description: order.tracking_no ? tracking_no_available : tracking_no_unavailable,
+            },
+            rcp: {
+                title: "Your order returned confirmation is pending ⏳",
+                description: order.tracking_no ? tracking_no_available : tracking_no_unavailable,
+            },
+            returned: {
+                title: "Your order is returned 🔄",
+                description: order.tracking_no ? tracking_no_available : tracking_no_unavailable,
+            },
+        };
+        return all_status[order.status];
+    }
 
 
     return (
@@ -342,8 +408,8 @@ const Checkouts_page = ({ axios, order_id }) => {
                                     </div>
 
                                     <div className='p-4 border border-stone-200 rounded-md flex flex-col gap-4'>
-                                        <p className='text-[18px] font-bold text-stone-900'>Your order is confirmed</p>
-                                        <p className='text-[16px] text-stone-700'>You'll receive a confirmation email with your order number shortly.</p>
+                                        <p className='text-[18px] font-bold text-stone-900'>{order_status(confirmed_order).title}</p>
+                                        <p className='text-[16px] text-stone-700'>{order_status(confirmed_order).description}</p>
                                     </div>
 
                                     <div className='p-4 border border-stone-200 rounded-md'>
@@ -394,19 +460,21 @@ const Checkouts_page = ({ axios, order_id }) => {
                                         {confirmed_order.purchase.map((item) => (
                                             <div key={item._id} className="w-full border-stone-300 flex items-center justify-between  my-1">
                                                 <div className="flex items-center gap-5">
-                                                    <Badge
-                                                        badgeContent={item.quantity}
-                                                        color="info"
-                                                        showZero
-                                                    >
-                                                        <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                            <img
-                                                                alt=""
-                                                                src={select_thumbnail_from_media(item.media)}
-                                                                className="w-[65px] h-[65px] object-cover"
-                                                            />
-                                                        </div>
-                                                    </Badge>
+                                                    <Link href={`/product?product_id=${item._id}`} target="_blank">
+                                                        <Badge
+                                                            badgeContent={item.quantity}
+                                                            color="info"
+                                                            showZero
+                                                        >
+                                                            <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                                <img
+                                                                    alt=""
+                                                                    src={select_thumbnail_from_media(item.media)}
+                                                                    className="w-[65px] h-[65px] object-cover"
+                                                                />
+                                                            </div>
+                                                        </Badge>
+                                                    </Link>
                                                     <div className="text-stone-800 text-[14px] font-medium">
                                                         <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                         <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>

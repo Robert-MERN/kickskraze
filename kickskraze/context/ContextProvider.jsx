@@ -75,8 +75,8 @@ export const ContextProvider = ({ children }) => {
     const convert_product_to_meta = (product) => {
         const meta_product = {
             content_ids: [product._id],
-            content_name: product.title,
             content_type: "product",
+            content_name: product.title,
             content_category: "Shoes",
             value: product.price.toFixed(2),
             currency: "PKR",
@@ -379,14 +379,10 @@ export const ContextProvider = ({ children }) => {
             let res;
             if (show_more) {
                 res = await axios.get(`/api/get_all_products?${filters}&${show_more}`);
-                if (res?.data?.products?.length) {
-                    set_state((prev) => ([...prev, ...res.data.products]));
-                }
+                set_state((prev) => ([...prev, ...res.data.products]));
             } else {
                 res = await axios.get(`/api/get_all_products?${filters}`);
-                if (res?.data?.products?.length) {
-                    set_state(res?.data?.products || []);
-                }
+                set_state(res.data.products || []);
             };
 
 

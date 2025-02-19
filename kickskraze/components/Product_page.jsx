@@ -136,7 +136,7 @@ const Product_page = ({ axios }) => {
         if (Object.entries(product).length && !related_products.length) {
 
             MetaPixel.trackEvent("ViewContent", convert_product_to_meta(product));
-            get_all_products_api(axios, `size=${product.size}`, set_related_products, set_show_more_payload, set_is_RP_loading);
+            get_all_products_api(axios, `size=${product.size}&brand=${product.brand}`, set_related_products, set_show_more_payload, set_is_RP_loading);
         }
     }, [product]);
 

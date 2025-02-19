@@ -158,7 +158,6 @@ const Navbar = () => {
 
     // <=============================================== *** ENTIRE SEARCH LOGIC ENDS HERE *** ============================================>
 
-
     return (
         <div className="px-[30px] gap-2 w-full h-[70px] flex lg:justify-between items-center bg-white shadow-[0_1px_3px_#0000001a]">
             <div className="w-full flex lg:hidden items-center gap-6 transition-all">

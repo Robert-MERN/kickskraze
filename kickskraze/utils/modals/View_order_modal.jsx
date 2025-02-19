@@ -9,6 +9,7 @@ import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import useStateContext from '@/context/ContextProvider';
 import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import styles from "@/styles/home.module.css";
+import Link from 'next/link';
 
 
 
@@ -65,6 +66,8 @@ const View_order_modal = ({
         city: "",
         phone: "",
         payment_method: "",
+        tracking_no: "",
+        courier_name: "",
     }
     const [errors, set_errors] = useState(default_errors)
 
@@ -151,6 +154,16 @@ const View_order_modal = ({
                     error = 'Please enter your phone';
                 } else if (!/^(?:(?:\+92|0092|92|0)?3\d{9})$/.test(value)) {
                     error = 'Please enter a valid phone number';
+                }
+                break;
+            case 'tracking_no':
+                if (value && !confirmed_order.courier_name) {
+                    error = 'Please also select the courier name';
+                }
+                break;
+            case 'courier_name':
+                if (value && !confirmed_order.tracking_no) {
+                    error = 'Please also enter the tracking no.';
                 }
                 break;
             default:
@@ -426,19 +439,21 @@ const View_order_modal = ({
                                                     {confirmed_order.purchase.map((item) => (
                                                         <div key={item._id} className="w-full border-stone-300 flex items-center justify-between my-1">
                                                             <div className="flex items-center gap-5">
-                                                                <Badge
-                                                                    badgeContent={item.quantity}
-                                                                    color="info"
-                                                                    showZero
-                                                                >
-                                                                    <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                                        <img
-                                                                            alt=""
-                                                                            src={select_thumbnail_from_media(item.media)}
-                                                                            className="w-[65px] h-[65px] object-cover"
-                                                                        />
-                                                                    </div>
-                                                                </Badge>
+                                                                <Link href={`/product?product_id=${item._id}`} target="_blank">
+                                                                    <Badge
+                                                                        badgeContent={item.quantity}
+                                                                        color="info"
+                                                                        showZero
+                                                                    >
+                                                                        <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                                            <img
+                                                                                alt=""
+                                                                                src={select_thumbnail_from_media(item.media)}
+                                                                                className="w-[65px] h-[65px] object-cover"
+                                                                            />
+                                                                        </div>
+                                                                    </Badge>
+                                                                </Link>
                                                                 <div className="text-stone-800 text-[14px] font-medium">
                                                                     <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                                     <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
@@ -634,6 +649,20 @@ const View_order_modal = ({
 
 
 
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Verification Status</p>
+                                                <select
+                                                    id="verification"
+                                                    name="verification"
+                                                    value={confirmed_order.verification || ""}
+                                                    onChange={handleChange}
+                                                    className='outline-none px-0 cursor-pointer'
+                                                >
+                                                    <option value="verified">Verified</option>
+                                                    <option value="unverified">Unverified</option>
+                                                </select>
+
+
+
 
                                                 <p className='text-[16px] font-bold text-stone-900 mt-3'>Tracking no.</p>
                                                 <input
@@ -644,6 +673,29 @@ const View_order_modal = ({
                                                     onChange={handleChange}
                                                     className='w-full outline-none border-none px-1'
                                                 />
+                                                {errors.tracking_no &&
+                                                    <p className='text-[13px] text-rose-500 line-clamp-1 text-ellipsis overflow-hidden px-2 mb-2'>{errors.tracking_no}</p>
+                                                }
+
+
+
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Courier</p>
+                                                <select
+                                                    id="courier_name"
+                                                    name="courier_name"
+                                                    value={confirmed_order.courier_name || ""}
+                                                    onChange={handleChange}
+                                                    className='outline-none px-0 cursor-pointer'
+                                                >
+                                                    <option disabled value=""><em>No Courier</em></option>
+                                                    <option value="trax">Trax</option>
+                                                    <option value="leapord">Leapord</option>
+                                                </select>
+                                                {errors.courier_name &&
+                                                    <p className='text-[13px] text-rose-500 line-clamp-1 text-ellipsis overflow-hidden px-2 mb-2'>{errors.courier_name}</p>
+                                                }
+
+
 
 
 
@@ -668,8 +720,7 @@ const View_order_modal = ({
 
 
 
-
-                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Payment method</p>
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Payment Method</p>
                                                 <select
                                                     id="payment_method"
                                                     name="payment_method"
@@ -684,6 +735,8 @@ const View_order_modal = ({
                                                     <option value="nayapay">Paid with NayaPay (NayaPay)</option>
                                                     <option value="bank">Bank Transfer (Bank)</option>
                                                 </select>
+
+
 
 
                                             </div>
