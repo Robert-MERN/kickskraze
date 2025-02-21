@@ -173,7 +173,13 @@ const Admin_navbar = () => {
             </div>
 
             {/* Logout Button */}
-            <div className="w-full h-full flex justify-end items-center gap-6 ">
+            <div className="w-full h-full flex justify-end items-center gap-2 lg:gap-6 ">
+
+                <div className="lg:hidden" >
+                    <IconButton onClick={() => toggle_drawer("search_drawer_admin")}>
+                        <SearchIcon className="text-stone-800 scale-[1.1] active:text-stone-500 cursor-pointer" />
+                    </IconButton>
+                </div>
 
                 <div className="hidden lg:flex h-full items-center">
                     <input

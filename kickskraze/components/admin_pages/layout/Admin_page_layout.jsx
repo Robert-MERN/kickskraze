@@ -6,9 +6,11 @@ import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { TbShoppingBagEdit } from "react-icons/tb";
 import { AiFillProduct } from "react-icons/ai";
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaBasketShopping } from "react-icons/fa6";
 import { useRouter } from 'next/router';
 import useStateContext from '@/context/ContextProvider';
+import Link from 'next/link';
 
 
 
@@ -24,7 +26,7 @@ const Admin_page = ({ admin_children }) => {
         {
             option_title: "Products",
             child_options: [
-                { option_name: "Add Product", link: "/admin/create-product", icon: <FaBasketShopping className='text-[20px]' /> },
+                { option_name: "Add Product", link: "/admin/add-product", icon: <FaBasketShopping className='text-[20px]' /> },
                 { option_name: "Update Product", link: "/admin/update-product", icon: <TbShoppingBagEdit className='text-[22px]' /> },
                 { option_name: "All Products", link: "/admin/all-products", icon: <AiFillProduct className='text-[23px]' /> },
             ]
@@ -32,7 +34,8 @@ const Admin_page = ({ admin_children }) => {
         {
             option_title: "Sales",
             child_options: [
-                { option_name: "Orders", link: "/admin/orders", icon: <ShoppingCartCheckoutIcon /> },
+                { option_name: "Orders", link: "/admin/orders", icon: <ShoppingCartIcon /> },
+                { option_name: "Dispatched Orders", link: "/admin/dispatched-orders", icon: <ShoppingCartCheckoutIcon /> },
                 { option_name: "Customers", link: "/admin/customers", icon: <GroupIcon /> },
             ]
         },
@@ -52,6 +55,7 @@ const Admin_page = ({ admin_children }) => {
         "/admin/update-user": true,
         "/admin/app-settings": true,
         "/admin/orders": false,
+        "/admin/dispatched-orders": false,
         "/admin/customers": false,
         "/admin/all-products": false,
         "/admin/create-product": true,
@@ -59,11 +63,10 @@ const Admin_page = ({ admin_children }) => {
         "/admin": true,
     }
 
-    const navigate_page = (link) => {
+    const navigate_page = () => {
         set_product_details(default_product_details);
         set_update_product_details(default_update_product_details);
         set_product_id("");
-        router.push(link);
     }
 
 
@@ -79,9 +82,11 @@ const Admin_page = ({ admin_children }) => {
                         <h1 className='text-[15px] text-stone-400 font-medium px-[20px] my-[10px]'>{option.option_title}</h1>
 
                         {option.child_options.map((each, ind) => (
-                            <button key={ind} onClick={() => navigate_page(each.link)} className={`w-full text-[15px]  text-left font-medium px-[20px] py-[6px] transition-all flex items-center gap-2  ${router.pathname.includes(each.link) || (router.pathname === "/admin" && each.link === "/admin/create-product") ? "bg-blue-50 hover:bg-blue-100 text-blue-600" : "hover:bg-stone-100 text-stone-700"}`}>
-                                {each.icon} {each.option_name}
-                            </button>
+                            <Link href={each.link} key={ind}>
+                                <button onClick={navigate_page} className={`w-full text-[15px]  text-left font-medium px-[20px] py-[6px] transition-all flex items-center gap-2  ${router.pathname.includes(each.link) || (router.pathname === "/admin" && each.link === "/admin/create-product") ? "bg-blue-50 hover:bg-blue-100 text-blue-600" : "hover:bg-stone-100 text-stone-700"}`}>
+                                    {each.icon} {each.option_name}
+                                </button>
+                            </Link>
                         ))}
                         <br />
                     </div>

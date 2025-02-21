@@ -154,27 +154,26 @@ export const configure_query_filters = (router_query) => {
 export const add_query_filters = async (query_filters, set_filters) => {
     let FILTERS;
 
-    const s_c_b = query_filters.filter(e => {
+    const s_c_b_h = query_filters.filter(e => {
         const key = Object.keys(e)[0]
         return (key === "size" || key === "condition" || key === "brand" || key === "hide_brand")
     });
 
-
-    const without_s_c_b = query_filters.filter(e => {
+    const without_s_c_b_h = query_filters.filter(e => {
         const key = Object.keys(e)[0]
         return (key !== "size" && key !== "condition" && key !== "brand" && key !== "hide_brand")
     });
 
-    if (!without_s_c_b.length && !s_c_b.length) {
+    if (!without_s_c_b_h.length && !s_c_b_h.length) {
         return;
     }
 
-    if (!without_s_c_b.length && s_c_b.length) {
+    if (s_c_b_h.length) {
         FILTERS = await new Promise((resolve) => {
 
             set_filters(prev_arr => {
                 const copy_prev = [...prev_arr];
-                for (const each_query of s_c_b) {
+                for (const each_query of s_c_b_h) {
                     const matched_query_index = prev_arr.findIndex(e => {
                         const existing = Object.entries(e)[0];
                         const _new = Object.entries(each_query)[0];
@@ -194,21 +193,24 @@ export const add_query_filters = async (query_filters, set_filters) => {
         })
     }
 
-    FILTERS = await new Promise((resolve) => {
-        set_filters(prev_arr => {
-            const copy_prev = [...prev_arr];
-            for (const each_query of without_s_c_b) {
-                const matched_query_index = copy_prev.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
-                if (matched_query_index !== -1) {
-                    copy_prev.splice(matched_query_index, 1, each_query);
-                } else {
-                    copy_prev.push(each_query);
+    if (without_s_c_b_h.length) {
+        FILTERS = await new Promise((resolve) => {
+            set_filters(prev_arr => {
+                const copy_prev = [...prev_arr];
+                for (const each_query of without_s_c_b_h) {
+                    const matched_query_index = copy_prev.findIndex(e => Object.keys(e).includes(Object.keys(each_query)[0]));
+                    if (matched_query_index !== -1) {
+                        copy_prev.splice(matched_query_index, 1, each_query);
+                    } else {
+                        copy_prev.push(each_query);
+                    }
                 }
-            }
-            resolve(copy_prev)
-            return copy_prev;
-        });
-    })
+                resolve(copy_prev)
+                return copy_prev;
+            });
+        })
+    }
+
     return FILTERS;
 }
 

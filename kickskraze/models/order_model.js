@@ -42,18 +42,6 @@ const ordersSchema = new Schema(
         purchase: {
             type: Array,
         },
-        total_amount: {
-            type: Number,
-            required: [true, "Purchase items are missing"]
-        },
-        subtotal_amount: {
-            type: Number,
-            required: [true, "Purchase items are missing"]
-        },
-        total_items: {
-            type: Number,
-            required: [true, "Total items value is missing"]
-        },
         payment_method: {
             type: String,
         },

@@ -39,9 +39,15 @@ export const mail_html_structure = (order) => {
     const dateObject = new Date(date);
 
     // Format the date
-    const options = { year: 'numeric', month: 'short', day: '2-digit' };
-    return dateObject.toLocaleDateString('en-US', options);
-  }
+    const dateOptions = { year: 'numeric', month: 'short', day: '2-digit' };
+    const formattedDate = dateObject.toLocaleDateString('en-US', dateOptions);
+
+    // Format the time
+    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+    const formattedTime = dateObject.toLocaleTimeString('en-US', timeOptions);
+
+    return `${formattedDate}  [${formattedTime}]`;
+  };
 
 
   const payment_methods = {

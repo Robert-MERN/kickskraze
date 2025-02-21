@@ -241,12 +241,22 @@ const Product_page = ({ axios }) => {
                                 <Skeleton
                                     animation="wave"
                                     variant='text'
-                                    className='bg-stone-100 w-[45%] py-2'
+                                    className='bg-stone-100 w-[45%] py-2 mt-6'
                                 />
                                 <Skeleton
                                     animation="wave"
                                     variant='text'
                                     className='bg-stone-100 w-[55%] py-2'
+                                />
+                                <Skeleton
+                                    animation="wave"
+                                    variant='text'
+                                    className='bg-stone-100 w-[45%] py-2'
+                                />
+                                <Skeleton
+                                    animation="wave"
+                                    variant='text'
+                                    className='bg-stone-100 w-[48%] py-2'
                                 />
                                 <Skeleton
                                     animation="wave"
@@ -417,16 +427,24 @@ const Product_page = ({ axios }) => {
                                     </div>
 
 
-                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize'>Availability: {product.stock ? "In Stock" : "Out Of Stock"}</p>
+                                    <div className='py-[14px] xl:py-[16px] border-y border-stone-200 text-stone-700 mt-6' >
+                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize'><strong>Availability:</strong> {product.stock ? "In Stock" : "Out Of Stock"}</p>
                                     </div>
 
                                     <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'>Size: {product.size}</p>
+                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Size:</strong> {product.size}</p>
                                     </div>
 
                                     <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'>Condition: {product.condition}</p>
+                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Brand:</strong> {product.brand}</p>
+                                    </div>
+
+                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Category:</strong> {product.category}</p>
+                                    </div>
+
+                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Condition:</strong> {product.condition}</p>
                                     </div>
 
                                     {Boolean(product.stock) ?

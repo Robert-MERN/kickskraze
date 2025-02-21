@@ -260,6 +260,7 @@ export const ContextProvider = ({ children }) => {
     // View Order Modal Admin Page
     const [order_id, set_order_id] = useState("");
     const [orders, set_orders] = useState([]);
+    const [dispatched_orders, set_dispatched_orders] = useState([]);
 
     // Product Page Client
     const [stored_product_id, set_stored_product_id] = useState("");
@@ -622,7 +623,7 @@ export const ContextProvider = ({ children }) => {
     const delete_order_api = async (axios, order_id, set_is_loading) => {
         set_is_loading(true);
         try {
-            const res = await axios.put(`/api/delete_order?order_id=${order_id}`);
+            const res = await axios.delete(`/api/delete_order?order_id=${order_id}`);
             set_snackbar_alert({
                 open: true,
                 message: res.data.message,
@@ -689,10 +690,10 @@ export const ContextProvider = ({ children }) => {
 
 
     // Get All Orders API
-    const get_all_orders_api = async (axios, set_state, set_is_loading) => {
+    const get_all_orders_api = async (axios, query_params, set_state, set_is_loading) => {
         set_is_loading(true);
         try {
-            const res = await axios.get(`/api/get_all_orders`);
+            const res = await axios.get(`/api/get_all_orders?${query_params}`);
             set_state(res.data || []);
             return true;
         } catch (err) {
@@ -754,7 +755,7 @@ export const ContextProvider = ({ children }) => {
                 create_product_api, get_all_products_api, get_filter_values_api, update_product_api,
                 delete_product_api, add_user_api, get_product_api, get_all_products_title_api,
 
-                orders, set_orders, order_id, set_order_id,
+                orders, set_orders, dispatched_orders, set_dispatched_orders, order_id, set_order_id,
 
                 login_api,
 

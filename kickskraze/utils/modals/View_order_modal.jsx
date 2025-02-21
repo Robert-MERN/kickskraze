@@ -7,7 +7,7 @@ import { Skeleton } from '@mui/material';
 import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import useStateContext from '@/context/ContextProvider';
-import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import styles from "@/styles/home.module.css";
 import Link from 'next/link';
 
@@ -31,20 +31,6 @@ const View_order_modal = ({
         }
 
     }, []);
-
-
-    // Calculator
-    const calc_total_amount = (arr) => {
-        return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
-    }
-
-    const calc_total_items = (arr) => {
-        return arr.reduce((prev, next) => prev + next.quantity, 0);
-    }
-
-    const calc_gross_total_amount = (obj) => {
-        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-    }
 
     // validate Order ID
     const isValidObjectId = (id) => {
@@ -99,9 +85,16 @@ const View_order_modal = ({
         const dateObject = new Date(date);
 
         // Format the date
-        const options = { year: 'numeric', month: 'short', day: '2-digit' };
-        return dateObject.toLocaleDateString('en-US', options);
-    }
+        const dateOptions = { year: 'numeric', month: 'short', day: '2-digit' };
+        const formattedDate = dateObject.toLocaleDateString('en-US', dateOptions);
+
+        // Format the time
+        const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
+        const formattedTime = dateObject.toLocaleTimeString('en-US', timeOptions);
+
+        return `${formattedDate}  [${formattedTime}]`;
+    };
+
 
 
     // Handle input change
@@ -186,7 +179,9 @@ const View_order_modal = ({
         set_errors(errors);
         if (Object.values(errors).every((error) => !error)) {
             // Form is valid, submit it
-            const updated_order = await update_order_api(axios, order_id, confirmed_order, set_API_loading);
+            let { purchase = [], ...others } = confirmed_order;
+            purchase = purchase.length ? purchase.map(e => e._id) : [];
+            const updated_order = await update_order_api(axios, order_id, { purchase, ...others }, set_API_loading);
             await get_all_orders_api(axios, set_orders, set_API_loading);
 
             if (!confirmed_order.purchase.length && updated_order) {
@@ -687,7 +682,7 @@ const View_order_modal = ({
                                                     onChange={handleChange}
                                                     className='outline-none px-0 cursor-pointer'
                                                 >
-                                                    <option disabled value=""><em>No Courier</em></option>
+                                                    <option disabled className='italic text-gray-400' value="">No Courier</option>
                                                     <option value="trax">Trax</option>
                                                     <option value="leapord">Leapord</option>
                                                 </select>

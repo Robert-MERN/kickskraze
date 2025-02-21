@@ -1,3 +1,15 @@
+export const calc_total_amount = (arr) => {
+    return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
+}
+
+export const calc_total_items = (arr) => {
+    return arr.reduce((prev, next) => prev + next.quantity, 0);
+}
+
+export const calc_gross_total_amount = (obj) => {
+    return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
+}
+
 export const calculate_discount_precentage = (price, compare_price) => {
     if (isNaN(compare_price)) return 0;
     if (price < compare_price) {

@@ -3,6 +3,7 @@ import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import useStateContext from '@/context/ContextProvider';
+import { useRouter } from 'next/router';
 
 
 
@@ -16,9 +17,15 @@ const Delete_order_modal = ({
 
     const { get_all_orders_api, set_orders, order_id, set_order_id, delete_order_api, set_API_loading, } = useStateContext();
 
+    const router = useRouter()
+    const pages = {
+        "/admin/orders": "status=booked",
+        "/admin/dispatched-orders": "status_not=booked",
+    }
+
     const handle_delete_order = async () => {
         const order_deleted = await delete_order_api(axios, order_id, set_API_loading);
-        await get_all_orders_api(axios, set_orders, set_API_loading);
+        await get_all_orders_api(axios, pages[router.pathname] || "", set_orders, set_API_loading);
         if (order_deleted) {
             if (drawer_state.view_order_drawer) {
                 toggle_drawer("view_order_drawer");

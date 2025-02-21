@@ -232,9 +232,10 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                       <Link
                         href={`/product?product_id=${product._id}`}
                         key={product._id}
-                        onClose={() => toggle_drawer("search_drawer")}
+                        onClick={() => toggle_drawer("search_drawer")}
                       >
                         <div
+
                           className={`p-1 flex flex-col gap-2 cursor-pointer`}
                         >
                           <div className='relative'>
@@ -364,7 +365,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                     <Link
                       href={`/product?product_id=${product._id}`}
                       key={product._id}
-                      onClose={() => toggle_drawer("search_drawer")}
+                      onClick={() => toggle_drawer("search_drawer")}
                     >
                       <div
                         className={`p-1 flex flex-col gap-2 cursor-pointer`}

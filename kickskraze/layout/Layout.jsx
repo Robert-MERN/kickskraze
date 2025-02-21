@@ -22,6 +22,7 @@ import Filter_drawer_admin from '@/utils/drawers/Filter_drawer_admin';
 import View_order_modal from '@/utils/modals/View_order_modal';
 import Delete_order_modal from '@/utils/modals/Delete_order_modal';
 import View_order_drawer from '@/utils/drawers/View_order_drawer';
+import Search_drawer_admin from '@/utils/drawers/Search_drawer_admin';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -127,6 +128,12 @@ const Layout = ({ children }) => {
                 toggle_drawer={toggle_drawer}
             />
             <Search_drawer
+                axios={axios}
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+                get_all_products_api={get_all_products_api}
+            />
+            <Search_drawer_admin
                 axios={axios}
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}

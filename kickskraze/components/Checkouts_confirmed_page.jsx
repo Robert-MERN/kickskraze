@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
-import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 
 const Checkouts_page = ({ axios, order_id }) => {
@@ -24,19 +24,6 @@ const Checkouts_page = ({ axios, order_id }) => {
 
     }, []);
 
-
-    // Calculator
-    const calc_total_amount = (arr) => {
-        return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
-    }
-
-    const calc_total_items = (arr) => {
-        return arr.reduce((prev, next) => prev + next.quantity, 0);
-    }
-
-    const calc_gross_total_amount = (obj) => {
-        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-    }
 
     // Payment Methods
     const payment_method = {

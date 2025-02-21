@@ -7,11 +7,11 @@ import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 
 
 
-const Orders = ({ axios }) => {
+const Dispatched_orders = ({ axios }) => {
 
     const router = useRouter();
 
-    const { get_all_orders_api, set_snackbar_alert, orders, set_orders, set_order_id, toggle_modal, toggle_drawer } = useStateContext();
+    const { get_all_orders_api, set_snackbar_alert, dispatched_orders, set_dispatched_orders, set_order_id, toggle_modal, toggle_drawer } = useStateContext();
     const [is_loading, set_is_loading] = useState(true);
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 13, });
 
@@ -67,7 +67,6 @@ const Orders = ({ axios }) => {
             color: "text-rose-600",
         },
     }
-
 
     const date_formatter = (date) => {
         // Create a Date object
@@ -214,8 +213,8 @@ const Orders = ({ axios }) => {
     ];
 
     useEffect(() => {
-        if (!orders.length) {
-            get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
+        if (!dispatched_orders.length) {
+            get_all_orders_api(axios, "status_not=booked", set_dispatched_orders, set_is_loading);
         } else {
             set_is_loading(false);
         }
@@ -235,7 +234,7 @@ const Orders = ({ axios }) => {
                     },
                 }}
                 columns={columns}
-                rows={orders}
+                rows={dispatched_orders}
                 getRowId={row => row._id}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
@@ -247,4 +246,4 @@ const Orders = ({ axios }) => {
     )
 }
 
-export default Orders
+export default Dispatched_orders

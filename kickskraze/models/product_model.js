@@ -56,7 +56,6 @@ const productSchema = new Schema({
     },
     stock: {
         type: Number,
-        required: [true, "Please enter the product stock quantity"],
         default: 1,
         set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },

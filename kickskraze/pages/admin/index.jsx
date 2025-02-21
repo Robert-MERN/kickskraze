@@ -1,5 +1,5 @@
-import Admin_page from '@/components/Admin_page'
-import Create_product from '@/components/admin_pages/Create_product'
+import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
+import Add_product from '@/components/admin_pages/Add_product'
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
 import axios from 'axios'
@@ -13,14 +13,14 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin</title>
-                <meta name="description" content="Admin Page" />
+                <title>Kickskraze | Admin | Add Product</title>
+                <meta name="description" content="Admin / Add Product Page" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page admin_children={<Create_product axios={axios} />} />
+                    <Admin_page_layout admin_children={<Add_product axios={axios} />} />
                 </div>
             </div>
         </>

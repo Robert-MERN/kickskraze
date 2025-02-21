@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from "@mui/material/Badge";
 import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
-import { select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import useStateContext from '@/context/ContextProvider';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -70,18 +70,6 @@ const Checkouts_page = ({ axios }) => {
         },
     }
 
-    // Calculator
-    const calc_total_amount = (arr) => {
-        return arr.reduce((prev, next) => prev + (next.price * next.quantity), 0);
-    }
-
-    const calc_total_items = (arr) => {
-        return arr.reduce((prev, next) => prev + next.quantity, 0);
-    }
-
-    const calc_gross_total_amount = (obj) => {
-        return obj.purchase.reduce((prev, next) => prev + (next.price * next.quantity), 0) + Number(obj.delivery_charges);
-    }
 
 
     const default_order_details = {
@@ -240,10 +228,7 @@ const Checkouts_page = ({ axios }) => {
             const { errors, purchase, ...other } = order_details;
             const data_body = {
                 ...other,
-                purchase,
-                subtotal_amount: calc_total_amount(purchase),
-                total_amount: calc_gross_total_amount(order_details),
-                total_items: calc_total_items(purchase),
+                purchase: purchase.map(e => ({ _id: e._id, quantity: e.quantity })),
                 store_name: select_store_name(purchase),
             }
             const meta_body = {

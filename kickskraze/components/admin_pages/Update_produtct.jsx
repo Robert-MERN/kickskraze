@@ -247,8 +247,8 @@ const Create_product = ({ axios }) => {
                 }
                 break;
             case 'stock':
-                if (!value) {
-                    error = 'Please enter the shoes stock quantity';
+                if (value < 0) {
+                    error = 'Please enter the shoes stock quantity atleast greater than -1';
                 }
                 break;
             // case 'size_desc':
@@ -385,6 +385,12 @@ const Create_product = ({ axios }) => {
                         autoHighlight
                         value={products_title.find(e => e._id === product_id) || null}
                         onChange={(event, value) => set_product_id(value ? value._id : "")}
+                        filterOptions={(options, { inputValue }) => {
+                            return options.filter(option =>
+                                option.title.toLowerCase().includes(inputValue.toLowerCase()) ||
+                                option._id.toLowerCase().includes(inputValue.toLowerCase()) // Search by ID
+                            );
+                        }}
                         getOptionLabel={(option) => option.title}
                         renderOption={(props, option) => {
                             const { key, ...optionProps } = props;

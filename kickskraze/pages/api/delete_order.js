@@ -32,19 +32,20 @@ export default async function handler(req, res) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-
-        // Delete the order and update product stock
-        const deleted_purchase_ids = order.purchase.map(e => e._id);
-        for (const id of deleted_purchase_ids) {
-            await Products.findByIdAndUpdate(id, { stock: 1 });
+        // Restore stock for each product in the order
+        for (const { _id, quantity } of order.purchase) {
+            await Products.findByIdAndUpdate(_id, { $inc: { stock: quantity } }, { new: true });
         }
 
-        await csvQueue.add("updateCSV", {}); // Enqueue CSV update
+        // Delete the order
         await Orders.findByIdAndDelete(order_id);
-        return res.status(200).json({ success: true, message: "Order has been deleted." });
 
+        // Enqueue CSV update
+        await csvQueue.add("updateCSV", {});
+
+        return res.status(200).json({ success: true, message: "Order has been deleted and stock updated." });
 
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });
     }
-}
+};

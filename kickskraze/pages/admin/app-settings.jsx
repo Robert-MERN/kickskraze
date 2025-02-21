@@ -1,4 +1,4 @@
-import Admin_page from '@/components/Admin_page'
+import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
 import App_settings from '@/components/admin_pages/App_settings'
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
@@ -12,14 +12,14 @@ export default function Home() {
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin</title>
-                <meta name="description" content="Admin Page" />
+                <title>Kickskraze | Admin | App Settings</title>
+                <meta name="description" content="Admin / App Settings Page" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page admin_children={<App_settings axios={axios} />} />
+                    <Admin_page_layout admin_children={<App_settings axios={axios} />} />
                 </div>
             </div>
         </>

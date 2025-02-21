@@ -15,7 +15,7 @@ import { FaBasketShopping } from "react-icons/fa6";
 import { GiConverseShoe } from "react-icons/gi";
 
 
-const Create_product = ({ axios }) => {
+const Add_product = ({ axios }) => {
 
 
 
@@ -209,8 +209,8 @@ const Create_product = ({ axios }) => {
                 }
                 break;
             case 'stock':
-                if (!value) {
-                    error = 'Please enter the shoes stock quantity';
+                if (value < 0) {
+                    error = 'Please enter the shoes stock quantity atleast greater than -1';
                 }
                 break;
             // case 'size_desc':
@@ -652,4 +652,4 @@ const Create_product = ({ axios }) => {
     )
 }
 
-export default Create_product
+export default Add_product

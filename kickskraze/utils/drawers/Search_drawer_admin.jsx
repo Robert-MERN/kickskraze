@@ -18,43 +18,43 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
   const trending_options = [
     {
       option: "men",
-      link: "/collection?category=men",
+      link: "/admin/all-products?category=men",
     },
     {
       option: "women",
-      link: "/collection?category=women",
+      link: "/admin/all-products?category=women",
     },
     {
       option: "kids",
-      link: "/collection?category=kids",
+      link: "/admin/all-products?category=kids",
     },
     {
       option: "converse",
-      link: "/collection?brand=Converse",
+      link: "/admin/all-products?brand=Converse",
     },
     {
       option: "nike",
-      link: "/collection?brand=Nike",
+      link: "/admin/all-products?brand=Nike",
     },
     {
       option: "asics",
-      link: "/collection?brand=ASICS",
+      link: "/admin/all-products?brand=ASICS",
     },
     {
       option: "adidas",
-      link: "/collection?brand=Adidas",
+      link: "/admin/all-products?brand=Adidas",
     },
     {
       option: "new balance",
-      link: "/collection?brand=New Balance",
+      link: "/admin/all-products?brand=New Balance",
     },
     {
       option: "saucony",
-      link: "/collection?brand=Saucony",
+      link: "/admin/all-products?brand=Saucony",
     },
     {
       option: "fila",
-      link: "/collection?brand=Fila",
+      link: "/admin/all-products?brand=Fila",
     },
   ];
 
@@ -230,7 +230,7 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
                       <Link
                         href={`/admin/update-product?product_id=${product._id}`}
                         key={product._id}
-                        onClose={() => toggle_drawer("search_drawer_admin")}
+                        onClick={() => toggle_drawer("search_drawer_admin")}
                       >
                         <div
                           className={`p-1 flex flex-col gap-2 cursor-pointer`}
@@ -362,7 +362,7 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
                     <Link
                       href={`/admin/update-product?product_id=${product._id}`}
                       key={product._id}
-                      onClose={() => toggle_drawer("search_drawer_admin")}
+                      onClick={() => toggle_drawer("search_drawer_admin")}
                     >
                       <div
                         className={`p-1 flex flex-col gap-2 cursor-pointer`}
