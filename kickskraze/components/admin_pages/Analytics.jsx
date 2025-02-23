@@ -98,7 +98,7 @@ const Analytics = ({ axios }) => {
                         {/* Dashboard Statistics */}
                         <div className='w-full'>
                             <div className='w-full flex justify-between items-center mb-8' >
-                                <h1 className='text-[27px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Statistics</h1>
+                                <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Statistics</h1>
                                 <FormControl className='w-[140px] md:w-[160px]' variant="outlined">
                                     <Select
                                         value={stats_time_period}
@@ -127,7 +127,7 @@ const Analytics = ({ axios }) => {
 
                                         <p className='mt-6 font-medium'>Total Revenue</p>
                                         <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].revenueReport[stats_time_period].toLocaleString("en-US")} >
-                                            <p className='text-[25px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].revenueReport[stats_time_period], { precision: 2 })}</p>
+                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].revenueReport[stats_time_period], { precision: 2 })}</p>
                                         </BootstrapTooltip>
                                     </div>
 
@@ -141,7 +141,7 @@ const Analytics = ({ axios }) => {
 
                                         <p className='mt-6 font-medium'>Total Net Profit</p>
                                         <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].netRevenueReport[stats_time_period].toLocaleString("en-US")} >
-                                            <p className='text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].netRevenueReport[stats_time_period], { precision: 2 })}</p>
+                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].netRevenueReport[stats_time_period], { precision: 2 })}</p>
                                         </BootstrapTooltip>
                                     </div>
 
@@ -154,7 +154,7 @@ const Analytics = ({ axios }) => {
 
                                     <p className='mt-6 font-medium'>Total Sales</p>
                                     <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].salesReport[stats_time_period].toLocaleString("en-US")} >
-                                        <p className='text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].salesReport[stats_time_period], { precision: 2 })}</p>
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].salesReport[stats_time_period], { precision: 2 })}</p>
                                     </BootstrapTooltip>
                                 </div>
 
@@ -164,19 +164,20 @@ const Analytics = ({ axios }) => {
 
                                     <p className='mt-6 font-medium'>Total Orders</p>
                                     <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].ordersReport[stats_time_period].toLocaleString("en-US")} >
-                                        <p className='text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].ordersReport[stats_time_period], { precision: 2 })}</p>
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].ordersReport[stats_time_period], { precision: 2 })}</p>
                                     </BootstrapTooltip>
                                 </div>
 
                             </div>
                         </div>
 
-                        {/* Order Status Pie Chart */}
                         <div className='w-full flex justify-center flex-col items-center gap-12 mt-24'>
 
+
+                            {/* Order Status Pie Chart */}
                             <div className='w-full'>
                                 <div className='w-full flex justify-between items-center mb-8' >
-                                    <h1 className='text-[27px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Order Status</h1>
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Order Status</h1>
                                     <FormControl className='w-[140px] md:w-[160px]' variant="outlined">
                                         <Select
                                             value={order_status_time_period}
@@ -203,7 +204,7 @@ const Analytics = ({ axios }) => {
                                                 data: analytics[store_name].orderStatus[order_status_time_period],
                                                 arcLabel: (param) => getArcLabel(param, analytics[store_name].orderStatus[order_status_time_period]),
                                             }]}
-                                            className='w-full md:w-[600px] h-[300px] md:h-[400px]'
+                                            className='w-full md:w-[600px] h-[180px] md:h-[400px]'
                                             sx={{
                                                 [`& .${pieArcLabelClasses.root}`]: {
                                                     fill: 'white',
@@ -216,11 +217,12 @@ const Analytics = ({ axios }) => {
                             </div>
 
 
+
                             {/* Revenue Line Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
-                                    <h1 className='text-[27px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
                                         Revenue Report
                                     </h1>
                                     <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
@@ -244,18 +246,20 @@ const Analytics = ({ axios }) => {
                                     </FormControl>
                                 </div>
 
-                                <LineChart
-                                    xAxis={[{ data: analytics[store_name].salesData[revenue_time_period].map(d => d.x), scaleType: 'band' }]}
-                                    series={[{ data: analytics[store_name].salesData[revenue_time_period].map(d => d.y), label: 'Sales', area: true, color: "rgb(139,92,246)" }]}
-                                    className='w-full h-[350px] lg:h-[500px]'
+                                <BarChart
+                                    xAxis={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.x), scaleType: 'band' }]}
+                                    series={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.y), label: 'Revenue', color: "rgb(20,184,166)" }]}
+                                    className='w-full h-[350px] lg:h-[500px] bg-teal-'
                                 />
                             </div>
 
 
+
+                            {/* Sales Line Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
-                                    <h1 className='text-[27px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
                                         Sales Report
                                     </h1>
                                     <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
@@ -279,12 +283,15 @@ const Analytics = ({ axios }) => {
                                     </FormControl>
                                 </div>
 
-                                <BarChart
-                                    xAxis={[{ data: analytics[store_name].revenueData[sales_time_period].map(d => d.x), scaleType: 'band' }]}
-                                    series={[{ data: analytics[store_name].revenueData[sales_time_period].map(d => d.y), label: 'Revenue', color: "rgb(20,184,166)" }]}
-                                    className='w-full h-[350px] lg:h-[500px] bg-teal-'
+                                <LineChart
+                                    xAxis={[{ data: analytics[store_name].salesData[sales_time_period].map(d => d.x), scaleType: 'band' }]}
+                                    series={[{ data: analytics[store_name].salesData[sales_time_period].map(d => d.y), label: 'Sales', area: true, color: "rgb(139,92,246)" }]}
+                                    className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
+
+
+
 
                         </div>
 
