@@ -61,7 +61,7 @@ const ordersSchema = new Schema(
         },
         store_name: {
             type: String,
-        }
+        },
     },
     { timestamps: true }
 )

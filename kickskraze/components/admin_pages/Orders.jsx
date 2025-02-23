@@ -72,15 +72,22 @@ const Orders = ({ axios }) => {
     const date_formatter = (date) => {
         // Create a Date object
         const dateObject = new Date(date);
-    
-        // Format the date
-        const dateOptions = { year: 'numeric', month: 'short', day: '2-digit' };
-        const formattedDate = dateObject.toLocaleDateString('en-US', dateOptions);
-    
-        // Format the time
-        const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
-        const formattedTime = dateObject.toLocaleTimeString('en-US', timeOptions);
-    
+
+        // Format the date and time with the Pakistan time zone
+        const formattedDate = dateObject.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            timeZone: 'Asia/Karachi'
+        });
+
+        const formattedTime = dateObject.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Karachi'
+        });
+
         return `${formattedDate}  [${formattedTime}]`;
     };
 
@@ -214,11 +221,7 @@ const Orders = ({ axios }) => {
     ];
 
     useEffect(() => {
-        if (!orders.length) {
-            get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
-        } else {
-            set_is_loading(false);
-        }
+        get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
     }, []);
 
 

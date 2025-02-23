@@ -710,6 +710,25 @@ export const ContextProvider = ({ children }) => {
     }
 
 
+    // Get Orders Analytics
+    const get_orders_analytics_api = async (axios, set_state, set_is_loading) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.get("/api/orders_analytics");
+            set_state(res.data);
+            return true;
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error",
+            });
+            return false;
+        } finally {
+            set_is_loading(false);
+        }
+    }
+
 
 
     return (
@@ -756,6 +775,8 @@ export const ContextProvider = ({ children }) => {
                 delete_product_api, add_user_api, get_product_api, get_all_products_title_api,
 
                 orders, set_orders, dispatched_orders, set_dispatched_orders, order_id, set_order_id,
+
+                get_orders_analytics_api,
 
                 login_api,
 

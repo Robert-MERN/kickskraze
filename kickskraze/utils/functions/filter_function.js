@@ -139,7 +139,9 @@ export const configure_query_filters = (router_query) => {
         const query_filters = [];
         Object.entries(router_query).forEach(([key, value]) => {
             if (typeof value === "string") {
-                query_filters.push({ [key]: value });
+                value.split(",").forEach((val) => {
+                    if (val) query_filters.push({ [key]: val });
+                });
             } else {
                 value.forEach(each_value => {
                     query_filters.push({ [key]: each_value });
@@ -186,7 +188,6 @@ export const add_query_filters = async (query_filters, set_filters) => {
                     }
                 }
                 resolve(copy_prev);
-                console.log(copy_prev);
                 return copy_prev;
             })
 

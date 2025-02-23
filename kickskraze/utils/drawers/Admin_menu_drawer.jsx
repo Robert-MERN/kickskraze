@@ -10,6 +10,7 @@ import { TbShoppingBagEdit } from "react-icons/tb";
 import { AiFillProduct } from "react-icons/ai";
 import { FaBasketShopping } from "react-icons/fa6";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useRouter } from 'next/router';
 import useStateContext from '@/context/ContextProvider';
 import Link from 'next/link';
@@ -37,6 +38,7 @@ const Admin_menu_drawer = ({ drawer_state, toggle_drawer }) => {
                 { option_name: "Orders", link: "/admin/orders", icon: <ShoppingCartIcon /> },
                 { option_name: "Dispatched Orders", link: "/admin/dispatched-orders", icon: <ShoppingCartCheckoutIcon /> },
                 { option_name: "Customers", link: "/admin/customers", icon: <GroupIcon /> },
+                { option_name: "Analytics", link: "/admin/analytics", icon: <BarChartIcon /> },
             ]
         },
         {

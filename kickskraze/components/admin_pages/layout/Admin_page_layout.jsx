@@ -8,6 +8,7 @@ import { TbShoppingBagEdit } from "react-icons/tb";
 import { AiFillProduct } from "react-icons/ai";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { FaBasketShopping } from "react-icons/fa6";
+import BarChartIcon from '@mui/icons-material/BarChart';
 import { useRouter } from 'next/router';
 import useStateContext from '@/context/ContextProvider';
 import Link from 'next/link';
@@ -37,6 +38,7 @@ const Admin_page = ({ admin_children }) => {
                 { option_name: "Orders", link: "/admin/orders", icon: <ShoppingCartIcon /> },
                 { option_name: "Dispatched Orders", link: "/admin/dispatched-orders", icon: <ShoppingCartCheckoutIcon /> },
                 { option_name: "Customers", link: "/admin/customers", icon: <GroupIcon /> },
+                { option_name: "Analytics", link: "/admin/analytics", icon: <BarChartIcon /> },
             ]
         },
         {
@@ -56,6 +58,7 @@ const Admin_page = ({ admin_children }) => {
         "/admin/app-settings": true,
         "/admin/orders": false,
         "/admin/dispatched-orders": false,
+        "/admin/analytics": false,
         "/admin/customers": false,
         "/admin/all-products": false,
         "/admin/create-product": true,
@@ -106,7 +109,7 @@ const Admin_page = ({ admin_children }) => {
 
             {/* Hidden Element */}
             {pages_statements[Object.keys(pages_statements).find(e => router.pathname.includes(e))] &&
-                <div className='w-[100px] xl:w-[300px] h-[calc(100vh-70px)] opacity-0  hidden lg:block '></div>
+                <div className='w-[100px] xl:w-[300px] h-[calc(100vh-70px)] opacity-0  hidden lg:block'></div>
             }
         </div>
     )

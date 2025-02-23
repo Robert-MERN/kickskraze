@@ -10,13 +10,27 @@ import useStateContext from '@/context/ContextProvider';
 import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import styles from "@/styles/home.module.css";
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 
 
 const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios }) => {
 
 
-    const { get_all_orders_api, set_orders, get_order_api, order_id, set_order_id, update_order_api, set_API_loading, } = useStateContext();
+
+    const { get_all_orders_api, set_orders, set_dispatched_orders, get_order_api, order_id, set_order_id, update_order_api, set_API_loading, } = useStateContext();
+
+    const pathname = useRouter().pathname;
+    const pages = {
+        "/admin/orders": {
+            query: "status=booked",
+            fn: set_orders,
+        },
+        "/admin/dispatched-orders": {
+            query: "status_not=booked",
+            fn: set_dispatched_orders,
+        },
+    };
 
     useEffect(() => {
         if (document.querySelector(".MuiCheckbox-root")) {
@@ -179,9 +193,10 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
         if (Object.values(errors).every((error) => !error)) {
             // Form is valid, submit it
             let { purchase = [], ...others } = confirmed_order;
-            purchase = purchase.length ? purchase.map(e => e._id) : [];
+            purchase = purchase.length ? purchase.map(e => ({ _id: e._id, quantity: e.quantity })) : [];
             const updated_order = await update_order_api(axios, order_id, { purchase, ...others }, set_API_loading);
-            await get_all_orders_api(axios, set_orders, set_API_loading);
+            await get_all_orders_api(axios, pages[pathname].query, pages[pathname].fn, set_API_loading);
+
             if (!confirmed_order.purchase.length && updated_order) {
                 close_drawer();
             }

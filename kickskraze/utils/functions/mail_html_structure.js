@@ -38,13 +38,20 @@ export const mail_html_structure = (order) => {
     // Create a Date object
     const dateObject = new Date(date);
 
-    // Format the date
-    const dateOptions = { year: 'numeric', month: 'short', day: '2-digit' };
-    const formattedDate = dateObject.toLocaleDateString('en-US', dateOptions);
+    // Format the date and time with the Pakistan time zone
+    const formattedDate = dateObject.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit',
+      timeZone: 'Asia/Karachi'
+    });
 
-    // Format the time
-    const timeOptions = { hour: 'numeric', minute: '2-digit', hour12: true };
-    const formattedTime = dateObject.toLocaleTimeString('en-US', timeOptions);
+    const formattedTime = dateObject.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZone: 'Asia/Karachi'
+    });
 
     return `${formattedDate}  [${formattedTime}]`;
   };

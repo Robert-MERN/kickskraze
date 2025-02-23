@@ -295,12 +295,23 @@ const All_products = ({ axios }) => {
     };
 
     useEffect(() => {
-        const { page, limit } = show_more_payload;
-        if (page > 1) {
-            get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
+        const fetch = async () => {
+            const { page, limit } = show_more_payload;
+            if (page > 1) {
+                let FILTERS = filters;
+                const query_filters = configure_query_filters(router.query);
+                if (query_filters.length) {
+                    FILTERS = await add_query_filters(query_filters, set_clone_filters);
+                }
+
+                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
+
+            }
         }
+        fetch();
     }, [show_more_payload.page]);
 
+    
     useEffect(() => {
         if (!router.isReady) return;
         const timer = setTimeout(() => {

@@ -15,17 +15,23 @@ const Delete_order_modal = ({
     toggle_drawer,
 }) => {
 
-    const { get_all_orders_api, set_orders, order_id, set_order_id, delete_order_api, set_API_loading, } = useStateContext();
+    const { get_all_orders_api, set_orders, set_dispatched_orders, order_id, set_order_id, delete_order_api, set_API_loading, } = useStateContext();
 
-    const router = useRouter()
+    const pathname = useRouter().pathname;
     const pages = {
-        "/admin/orders": "status=booked",
-        "/admin/dispatched-orders": "status_not=booked",
-    }
+        "/admin/orders": {
+            query: "status=booked",
+            fn: set_orders,
+        },
+        "/admin/dispatched-orders": {
+            query: "status_not=booked",
+            fn: set_dispatched_orders,
+        },
+    };
 
     const handle_delete_order = async () => {
         const order_deleted = await delete_order_api(axios, order_id, set_API_loading);
-        await get_all_orders_api(axios, pages[router.pathname] || "", set_orders, set_API_loading);
+        await get_all_orders_api(axios,  pages[pathname].query, pages[pathname].fn, set_API_loading);
         if (order_deleted) {
             if (drawer_state.view_order_drawer) {
                 toggle_drawer("view_order_drawer");
