@@ -11,6 +11,9 @@ const order_status = {
 }
 
 
+
+
+
 export default async function handler(req, res) {
     if (req.method !== "GET") {
         return res.status(405).json({ message: "Method not allowed" });
@@ -45,9 +48,9 @@ export default async function handler(req, res) {
         };
 
         // Function to get sales aggregation per store
-        const getSalesAggregation = async (storeName) => {
+        const getSalesAggregation = async (storeName, fromDate) => {
             return await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: firstDayOfMonth } } : { createdAt: { $gte: firstDayOfMonth } } },
+                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $group: {
@@ -64,9 +67,9 @@ export default async function handler(req, res) {
 
 
         // Function to get revenue aggregation per store
-        const getRevenueAggregation = async (storeName) => {
+        const getRevenueAggregation = async (storeName, fromDate) => {
             return await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: firstDayOfYear } } : { createdAt: { $gte: firstDayOfYear } } },
+                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {
@@ -217,9 +220,10 @@ export default async function handler(req, res) {
         for (const store of [null, ...stores]) {
             const storeKey = store || "Total";
 
-
-            const salesAggregation = await getSalesAggregation(store);
-            const revenueAggregation = await getRevenueAggregation(store);
+            const salesAggregationDaily = await getSalesAggregation(store, firstDayOfMonth);
+            const salesAggregation = await getSalesAggregation(store, firstDayOfYear);
+            const revenueAggregationDaily = await getRevenueAggregation(store, firstDayOfMonth);
+            const revenueAggregation = await getRevenueAggregation(store, firstDayOfYear);
 
 
             analytics[storeKey] = {
@@ -257,24 +261,157 @@ export default async function handler(req, res) {
 
             };
 
-            salesAggregation.forEach(({ _id, totalItems }) => {
+
+            // Constructing Sales Data according to MUI Charts
+            salesAggregationDaily.forEach(({ _id, totalItems }) => {
                 analytics[storeKey].salesData.daily.push({ x: _id.day, y: totalItems });
+            });
+            salesAggregation.forEach(({ _id, totalItems }) => {
                 analytics[storeKey].salesData.monthly[_id.month] = (analytics[storeKey].salesData.monthly[_id.month] || 0) + totalItems;
                 analytics[storeKey].salesData.yearly[_id.year] = (analytics[storeKey].salesData.yearly[_id.year] || 0) + totalItems;
             });
 
+
+            // Sorting Sales Daily
             analytics[storeKey].salesData.daily.sort((a, b) => a.x.localeCompare(b.x));
-            analytics[storeKey].salesData.monthly = Object.entries(analytics[storeKey].salesData.monthly).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
+
+            // Sorting Sales Monthly
+            const SALES_MONTHS = [
+                {
+                    "x": "Jan",
+                    "y": 0
+                },
+                {
+                    "x": "Feb",
+                    "y": 0
+                },
+                {
+                    "x": "Mar",
+                    "y": 0
+                },
+                {
+                    "x": "Apr",
+                    "y": 0
+                },
+                {
+                    "x": "May",
+                    "y": 0
+                },
+                {
+                    "x": "Jun",
+                    "y": 0
+                },
+                {
+                    "x": "Jul",
+                    "y": 0
+                },
+                {
+                    "x": "Aug",
+                    "y": 0
+                },
+                {
+                    "x": "Sep",
+                    "y": 0
+                },
+                {
+                    "x": "Oct",
+                    "y": 0
+                },
+                {
+                    "x": "Nov",
+                    "y": 0
+                },
+                {
+                    "x": "Dec",
+                    "y": 0
+                },
+            ];
+            analytics[storeKey].salesData.monthly = Object.entries(analytics[storeKey].salesData.monthly).map(([x, y]) => ({ x, y }));
+            analytics[storeKey].salesData.monthly.forEach(({ x, y }) => {
+                const monthIndex = SALES_MONTHS.findIndex(m => m.x === x);
+                if (monthIndex !== -1) SALES_MONTHS.splice(monthIndex, 1, { x, y });
+            });
+            analytics[storeKey].salesData.monthly = SALES_MONTHS;
+
+            // Sorting Sales Yearly
             analytics[storeKey].salesData.yearly = Object.entries(analytics[storeKey].salesData.yearly).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
 
-            revenueAggregation.forEach(({ _id, totalRevenue }) => {
+
+
+
+
+            // Constructing Revenue Data according to MUI Charts
+            revenueAggregationDaily.forEach(({ _id, totalRevenue }) => {
                 analytics[storeKey].revenueData.daily.push({ x: _id.day, y: totalRevenue });
+            })
+            revenueAggregation.forEach(({ _id, totalRevenue }) => {
                 analytics[storeKey].revenueData.monthly[_id.month] = (analytics[storeKey].revenueData.monthly[_id.month] || 0) + totalRevenue;
                 analytics[storeKey].revenueData.yearly[_id.year] = (analytics[storeKey].revenueData.yearly[_id.year] || 0) + totalRevenue;
             });
 
+
+            // Sorting Revenue Daily
             analytics[storeKey].revenueData.daily.sort((a, b) => a.x.localeCompare(b.x));
-            analytics[storeKey].revenueData.monthly = Object.entries(analytics[storeKey].revenueData.monthly).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
+
+            // Sorting Revenue Monthly
+            const REVENUE_MONTHS = [
+                {
+                    "x": "Jan",
+                    "y": 0
+                },
+                {
+                    "x": "Feb",
+                    "y": 0
+                },
+                {
+                    "x": "Mar",
+                    "y": 0
+                },
+                {
+                    "x": "Apr",
+                    "y": 0
+                },
+                {
+                    "x": "May",
+                    "y": 0
+                },
+                {
+                    "x": "Jun",
+                    "y": 0
+                },
+                {
+                    "x": "Jul",
+                    "y": 0
+                },
+                {
+                    "x": "Aug",
+                    "y": 0
+                },
+                {
+                    "x": "Sep",
+                    "y": 0
+                },
+                {
+                    "x": "Oct",
+                    "y": 0
+                },
+                {
+                    "x": "Nov",
+                    "y": 0
+                },
+                {
+                    "x": "Dec",
+                    "y": 0
+                },
+            ];
+            analytics[storeKey].revenueData.monthly = Object.entries(analytics[storeKey].revenueData.monthly).map(([x, y]) => ({ x, y }));
+            analytics[storeKey].revenueData.monthly.forEach(({ x, y }) => {
+                const monthIndex = REVENUE_MONTHS.findIndex(m => m.x === x);
+                if (monthIndex !== -1) REVENUE_MONTHS.splice(monthIndex, 1, { x, y });
+            });
+            analytics[storeKey].revenueData.monthly = REVENUE_MONTHS;
+
+            // Sorting Revenue Yearly
             analytics[storeKey].revenueData.yearly = Object.entries(analytics[storeKey].revenueData.yearly).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
         }
 
