@@ -290,11 +290,15 @@ const Landing_page = ({ axios }) => {
                                                 className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer`}
                                             >
                                                 <div className='relative'>
-                                                    <div className={`"w-full overflow-hidden shadow-sm`}>
+                                                    <div className={`"w-full overflow-hidden shadow-sm relative`}>
 
                                                         <img alt="Product" src={select_thumbnail_from_media(product.media)} className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] lg:hover:scale-[1.1] object-cover transition-all duration-500`} />
 
-
+                                                        {!Boolean(product.stock) &&
+                                                            <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
+                                                                SOLD OUT
+                                                            </span>
+                                                        }
                                                     </div>
 
                                                     {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&

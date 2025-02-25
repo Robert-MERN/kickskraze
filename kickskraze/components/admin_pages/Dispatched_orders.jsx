@@ -132,7 +132,6 @@ const Dispatched_orders = ({ axios }) => {
             field: 'name',
             headerName: 'Customer Name',
             width: 170,
-            renderCell: (params) => `${params?.row?.firstName || ""} ${params?.row?.lastName || ""}`
         },
         {
             field: 'city',
@@ -237,7 +236,10 @@ const Dispatched_orders = ({ axios }) => {
                     },
                 }}
                 columns={columns}
-                rows={dispatched_orders}
+                rows={dispatched_orders.map(row => ({
+                    ...row,
+                    name: `${row.firstName || ""} ${row.lastName || ""}`.trim()
+                }))}
                 getRowId={row => row._id}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}

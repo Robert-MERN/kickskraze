@@ -22,6 +22,16 @@ const Backup_page = () => {
                     <br />
                     Cell: 713 459 47491
                 </p>
+
+
+                {/* Reviews */}
+                <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+                    <div class="break-inside-avoid bg-white p-4 shadow rounded">Content 1</div>
+                    <div class="break-inside-avoid bg-white p-4 shadow rounded">Content 2</div>
+                    <div class="break-inside-avoid bg-white p-4 shadow rounded">Content 3</div>
+                    <div class="break-inside-avoid bg-white p-4 shadow rounded">Content 4</div>
+                </div>
+
             </div>
 
         </div >

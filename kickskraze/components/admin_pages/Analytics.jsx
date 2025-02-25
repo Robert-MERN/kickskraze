@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import useStateContext from '@/context/ContextProvider';
 import { PieChart, pieArcLabelClasses } from '@mui/x-charts/PieChart';
 import { LineChart, lineElementClasses } from '@mui/x-charts/LineChart';
@@ -10,6 +10,7 @@ import { CircularProgress, MenuItem, Select, FormControl, OutlinedInput } from '
 import StoreIcon from '@mui/icons-material/Store';
 import CalendarViewMonthIcon from '@mui/icons-material/CalendarViewMonth';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CountUp from 'react-countup';
 
 const BootstrapTooltip = styled(({ className, ...props }) => (
     <Tooltip slotProps={{
@@ -50,9 +51,18 @@ const Analytics = ({ axios }) => {
     const [stats_time_period, set_stats_time_period] = useState("currentYear");
     const [order_status_time_period, set_order_status_time_period] = useState("currentYear");
 
+
+    const hasFetched = useRef(false);
+
+
     useEffect(() => {
+        if (hasFetched.current) return;
+        hasFetched.current = true;
+        
         get_orders_analytics_api(axios, set_analytics, set_is_loading);
-    }, [])
+    }, []);
+
+
 
 
     const getArcLabel = (param, data) => {
@@ -127,7 +137,14 @@ const Analytics = ({ axios }) => {
 
                                         <p className='mt-6 font-medium'>Total Revenue</p>
                                         <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].revenueReport[stats_time_period].toLocaleString("en-US")} >
-                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].revenueReport[stats_time_period], { precision: 2 })}</p>
+                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                                <CountUp
+                                                    start={0}
+                                                    end={analytics[store_name].revenueReport[stats_time_period]}
+                                                    duration={2}
+                                                    formattingFn={(value) => millify(value, { precision: 2 })}
+                                                />
+                                            </p>
                                         </BootstrapTooltip>
                                     </div>
 
@@ -141,7 +158,14 @@ const Analytics = ({ axios }) => {
 
                                         <p className='mt-6 font-medium'>Total Net Profit</p>
                                         <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].netRevenueReport[stats_time_period].toLocaleString("en-US")} >
-                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].netRevenueReport[stats_time_period], { precision: 2 })}</p>
+                                            <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                                <CountUp
+                                                    start={0}
+                                                    end={analytics[store_name].netRevenueReport[stats_time_period]}
+                                                    duration={2}
+                                                    formattingFn={(value) => millify(value, { precision: 2 })}
+                                                />
+                                            </p>
                                         </BootstrapTooltip>
                                     </div>
 
@@ -154,7 +178,14 @@ const Analytics = ({ axios }) => {
 
                                     <p className='mt-6 font-medium'>Total Sales</p>
                                     <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].salesReport[stats_time_period].toLocaleString("en-US")} >
-                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].salesReport[stats_time_period], { precision: 2 })}</p>
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                            <CountUp
+                                                start={0}
+                                                end={analytics[store_name].salesReport[stats_time_period]}
+                                                duration={2}
+                                                formattingFn={(value) => millify(value, { precision: 2 })}
+                                            />
+                                        </p>
                                     </BootstrapTooltip>
                                 </div>
 
@@ -164,7 +195,14 @@ const Analytics = ({ axios }) => {
 
                                     <p className='mt-6 font-medium'>Total Orders</p>
                                     <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].ordersReport[stats_time_period].toLocaleString("en-US")} >
-                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>{millify(analytics[store_name].ordersReport[stats_time_period], { precision: 2 })}</p>
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                            <CountUp
+                                                start={0}
+                                                end={analytics[store_name].ordersReport[stats_time_period]}
+                                                duration={2}
+                                                formattingFn={(value) => millify(value, { precision: 2 })}
+                                            />
+                                        </p>
                                     </BootstrapTooltip>
                                 </div>
 

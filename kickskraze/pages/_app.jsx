@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }) {
 
   useEffect(() => {
     const handleRouteChange = (url) => {
-      if (!url.includes("/admin") && !url.includes("/login")) {
+      if (!url.includes("/admin") && !url.includes("/login") && !url.includes("/404")) {
         MetaPixel.pageView()
       }
     };
@@ -31,8 +31,8 @@ export default function App({ Component, pageProps }) {
         id="meta-pixel"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
-          __html: `
-            !function(f,b,e,v,n,t,s)
+          __html: (!router.pathname.includes("/admin") && !router.pathname.includes("/login") && !router.pathname.includes("/404")) ?
+            `!function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
             n.callMethod.apply(n,arguments):n.queue.push(arguments)};
             if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
@@ -42,24 +42,26 @@ export default function App({ Component, pageProps }) {
             'https://connect.facebook.net/en_US/fbevents.js');
              
             // Initialize first pixel
+         
             fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1});
             fbq('track', 'PageView');
             
             // Initialize second pixel
             fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2});
-            fbq('track', 'PageView');
-          `,
+            fbq('track', 'PageView');`
+            : ``,
         }}
       />
-
-      <noscript>
-        <img height="1" width="1" style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1}&ev=PageView&noscript=1`}
-        />
-        <img height="1" width="1" style={{ display: "none" }}
-          src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2}&ev=PageView&noscript=1`}
-        />
-      </noscript>
+      {(!router.pathname.includes("/admin") && !router.pathname.includes("/login") && !router.pathname.includes("/404")) &&
+        <noscript>
+          <img height="1" width="1" style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1}&ev=PageView&noscript=1`}
+          />
+          <img height="1" width="1" style={{ display: "none" }}
+            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2}&ev=PageView&noscript=1`}
+          />
+        </noscript>
+      }
 
       <div id=''>
         <ContextProvider>

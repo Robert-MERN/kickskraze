@@ -243,6 +243,12 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
 
                               <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-cover transition-all duration-500`} />
 
+                              {!Boolean(product.stock) &&
+                                <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>
+                                  SOLD OUT
+                                </span>
+                              }
+
                               {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                                 <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
                                   -{calculate_discount_precentage(product.price, product.compare_price)}%
@@ -374,6 +380,12 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                           <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
 
                             <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] hover:scale-[1.1] object-cover transition-all duration-500`} />
+
+                            {!Boolean(product.stock) &&
+                              <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>
+                                SOLD OUT
+                              </span>
+                            }
 
                             {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                               <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >

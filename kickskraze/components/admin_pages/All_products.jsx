@@ -311,7 +311,7 @@ const All_products = ({ axios }) => {
         fetch();
     }, [show_more_payload.page]);
 
-    
+
     useEffect(() => {
         if (!router.isReady) return;
         const timer = setTimeout(() => {
@@ -771,7 +771,7 @@ const All_products = ({ axios }) => {
                                                 className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
                                             >
                                                 <div className='relative'>
-                                                    <div className={`overflow-hidden shadow-sm`}>
+                                                    <div className={`overflow-hidden shadow-sm relative`}>
                                                         <img alt="" src={select_thumbnail_from_media(product.media)} className={`
 
                                                         ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
@@ -780,6 +780,12 @@ const All_products = ({ axios }) => {
                                                         ${grid === 4 ? "w-full h-[300px]" : ""}
                                                             
                                                             overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500`} />
+
+                                                        {!Boolean(product.stock) &&
+                                                            <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
+                                                                SOLD OUT
+                                                            </span>
+                                                        }
                                                     </div>
                                                     {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
                                                         <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
