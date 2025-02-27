@@ -98,8 +98,6 @@ export default async function handler(req, res) {
         const _updatedOrder = await convert_usable_order(updatedOrder, Products);
         if ((order.status !== "booked"
             &&
-            _updatedOrder.status !== "booked"
-            &&
             order.status !== _updatedOrder.status
             &&
             _updatedOrder.tracking_no
