@@ -1,7 +1,13 @@
 import { Schema, connection } from "mongoose"
+import Counter from "./counter_model";
+
 
 const ordersSchema = new Schema(
     {
+        orderNumber: {
+            type: String,
+            unique: true, // Ensures no duplicates
+        },
         email: {
             type: String,
             required: [true, "Please enter your email"]
@@ -39,9 +45,7 @@ const ordersSchema = new Schema(
         coupon_code: {
             type: String,
         },
-        purchase: {
-            type: Array,
-        },
+        purchase: Array,
         payment_method: {
             type: String,
         },
@@ -62,13 +66,29 @@ const ordersSchema = new Schema(
         store_name: {
             type: String,
         },
+        isDeleted: {
+            type: Boolean,
+            default: false,
+        }
     },
     { timestamps: true }
 )
 
 
 
-
+const PREFIX = "KK"; // Define your custom prefix
+// **Pre-save middleware for auto-incremented order numbers**
+ordersSchema.pre("save", async function (next) {
+    if (!this.orderNumber) {
+        const counter = await Counter.findByIdAndUpdate(
+            { _id: "orderId" },
+            { $inc: { seq: 1 } },
+            { new: true, upsert: true }
+        );
+        this.orderNumber = `${PREFIX}${counter.seq}`;
+    }
+    next();
+});
 
 
 

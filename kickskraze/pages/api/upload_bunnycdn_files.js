@@ -5,6 +5,7 @@ import fs from 'fs/promises';
 import { nanoid } from 'nanoid';
 import ffmpeg from 'fluent-ffmpeg';
 import fsSync from 'fs';
+import sharp from 'sharp';
 
 
 // ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
@@ -28,6 +29,41 @@ const object_mapping = (obj) => {
     }
     return _obj;
 };
+
+// 🔹 Image Compression Function (Sharp)
+const compressImage = async (inputPath, outputPath) => {
+    try {
+        const outputDir = path.dirname(outputPath);
+
+        // Ensure the directory exists
+        if (!fsSync.existsSync(outputDir)) {
+            fsSync.mkdirSync(outputDir, { recursive: true });
+        }
+
+        await sharp(inputPath)
+            .resize(800) // Resize to 800px width like Cloudinary w_800
+            .webp({ quality: 80 }) // Convert to WebP with 80% quality (q_auto equivalent)
+            .toFile(outputPath);
+        return outputPath;
+    } catch (error) {
+        console.error("❌ Image Compression Error:", error);
+        throw new Error("Image compression failed");
+    }
+};
+
+// Function to remove the compressed images folder
+const removeCompressedImagesFolder = async () => {
+    const folderPath = path.resolve(process.cwd(), 'public/compressed_images');
+    try {
+        if (fsSync.existsSync(folderPath)) {
+            await fs.rm(folderPath, { recursive: true, force: true });
+            console.log("✅ Compressed images folder removed.");
+        }
+    } catch (error) {
+        console.error("❌ Error removing compressed images folder:", error);
+    }
+};
+
 
 
 // Video compression function using fluent-ffmpeg
@@ -111,15 +147,25 @@ export default async function handler(req, res) {
                 : [formData.fields.imageThumbnailFlags];
 
             if (images && images.length) {
-                for (const [index, image] of (Array.isArray(images) ? images : [images]).entries()) {
+                try {
 
-                    const filename = `${nanoid(10)}${path.basename(image.newFilename)}.webp`;
-                    const newUrl = await uploadToBunnyCDN(image.filepath, filename, res);
-                    const isThumbnail = imageThumbnailFlags[index] === "true";
-                    if (newUrl) {
-                        media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
+                    for (const [index, image] of (Array.isArray(images) ? images : [images]).entries()) {
+
+                        const filename = `${nanoid(10)}.webp`;
+                        const compressedPath = path.resolve(process.cwd(), 'public/compressed_images', filename);
+
+                        // Compress Image
+                        await compressImage(image.filepath, compressedPath);
+
+                        // Upload to BunnyCDN
+                        const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
+                        const isThumbnail = imageThumbnailFlags[index] === "true";
+                        if (newUrl) {
+                            media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
+                        }
                     }
-
+                } finally {
+                    await removeCompressedImagesFolder();
                 }
             }
 

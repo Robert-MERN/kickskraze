@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         }
 
         // Deleting product
-        await Products.findByIdAndDelete(product_id);
+        await Products.findByIdAndUpdate(product_id, { isDeleted: true });
 
         await csvQueue.add("updateCSV", {}); // Enqueue CSV update
 
@@ -36,7 +36,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ status: true, message: "Product has been deleted" });
 
     } catch (err) {
-
+        console.log(err);
         // if server catches any error
         return res.status(501).json({ success: false, message: err.message });
     }

@@ -51,7 +51,7 @@ export default async function handler(req, res) {
         order.total_items = calc_total_items(order.purchase);
 
 
-        const response = await send_confirm_mail(res, order);
+        const response = await send_confirm_mail(res, order, "create");
 
         if (response.message === "mail-sent") {
             await Promise.all(order.purchase.map((product) => {

@@ -1,8 +1,62 @@
 import { purchase_items_displayer } from "./display_products_in_mail";
 
-export const mail_html_structure = (order) => {
+export const mail_html_structure = (order, mailType) => {
 
 
+  const order_status = (order) => {
+    // If tracking number is unavailable
+    const tracking_no_unavailable = "You'll be able to track your order once the tracking number is available.";
+
+    // If tracking number is available
+    const tracking_url = {
+      trax: "https://trax.pk/tracking/",
+      leapord: "https://www.leopardscourier.com/tracking",
+    };
+    const anchor_tag = <strong>
+      <a
+        className='underline cursor-pointer'
+        href={tracking_url[order.courier_name]}
+        target="_blank"
+      >
+        {order.tracking_no}
+      </a>
+    </strong>;
+    const tracking_no_available = <p>You can track your order by clicking on this tracking id: {anchor_tag}</p>
+
+    // All Status
+    const all_status = {
+      booked: "your order is confirmed ✅. You'll be receiving the updates regarding the delivery status of your order once your order is dispatched.",
+      in_transit: `your order is on the way 🚚. ${order.tracking_no ? tracking_no_available : tracking_no_unavailable}`,
+      delivered: `your order is delivered 📦✅. ${order.tracking_no ? tracking_no_available : tracking_no_unavailable}`,
+      rcp: `your order returned confirmation is pending ⏳. ${order.tracking_no ? tracking_no_available : tracking_no_unavailable}`,
+      returned: `your order is returned 🔄. ${order.tracking_no ? tracking_no_available : tracking_no_unavailable}`,
+
+    };
+    return all_status[order.status];
+  }
+
+  const mail_messages = {
+    create: {
+      title: "Thank you for ordering!",
+      message: "This email is to confirm&nbsp;your order. We have successfully received your order, we'll give you a confirmation call shortly.",
+      view: true,
+    },
+    update: {
+      title: "Your order has been updated!",
+      message: "This email is to inform you that your order has been updated. Please find the revised order details below.",
+      view: true,
+    },
+    status_update: {
+      title: "Your order status has been updated!",
+      message: `This email is to inform you that ${order_status(order)}`,
+      view: true,
+    },
+    delete: {
+      title: "Your order has been cancelled!",
+      message: "Your order has been cancelled successfully. If you'd like to place a new order, please visit our website.",
+      view: false,
+    },
+  }
 
 
 
@@ -20,6 +74,8 @@ export const mail_html_structure = (order) => {
     total_items,
     payment_method,
     createdAt,
+    updatedAt,
+    orderNumber,
   } = order;
 
 
@@ -53,7 +109,7 @@ export const mail_html_structure = (order) => {
       timeZone: 'Asia/Karachi'
     });
 
-    return `${formattedDate}  [${formattedTime}]`;
+    return `${formattedDate} [${formattedTime}]`;
   };
 
 
@@ -837,8 +893,8 @@ export const mail_html_structure = (order) => {
                                   style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><a
                                     target="_blank" href="https://kickskraze.shop"
                                     style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px"><img
-                                      src="https://kickskraze.shop/images/logo.png"
-                                      alt="" width="320" title="Logo" class="img-4512"
+                                      src="https://kickskraze.shop/images/logo.png" alt="" width="320" title="Logo"
+                                      class="img-4512"
                                       style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></a>
                                 </td>
                               </tr>
@@ -846,7 +902,7 @@ export const mail_html_structure = (order) => {
                                 <td align="center" class="es-text-5775" style="padding:0;Margin:0;padding-bottom:10px">
                                   <h2 class="es-m-txt-c es-override-size es-text-mobile-size-24"
                                     style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:42px;font-style:normal;font-weight:bold;line-height:42px;color:#333333">
-                                    Thank you for ordering!</h2>
+                                    ${mail_messages[mailType].title}</h2>
                                 </td>
                               </tr>
                             </table>
@@ -882,9 +938,15 @@ export const mail_html_structure = (order) => {
                                 <td align="center" style="padding:0;Margin:0">
                                   <h6 class="es-m-txt-c"
                                     style="Margin:0;font-family:arial, 'helvetica neue', helvetica, sans-serif;mso-line-height-rule:exactly;letter-spacing:0;font-size:16px;font-style:normal;font-weight:normal;line-height:19.2px;color:#333333">
-                                    <strong>Order&nbsp;<a target="_blank"
-                                        href="https://kickskraze.shop/checkouts/${_id}"
-                                        style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:16px;text-transform: uppercase">#${_id}</a></strong>
+                                   
+                                    ${mail_messages[mailType].view ?
+
+      `<strong>Order&nbsp;<a target="_blank" href="https://kickskraze.shop/checkouts/${_id}"
+                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:16px;text-transform: uppercase">#${orderNumber}</a> </strong>`
+      :
+      `<strong>Order&nbsp;<span
+                                      style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:16px;text-transform: uppercase">#${orderNumber}</span> </strong>`
+    }
                                   </h6>
                                 </td>
                               </tr>
@@ -893,7 +955,7 @@ export const mail_html_structure = (order) => {
                                   style="Margin:0;padding-top:5px;padding-right:40px;padding-bottom:5px;padding-left:40px">
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    ${date_formatter(createdAt)}</p>
+                                    ${date_formatter(updatedAt)}</p>
                                 </td>
                               </tr>
                               <tr>
@@ -901,18 +963,29 @@ export const mail_html_structure = (order) => {
                                   style="Margin:0;padding-top:5px;padding-right:40px;padding-left:40px;padding-bottom:15px">
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    This email is to confirm&nbsp;your order. We have successfully received your
-                                    order, we'll give you a confirmation call shortly.</p>
+                                    ${mail_messages[mailType].message}
+                                    </p>
                                 </td>
                               </tr>
                               <tr>
                                 <td align="center" style="padding:0;Margin:0"><span class="es-button-border"
-                                    style="border-style:solid;border-color:#e11d48;background:#e11d48;border-width:2px;display:inline-block;border-radius:6px;width:auto"><a
+                                    style="border-style:solid;border-color:#e11d48;background:#e11d48;border-width:2px;display:inline-block;border-radius:6px;width:auto">
+                                    ${mail_messages[mailType].view ?
+      `<a
                                       href="https://kickskraze.shop/checkouts/${_id}" target="_blank"
                                       class="es-button es-button-3343"
                                       style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#ffffff;font-size:18px;padding:10px 30px 10px 30px;display:inline-block;background:#e11d48;border-radius:6px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:21.6px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #e11d48;border-left-width:30px;border-right-width:30px">View
-                                      your order</a></span></td>
-                              </tr>
+                                      your order</a>`
+      :
+      `<a
+                                      href="https://kickskraze.shop" target="_blank"
+                                      class="es-button es-button-3343"
+                                      style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#ffffff;font-size:18px;padding:10px 30px 10px 30px;display:inline-block;background:#e11d48;border-radius:6px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:21.6px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #e11d48;border-left-width:30px;border-right-width:30px">Visit
+                                      store</a>`
+    }
+                                      
+                                      </span></td>
+                                      </tr>
                             </table>
                           </td>
                         </tr>
@@ -1041,13 +1114,15 @@ export const mail_html_structure = (order) => {
                                     Customer: <strong>${firstName} ${lastName}</strong></p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    email:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank" href="mailto:${email}">${email}</a></strong></p>
-                                     <p
-                                    style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Contact:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank" href="tel:+92${phone.slice(1)}">${phone}</a></strong></p>
+                                    email:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank"
+                                        href="mailto:${email}">${email}</a></strong></p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Order no:&nbsp;<strong style="text-transform: uppercase;">#${_id}</strong></p>
+                                    Contact:&nbsp;<strong><a style="text-decoration:none;color:inherit;" target="_blank"
+                                        href="tel:+92${phone.slice(1)}">${phone}</a></strong></p>
+                                  <p
+                                    style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
+                                    Order no:&nbsp;<strong style="text-transform: uppercase;">#${orderNumber}</strong></p>
                                   <p
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
                                     Invoice date:&nbsp;<strong>${date_formatter(createdAt)}</strong></p>
@@ -1080,7 +1155,7 @@ export const mail_html_structure = (order) => {
 
                                   <p class="es-m-txt-l"
                                     style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px">
-                                    Delivery address:  <strong> ${address}</strong>
+                                    Delivery address: <strong> ${address}</strong>
                                   </p>
 
                                   <p class="es-m-txt-l"
@@ -1174,7 +1249,8 @@ export const mail_html_structure = (order) => {
                                             style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></a>
                                       </td>
                                       <td align="center" valign="top" style="padding:0;Margin:0;padding-right:40px"><a
-                                          target="_blank" href="https://www.instagram.com/kickskraze.pk?igsh=Z3dvcDk3eXRlN3Z1&utm_source=qr"
+                                          target="_blank"
+                                          href="https://www.instagram.com/kickskraze.pk?igsh=Z3dvcDk3eXRlN3Z1&utm_source=qr"
                                           style="mso-line-height-rule:exactly;text-decoration:underline;color:#333333;font-size:12px"><img
                                             title="Instagram"
                                             src="https://erxznja.stripocdn.email/content/assets/img/social-icons/logo-colored/instagram-logo-colored.png"
@@ -1197,7 +1273,7 @@ export const mail_html_structure = (order) => {
                                 </td>
                               </tr>
 
-                              
+
                               <tr>
                                 <td style="padding:0;Margin:0">
                                   <table cellpadding="0" cellspacing="0" width="100%" class="es-menu"
@@ -1209,7 +1285,7 @@ export const mail_html_structure = (order) => {
                                         <div style="vertical-align:middle;display:block">
                                           <a target="_blank" href="https://kickskraze.shop"
                                             style="mso-line-height-rule:exactly;text-decoration:none;font-family:arial, 'helvetica neue', helvetica, sans-serif;display:block;color:#999999;font-size:12px">
-                                            Visit Us 
+                                            Visit Us
                                           </a>
                                         </div>
                                       </td>

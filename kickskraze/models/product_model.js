@@ -71,6 +71,10 @@ const productSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
     media: [mediaSchema],
 }, { timestamps: true })
 

@@ -17,7 +17,7 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfully connected with DB");
 
-        let query = {};
+        let query = { isDeleted: false };
         const { status, status_not } = req.query;
 
         if (status_not) {
@@ -27,6 +27,8 @@ export default async function handler(req, res) {
         if (status) {
             query.status = status;
         }
+
+
 
 
         // Fetch all orders

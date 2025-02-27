@@ -19,6 +19,9 @@ export default async function handler(req, res) {
         // Getting filter value with pipeline
         const filter_values = await Products.aggregate([
             {
+                $match: { isDeleted: false }
+            },
+            {
                 $group: {
                     _id: null,
                     sizes: { $addToSet: "$size" },
@@ -45,7 +48,7 @@ export default async function handler(req, res) {
                 }
             }
         ]);
-        
+
         // sending success response to client
         return res.status(200).json(filter_values[0]);
 

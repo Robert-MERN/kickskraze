@@ -1,4 +1,4 @@
-import { Schema, connection } from "mongoose"
+import { Schema, models, model } from "mongoose"
 
 const userSchema = new Schema({
     firstName: { type: String },
@@ -19,12 +19,5 @@ const userSchema = new Schema({
 }, { timestamps: true });
 
 
-// Use a global variable to prevent multiple instances of the DB
-let Db = global._kickskrazeDb;
-
-if (!Db) {
-    Db = global._kickskrazeDb = connection.useDb("Kickskraze");
-}
-
-const Users = Db.models.Users || Db.model('Users', userSchema);
+const Users = models.Users || model('Users', userSchema);
 export default Users

@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         }
 
         // Fetch the order
-        const order = await Orders.findById(order_id);
+        const order = await Orders.findOne({ _id: new mongoose.Types.ObjectId(order_id), isDeleted: false });
         if (!order) {
             return res.status(404).json({ success: false, message: "Order not found!" });
         }

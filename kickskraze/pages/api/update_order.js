@@ -3,6 +3,7 @@ import Orders from '@/models/order_model';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { calc_gross_total_amount, calc_total_amount, calc_total_items } from '@/utils/functions/produc_fn';
+import send_confirm_mail from '@/utils/functions/send_confirm_mail';
 import mongoose from 'mongoose';
 
 /**
@@ -10,6 +11,33 @@ import mongoose from 'mongoose';
  * @param {import('next').NextApiRequest} req 
  * @param {import('next').NextApiResponse} res 
  */
+
+
+const convert_usable_order = async (order, Products) => {
+    // Extract product IDs from purchase array
+    const allProductIds = order.purchase.map(item => new mongoose.Types.ObjectId(item._id));
+
+    // Fetch all products in one query
+    const products = await Products.find({ _id: { $in: allProductIds } });
+
+    // Convert product list to a Map for quick lookup
+    const productMap = new Map(products.map(product => [product._id.toString(), product.toObject()]));
+
+    // Replace product IDs with actual product objects while keeping quantity
+    const _updatedOrder = {
+        ...order.toObject(),
+        purchase: order.purchase.map(item => ({
+            ...productMap.get(item._id.toString()) || null,
+            quantity: item.quantity
+        })).filter(item => item.product !== null) // Remove missing products
+    };
+
+    _updatedOrder.subtotal_amount = calc_total_amount(_updatedOrder.purchase);
+    _updatedOrder.total_amount = calc_gross_total_amount(_updatedOrder);
+    _updatedOrder.total_items = calc_total_items(_updatedOrder.purchase);
+
+    return _updatedOrder;
+}
 
 export default async function handler(req, res) {
     console.log("Connecting with DB");
@@ -41,7 +69,11 @@ export default async function handler(req, res) {
             for (const item of order.purchase) {
                 await Products.findByIdAndUpdate(item._id, { $inc: { stock: item.quantity } });
             }
-            await Orders.findByIdAndDelete(order_id);
+            await Orders.findByIdAndUpdate(order_id, { isDeleted: true });
+
+            const _updatedOrder = await convert_usable_order(order, Products);
+
+            await send_confirm_mail(res, _updatedOrder, "delete");
             await csvQueue.add("updateCSV", {}); // Enqueue CSV update
 
             return res.status(200).json({ success: true, message: "Order has been deleted and stock updated." });
@@ -52,38 +84,37 @@ export default async function handler(req, res) {
             oldItem => !purchase.some(newItem => String(newItem._id) === String(oldItem._id))
         );
 
-        for (const item of removedItems) {
-            await Products.findByIdAndUpdate(item._id, { $inc: { stock: item.quantity } });
-        }
+        if (removedItems.length) {
+            for (const item of removedItems) {
+                await Products.findByIdAndUpdate(item._id, { $inc: { stock: item.quantity } });
+            };
+            await csvQueue.add("updateCSV", {}); // Enqueue CSV update
+        };
+
+
 
         // Update the order
         const updatedOrder = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
+        const _updatedOrder = await convert_usable_order(updatedOrder, Products);
+        if ((order.status !== "booked"
+            &&
+            _updatedOrder.status !== "booked"
+            &&
+            order.status !== _updatedOrder.status
+            &&
+            _updatedOrder.tracking_no
+            &&
+            _updatedOrder.courier_name)
+
+        ) {
+            await send_confirm_mail(res, _updatedOrder, "status_update");
+        }
+
+        if (order.verification === _updatedOrder.verification) {
+            await send_confirm_mail(res, _updatedOrder, "update");
+        }
 
 
-        // Extract product IDs from purchase array
-        const allProductIds = updatedOrder.purchase.map(item => new mongoose.Types.ObjectId(item._id));
-
-        // Fetch all products in one query
-        const products = await Products.find({ _id: { $in: allProductIds } });
-
-        // Convert product list to a Map for quick lookup
-        const productMap = new Map(products.map(product => [product._id.toString(), product.toObject()]));
-
-        // Replace product IDs with actual product objects while keeping quantity
-        const _updatedOrder = {
-            ...updatedOrder.toObject(),
-            purchase: updatedOrder.purchase.map(item => ({
-                ...productMap.get(item._id.toString()) || null,
-                quantity: item.quantity
-            })).filter(item => item.product !== null) // Remove missing products
-        };
-
-        _updatedOrder.subtotal_amount = calc_total_amount(_updatedOrder.purchase);
-        _updatedOrder.total_amount = calc_gross_total_amount(_updatedOrder);
-        _updatedOrder.total_items = calc_total_items(_updatedOrder.purchase);
-
-
-        await csvQueue.add("updateCSV", {}); // Enqueue CSV update
 
         return res.status(200).json({ success: true, message: "Order has been successfully updated.", order: _updatedOrder });
 

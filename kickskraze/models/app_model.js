@@ -1,6 +1,10 @@
 import { Schema, connection } from "mongoose"
 
 const appSchema = new Schema({
+    _id: {
+        type: String,
+        required: true
+    },
     delivery_charges: {
         type: Number,
         default: 200,

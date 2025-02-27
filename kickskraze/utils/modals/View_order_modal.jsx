@@ -540,7 +540,7 @@ const View_order_modal = ({
 
 
                                                 <p className='text-[16px] font-bold text-stone-900 mt-3'>Order id</p>
-                                                <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden px-1'>#{confirmed_order._id || ""}</p>
+                                                <p className='text-[16px] text-stone-700 line-clamp-1 text-ellipsis overflow-hidden px-1'>#{confirmed_order.orderNumber || ""}</p>
 
 
                                                 <p className='text-[16px] font-bold text-stone-900 mt-3'>Customer name</p>

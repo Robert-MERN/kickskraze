@@ -43,7 +43,7 @@ const gender = {
 
 async function generateCSV() {
     try {
-        const products = await Products.find({}).sort({ createdAt: -1 }); // Fetch all products
+        const products = await Products.find({ isDeleted: false }).sort({ createdAt: -1 }); // Fetch all products
 
         // Define directory and file path
         const dirPath = path.join(process.cwd(), "public/catalog_products");

@@ -27,7 +27,7 @@ export default async function handler(req, res) {
     const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
 
     // Initialize a query object
-    const query = {};
+    const query = {isDeleted: false};
 
     let sort = { createdAt: -1 };
 

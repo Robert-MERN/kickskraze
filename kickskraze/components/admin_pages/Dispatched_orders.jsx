@@ -107,18 +107,18 @@ const Dispatched_orders = ({ axios }) => {
 
     const columns = [
         {
-            field: '_id',
+            field: 'orderNumber',
             headerName: 'ID',
             sortable: false,  // Disables sorting
-            width: 160,
+            width: 110,
             renderCell: params => (
                 <a
-                    onClick={() => copy_to_clipboard(params.row._id, "Order ID copied!")}
+                    onClick={() => copy_to_clipboard(params.row.orderNumber, "Order ID copied!")}
                     href={`/checkouts/${params.row._id}`}
                     target="_blank"
                     className='hover:underline w-[140px] text-ellipsis overflow-hidden'
                 >
-                    {params.row._id}
+                    #{params.row.orderNumber}
                 </a>
             )
         },

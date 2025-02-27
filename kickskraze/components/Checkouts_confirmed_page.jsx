@@ -389,7 +389,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                             <CheckIcon className='scale-[1.2]' />
                                         </div>
                                         <div>
-                                            <p className='text-[14px] text-gray-500 line-clamp-1 text-ellipsis overflow-hidden'>Confirmation #{confirmed_order._id}</p>
+                                            <p className='text-[14px] text-gray-500 line-clamp-1 text-ellipsis overflow-hidden'>Confirmation #{confirmed_order.orderNumber}</p>
                                             <p className='text-[20px] font-bold text-stone-900 line-clamp-1 text-ellipsis overflow-hidden'>Thank you, {`${confirmed_order.firstName || ""} ${confirmed_order.lastName || ""}`}!</p>
                                         </div>
                                     </div>

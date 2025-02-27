@@ -30,6 +30,7 @@ export default async function handler(req, res) {
             {
                 $match: {
                     "media.type": "image", // Only include type "image"
+                    isDeleted: false,
                 },
             },
             {

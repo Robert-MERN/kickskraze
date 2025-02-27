@@ -620,10 +620,10 @@ export const ContextProvider = ({ children }) => {
 
 
     // Delete Order API
-    const delete_order_api = async (axios, order_id, set_is_loading) => {
+    const delete_order_api = async (axios, order_id, cancel_order, set_is_loading) => {
         set_is_loading(true);
         try {
-            const res = await axios.delete(`/api/delete_order?order_id=${order_id}`);
+            const res = await axios.delete(`/api/delete_order?order_id=${order_id}&${cancel_order || ""}`);
             set_snackbar_alert({
                 open: true,
                 message: res.data.message,

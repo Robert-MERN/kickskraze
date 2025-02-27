@@ -12,7 +12,6 @@ const extractFileName = (url) => {
 export const deleteFiles = async (images, { req, res }) => {
     try {
         for (const url of images) {
-            console.log(url);
 
             // Extract the file name from the BunnyCDN URL
             const fileName = extractFileName(url);

@@ -1,5 +1,6 @@
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
+import mongoose from 'mongoose';
 
 /**
  * 
@@ -18,7 +19,7 @@ export default async function handler(req, res) {
         const { product_id } = req.query;
 
         // saving new product
-        const product = await Products.findById(product_id);
+        const product = await Products.findOne({ _id: new mongoose.Types.ObjectId(product_id), isDeleted: false });
 
         // sending success response to client
         return res.status(200).json(product);

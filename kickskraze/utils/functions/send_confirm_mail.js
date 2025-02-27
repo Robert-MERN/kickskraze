@@ -3,12 +3,17 @@ import { mail_html_structure } from "./mail_html_structure";
 
 
 
-export default async function send_confirm_mail(res, orders) {
+export default async function send_confirm_mail(res, orders, mailType) {
 
-    const { _id, email } = orders;
+    const subject = {
+        create: "ORDER CONFIRMED",
+        update: "ORDER UPDATED",
+        status_update: "ORDER STATUS UPDATED",
+        delete: "ORDER CANCELLED",
+    }
+
+    const { orderNumber, email } = orders;
     try {
-
-
 
 
         const transport = nodemailer.createTransport({
@@ -21,8 +26,8 @@ export default async function send_confirm_mail(res, orders) {
         const mailOptions = {
             from: `KicksKraze <rackeragency@gmail.com>`,
             to: "ms.kickskraze@gmail.com",
-            subject: `ORDER CONFIRMED #${_id}`,
-            html: mail_html_structure(orders)
+            subject: `${subject[mailType]} #${orderNumber}`,
+            html: mail_html_structure(orders, mailType)
         };
 
         await transport.sendMail(mailOptions);

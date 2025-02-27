@@ -29,9 +29,9 @@ const Delete_order_modal = ({
         },
     };
 
-    const handle_delete_order = async () => {
-        const order_deleted = await delete_order_api(axios, order_id, set_API_loading);
-        await get_all_orders_api(axios,  pages[pathname].query, pages[pathname].fn, set_API_loading);
+    const handle_delete_order = async (cancel_order) => {
+        const order_deleted = await delete_order_api(axios, order_id, cancel_order || "", set_API_loading);
+        await get_all_orders_api(axios, pages[pathname].query, pages[pathname].fn, set_API_loading);
         if (order_deleted) {
             if (drawer_state.view_order_drawer) {
                 toggle_drawer("view_order_drawer");
@@ -60,9 +60,15 @@ const Delete_order_modal = ({
                 <p className='text-[13px] md:text-[16px] text-stone-500 font-medium border-b border-stone-300 p-[20px]' >
                     Are you sure do you want to delete this Order?
                 </p>
-                <div className='w-full flex justify-end gap-3 p-[20px] ' >
-                    <button onClick={() => toggle_modal("delete_order_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Cancel</button>
-                    <button onClick={handle_delete_order} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete</button>
+                <div className='w-full flex justify-between p-[20px] ' >
+                    
+                    <button onClick={() => toggle_modal("delete_order_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Close</button>
+                    
+                    <div className='w-full flex justify-end gap-5 ' >
+                        <button onClick={() => handle_delete_order("cancel_order=true")} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Cancel Order</button>
+                        <button onClick={() => handle_delete_order()} className='bg-violet-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete Order</button>
+                    </div>
+
                 </div>
 
             </div>

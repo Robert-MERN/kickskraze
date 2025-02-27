@@ -332,16 +332,7 @@ const Create_product = ({ axios }) => {
                             formData.append("videos", file); // Add video file
                             formData.append("videoThumbnailFlags", isThumbnail); // Add thumbnail flag
                         } else if (item.type === "image") {
-                            const options = {
-                                maxSizeMB: 0.5, // Target lower size (Cloudinary adjusts dynamically)
-                                maxWidthOrHeight: 800, // Resize like Cloudinary w_800
-                                useWebWorker: true, // Faster compression
-                                initialQuality: 0.8, // Start at 80% quality
-                                alwaysKeepResolution: false, // Allow resizing
-                                fileType: "image/webp"
-                            };
-                            const compressedFile = await imageCompression(file, options);
-                            formData.append("images", compressedFile); // Add image file
+                            formData.append("images", file); // Add image file
                             formData.append("imageThumbnailFlags", isThumbnail); // Add thumbnail flag
                         }
                     }
