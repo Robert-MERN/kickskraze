@@ -62,7 +62,7 @@ export default async function handler(req, res) {
             return res.status(404).json({ success: false, message: "Order not found" });
         }
 
-        const { purchase } = req.body;
+        const { purchase, updatedAt, subtotal_amount, total_amount, total_items, ...others } = req.body;
 
         // If purchase is empty, delete the order and restore stock
         if (!purchase || purchase.length === 0) {
@@ -96,23 +96,30 @@ export default async function handler(req, res) {
         // Update the order
         const updatedOrder = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
         const _updatedOrder = await convert_usable_order(updatedOrder, Products);
-        if ((order.status !== "booked"
-            &&
-            order.status !== _updatedOrder.status
-            &&
-            _updatedOrder.tracking_no
-            &&
-            _updatedOrder.courier_name)
 
-        ) {
-            await send_confirm_mail(res, _updatedOrder, "status_update");
+        // Extract keys from request body
+        const updatedKeys = Object.keys({ ...others, purchase });
+
+        // Find keys where the value actually changed
+        const changedKeys = updatedKeys.filter(key => JSON.stringify({ ...others, purchase }[key]) !== JSON.stringify(order[key]));
+
+        // Check specific fields that require a "status_update" email
+        const statusChanged = changedKeys.includes("status");
+        const trackingChanged = changedKeys.includes("tracking_no");
+        const courierChanged = changedKeys.includes("courier_name");
+        const verificationChanged = changedKeys.includes("verification");
+
+        // If verification changed but other fields also changed, we still need to send an update email
+        const onlyVerificationChanged = verificationChanged && changedKeys.length === 1;
+
+        if (changedKeys.length > 0) {
+            if (statusChanged || trackingChanged || courierChanged) {
+                await send_confirm_mail(res, _updatedOrder, "status_update");
+            } else if (!onlyVerificationChanged) {
+                // Send update email if any field other than verification changed
+                await send_confirm_mail(res, _updatedOrder, "update");
+            }
         }
-
-        if (order.verification === _updatedOrder.verification) {
-            await send_confirm_mail(res, _updatedOrder, "update");
-        }
-
-
 
         return res.status(200).json({ success: true, message: "Order has been successfully updated.", order: _updatedOrder });
 

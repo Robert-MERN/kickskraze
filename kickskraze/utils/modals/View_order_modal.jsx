@@ -699,7 +699,7 @@ const View_order_modal = ({
                                                     onChange={handleChange}
                                                     className='outline-none px-0 cursor-pointer'
                                                 >
-                                                    <option disabled className='italic text-gray-400' value="">No Courier</option>
+                                                    <option className='italic text-gray-400' value="">No Courier</option>
                                                     <option value="trax">Trax</option>
                                                     <option value="leapord">Leapord</option>
                                                 </select>

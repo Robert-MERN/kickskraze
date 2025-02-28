@@ -12,16 +12,17 @@ export const mail_html_structure = (order, mailType) => {
       trax: "https://trax.pk/tracking/",
       leapord: "https://www.leopardscourier.com/tracking",
     };
-    const anchor_tag = <strong>
+    const anchor_tag = `<strong>
       <a
         className='underline cursor-pointer'
-        href={tracking_url[order.courier_name]}
+        href=${tracking_url[order.courier_name]}
         target="_blank"
+        style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:14px;text-transform: uppercase"
       >
-        {order.tracking_no}
+        ${order.tracking_no}
       </a>
-    </strong>;
-    const tracking_no_available = <p>You can track your order by clicking on this tracking id: {anchor_tag}</p>
+    </strong>`;
+    const tracking_no_available = `You can track your order by clicking on this tracking id: ${anchor_tag}`
 
     // All Status
     const all_status = {
