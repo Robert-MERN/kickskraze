@@ -159,7 +159,12 @@ const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, d
                                                             <div className='relative'>
                                                                 <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
 
-                                                                    <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] lg:hover:scale-[1.1] object-cover transition-all duration-500`} />
+                                                                    <img
+                                                                        alt=""
+                                                                        src={select_thumbnail_from_media(product.media)}
+                                                                        className={`w-full h-[150px] lg:hover:scale-[1.1] object-cover transition-all duration-500`}
+                                                                        onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                                    />
 
                                                                     {!Boolean(product.stock) &&
                                                                         <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>
@@ -302,7 +307,12 @@ const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, d
                                                         <div className='relative'>
                                                             <div className={`"w-full h-[150px] overflow-hidden shadow-sm`}>
 
-                                                                <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-full h-[150px] lg:hover:scale-[1.1] object-cover transition-all duration-500`} />
+                                                                <img
+                                                                    alt=""
+                                                                    src={select_thumbnail_from_media(product.media)}
+                                                                    className={`w-full h-[150px] lg:hover:scale-[1.1] object-cover transition-all duration-500`}
+                                                                    onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                                />
 
                                                                 {!Boolean(product.stock) &&
                                                                     <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>

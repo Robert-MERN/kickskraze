@@ -21,10 +21,10 @@ const View_order_modal = ({
 }) => {
 
 
-    
+
     const { get_all_orders_api, set_orders, set_dispatched_orders, get_order_api, order_id, set_order_id, update_order_api, delete_order_api, set_API_loading, } = useStateContext();
-    
-    
+
+
     const pathname = useRouter().pathname;
     const pages = {
         "/admin/orders": {
@@ -462,6 +462,7 @@ const View_order_modal = ({
                                                                                 alt=""
                                                                                 src={select_thumbnail_from_media(item.media)}
                                                                                 className="w-[65px] h-[65px] object-cover"
+                                                                                onError={(e) => e.target.src = "/images/logo_error.png"}
                                                                             />
                                                                         </div>
                                                                     </Badge>

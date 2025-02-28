@@ -772,7 +772,11 @@ const All_products = ({ axios }) => {
                                             >
                                                 <div className='relative'>
                                                     <div className={`overflow-hidden shadow-sm relative`}>
-                                                        <img alt="" src={select_thumbnail_from_media(product.media)} className={`
+                                                        <img
+                                                            alt=""
+                                                            src={select_thumbnail_from_media(product.media)}
+                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                            className={`
 
                                                         ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
                                                         ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}

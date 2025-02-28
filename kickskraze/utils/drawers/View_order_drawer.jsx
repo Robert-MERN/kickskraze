@@ -457,6 +457,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
                                                                                 alt=""
                                                                                 src={select_thumbnail_from_media(item.media)}
                                                                                 className="w-[65px] h-[65px] object-cover"
+                                                                                onError={(e) => e.target.src = "/images/logo_error.png"}
                                                                             />
                                                                         </div>
                                                                     </Badge>

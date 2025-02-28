@@ -471,9 +471,9 @@ const Create_product = ({ axios }) => {
 
                                                     }
 
-                                                    <div className='absolute inset-0 w-full h-full bg-[rgba(0,0,0,.3)] justify-center items-center flex opacity-0 hover:opacity-100 transition-all duration-300' >
+                                                    <div className='absolute top-[4px] md:top-[10px] right-[4px] md:right-[10px] bg-[rgba(256,256,256,0.8)] rounded-full shadow-xl' >
                                                         <IconButton onClick={() => handleChange({ target: { name: "remove_image", _id: file._id } })}>
-                                                            <IoClose className='text-[46px] text-stone-200' />
+                                                            <IoClose className='text-[20px] md:text-[26px] text-stone-950' />
                                                         </IconButton>
                                                     </div>
 

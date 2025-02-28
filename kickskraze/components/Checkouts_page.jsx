@@ -767,6 +767,7 @@ const Checkouts_page = ({ axios }) => {
                                                             alt=""
                                                             src={select_thumbnail_from_media(item.media)}
                                                             className="w-[65px] h-[65px] object-cover"
+                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
                                                         />
                                                     </div>
                                                 </Badge>

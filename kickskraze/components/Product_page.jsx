@@ -151,6 +151,7 @@ const Product_page = ({ axios }) => {
                         controls
                         muted
                         className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-contain object-center'
+                        onError={(e) => e.target.src = "/images/logo_error.png"}
                     />
                 </div>
                 :
@@ -160,6 +161,7 @@ const Product_page = ({ axios }) => {
                             src={item.url}
                             alt="Zoomable"
                             className='w-full h-[450px] sm:h-[650px] md:h-[800px] lg:h-[700px] 2xl:h-[800px] object-cover object-center'
+                            onError={(e) => e.target.src = "/images/logo_error.png"}
                         />
                     </div>
                 </Zoom>
@@ -175,7 +177,7 @@ const Product_page = ({ axios }) => {
                 {item.type === "video" ? (
                     <VideoThumbnail videoUrl={item.thumbnail} />
                 ) : (
-                    <img src={item.thumbnail} alt="Thumbnail" className="w-full h-[56.25px] md:h-[69px] object-cover" />
+                    <img src={item.thumbnail} alt="Thumbnail" className="w-full h-[56.25px] md:h-[69px] object-cover" onError={(e) => e.target.src = "/images/logo_error.png"} />
                 )}
             </>
         )

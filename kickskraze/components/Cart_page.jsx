@@ -130,7 +130,11 @@ const Cart_page = () => {
                                     <div className='flex w-full h-full gap-4' >
                                         <Link href={`/product?product_id=${item._id}`}>
                                             <div className='w-[60px] h-[60px] sm:w-[100px] sm:h-[100px] rounded-md overflow-hidden'>
-                                                <img src={select_thumbnail_from_media(item.media)} alt="product" className='w-[60px] h-[60px]  sm:w-[100px] sm:h-[100px] object-cover rounded-md' />
+                                                <img
+                                                    src={select_thumbnail_from_media(item.media)}
+                                                    alt="product" className='w-[60px] h-[60px]  sm:w-[100px] sm:h-[100px] object-cover rounded-md'
+                                                    onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                />
                                             </div>
                                         </Link>
                                         <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >

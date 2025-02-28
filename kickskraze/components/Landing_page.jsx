@@ -292,7 +292,12 @@ const Landing_page = ({ axios }) => {
                                                 <div className='relative'>
                                                     <div className={`"w-full overflow-hidden shadow-sm relative`}>
 
-                                                        <img alt="Product" src={select_thumbnail_from_media(product.media)} className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] lg:hover:scale-[1.1] object-cover transition-all duration-500`} />
+                                                        <img
+                                                            alt="Product"
+                                                            src={select_thumbnail_from_media(product.media)}
+                                                            className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] lg:hover:scale-[1.1] object-cover transition-all duration-500`}
+                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                        />
 
                                                         {!Boolean(product.stock) &&
                                                             <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
@@ -302,8 +307,8 @@ const Landing_page = ({ axios }) => {
                                                     </div>
 
                                                     {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
-                                                        <p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
-                                                            -{calculate_discount_precentage(product.price, product.compare_price)}%
+                                                        <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
+                                                            {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
                                                         </p>
                                                     }
                                                 </div>
