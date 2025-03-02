@@ -30,7 +30,7 @@ export default async function send_confirm_mail(res, orders, mailType) {
             html: mail_html_structure(orders, mailType)
         };
 
-        await transport.sendMail(mailOptions);
+        if (mailType === "create") await transport.sendMail(mailOptions);
         await transport.sendMail({ ...mailOptions, to: email });
 
         return { success: true, message: "mail-sent" };

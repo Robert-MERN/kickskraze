@@ -7,17 +7,18 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from "@mui/material/Badge";
 import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, capitalizeWords, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import useStateContext from '@/context/ContextProvider';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
-import { FormHelperText, IconButton } from '@mui/material';
+import { Autocomplete, FormHelperText, IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { MetaPixel } from '@/lib/fpixel';
+import { PK_cities } from '@/utils/shoes_info_list';
 
 
 const Checkouts_page = ({ axios }) => {
@@ -361,8 +362,6 @@ const Checkouts_page = ({ axios }) => {
 
     }
 
-
-
     return (
         <div className='w-full px-[20px] flex flex-col lg:flex-row'>
 
@@ -499,16 +498,40 @@ const Checkouts_page = ({ axios }) => {
                             />
 
                             <div className='flex flex-col md:flex-row gap-4 md:gap-3'>
-                                <TextField
-                                    label="City"
-                                    variant="outlined"
-                                    className='w-full'
-                                    name="city"
-                                    onChange={handleChange}
-                                    error={Boolean(order_details.errors.city)}
-                                    helperText={order_details.errors.city}
-                                    sx={style_textfield}
+                                <Autocomplete
+                                    className="w-full"
+                                    options={PK_cities}
+                                    freeSolo // Allows custom values
+                                    getOptionLabel={(option) => option} // Display title in the input
+                                    value={order_details.city || null} // Use the entered value if not found in options
+                                    onChange={(event, new_value) => {
+                                        handleChange({ target: { name: "city", value: capitalizeWords(new_value) } });
+                                    }}
+                                    onInputChange={(event, new_value) => {
+                                        if (event) {
+                                            handleChange({ target: { name: "city", value: capitalizeWords(new_value) } });
+                                        }
+                                    }}
+                                    renderOption={(props, option) => {
+                                        const { key, ...optionProps } = props;
+                                        return (
+                                            <li key={option} {...optionProps}>
+                                                {option}
+                                            </li>
+                                        );
+                                    }}
+                                    renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            error={Boolean(order_details.errors.city)}
+                                            helperText={order_details.errors.city}
+                                            label="City"
+                                        />
+                                    )}
                                 />
+
+
+
                                 <TextField
                                     label="Postal code (optional)"
                                     variant="outlined"

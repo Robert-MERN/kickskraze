@@ -1,6 +1,6 @@
 import Orders from "@/models/order_model";
 import connect_mongo from "@/utils/functions/connect_mongo";
-
+import { DateTime } from "luxon";
 
 const order_status = {
     booked: { value: "Booked", color: "#60a5fa" }, // text-blue
@@ -25,10 +25,14 @@ export default async function handler(req, res) {
         console.log("Successfully connected with DB");
 
         const stores = ["Barefoot", "Kickskraze", "Barefoot & Kickskraze"];
-        const currentYear = new Date().getFullYear();
-        const currentMonth = new Date().getMonth(); // Get current month (0-11)
-        const firstDayOfMonth = new Date(currentYear, currentMonth, 1); // First day of current month
-        const firstDayOfYear = new Date(`${currentYear}-01-01`);
+
+        const timezone = "Asia/Karachi"; // Time Zone
+        const defaultTime = { hour: 5, minute: 0, second: 0, millisecond: 0 }
+        const currentYear = DateTime.now().setZone(timezone).year; // Year
+        const currentMonth = DateTime.now().setZone(timezone).month; // Month
+        const firstDayOfMonth = DateTime.now().setZone(timezone).set({ year: currentYear, month: currentMonth, day: 1, ...defaultTime }).toJSDate();
+        const firstDayOfYear = DateTime.now().setZone(timezone).set({ year: currentYear, month: 1, day: 1, ...defaultTime }).toJSDate();
+
 
         // Function to get order status aggregation per store
         const getOrderStatusAggregation = async (storeName, fromDate) => {
@@ -214,6 +218,23 @@ export default async function handler(req, res) {
         };
 
 
+
+        // Function to get orders by cities aggregation per store
+        const getOrderByCitiesAggregation = async (storeName, fromDate) => {
+            // Aggregation for current month
+            const orderByCitiesAggregation = await Orders.aggregate([
+                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
+                {
+                    $group: {
+                        _id: "$city",
+                        count: { $sum: 1 }
+                    }
+                }
+            ]);
+
+            return orderByCitiesAggregation
+        };
+
         const analytics = {};
 
         // Fetch analytics for each store and total
@@ -257,8 +278,11 @@ export default async function handler(req, res) {
                 ordersReport: {
                     currentYear: await getTotalOrdersSum(store, firstDayOfYear),
                     allYears: await getTotalOrdersSum(store, new Date(0))
-                }
-
+                },
+                ordersByCity: {
+                    currentYear: await getOrderByCitiesAggregation(store, firstDayOfYear),
+                    allYears: await getOrderByCitiesAggregation(store, new Date(0)),
+                },
             };
 
 

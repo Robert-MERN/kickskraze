@@ -343,6 +343,7 @@ const Add_product = ({ axios }) => {
                                                     muted
                                                     autoPlay
                                                     loop
+                                                    controls
                                                 />
                                                 :
 

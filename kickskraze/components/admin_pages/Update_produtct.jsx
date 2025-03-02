@@ -461,6 +461,7 @@ const Create_product = ({ axios }) => {
                                                             muted
                                                             autoPlay
                                                             loop
+                                                            controls
                                                         />
                                                         :
                                                         <img
