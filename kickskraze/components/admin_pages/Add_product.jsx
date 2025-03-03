@@ -63,94 +63,74 @@ const Add_product = ({ axios }) => {
         set_product_details(default_product_details);
     }
 
-    const handleChange = (event) => {
+
+    const handleChange = async (event) => {
         const { name, value, _id } = event.target;
 
-        set_product_details((prevState) => {
+        if (name === "media") {
+            const files = event.target.files;
+            if (!files?.length) return;
 
+            let mediaUpdates = [];
 
-            if (name === "media") {
-                const files = event.target.files;
-                const media = [...product_details.media];
-                if (files && files.length) {
-                    for (const file of files) {
-
-                        const fileType = file.type;
-
-                        // Create a new file object with a unique ID
-                        const newFile = {
-                            type: fileType.startsWith("image/") ? "image" : fileType.startsWith("video/") ? "video" : null,
-                            url: URL.createObjectURL(file),
-                            thumbnail: false,
-                            _id: nanoid(),
-                        };
-                        media.push(newFile);
-                    }
-
-                    // Add the new file to the state
-                    return {
-                        ...prevState,
-                        media, // Ensure `media` is an array
-                    };
-                }
-
-                // Reset the file input
-                event.target.value = null;
-                return prevState;
+            for (const file of files) {
+                const ext = file.name.split(".").pop().toLowerCase();
+                let fileType = file.type || (ext.includes("heic") ? "image/heic" : null);
+                let fileUrl = URL.createObjectURL(file);
+                mediaUpdates.push({
+                    type: fileType.startsWith("image/") ? "image" : fileType.startsWith("video/") ? "video" : "unknown",
+                    url: fileUrl,
+                    thumbnail: false,
+                    _id: nanoid(),
+                });
             }
 
-
-            if (name === "remove_image") {
-                const copy_prevState_images = [...(prevState.media || [])];
-                const index = copy_prevState_images.findIndex((e) => e._id === _id);
-
-                if (index !== -1) {
-                    // Revoke the object URL and remove the file
-                    URL.revokeObjectURL(copy_prevState_images[index].url);
-                    copy_prevState_images.splice(index, 1);
-                    return {
-                        ...prevState,
-                        media: copy_prevState_images,
-                    };
-                }
-                return prevState;
-            }
-
-
-            if (name === "set_thumbnail") {
-                const copy_prevState_images = [...(prevState.media || [])];
-                const index = copy_prevState_images.findIndex((e) => e._id === _id);
-
-                if (index !== -1) {
-                    copy_prevState_images.splice(index, 1,
-                        {
-                            ...copy_prevState_images[index],
-                            thumbnail: !copy_prevState_images[index].thumbnail
-                        });
-
-                    return {
-                        ...prevState,
-                        media: copy_prevState_images,
-                    };
-                }
-                return prevState;
-
-            }
-
-            if (name === "featured") {
-                return {
-                    ...prevState,
-                    featured: Boolean(value),
-                };
-            }
-
-            // For other inputs
-            return {
+            // Ensure the update happens correctly
+            set_product_details((prevState) => ({
                 ...prevState,
-                [name]: value || "",
-            };
-        });
+                media: [...(prevState.media || []), ...mediaUpdates],
+            }));
+
+            event.target.value = "";
+            return;
+        }
+
+        if (name === "remove_image") {
+            set_product_details((prevState) => {
+                const media = [...(prevState.media || [])];
+                const index = media.findIndex((e) => e._id === _id);
+                if (index !== -1) {
+                    URL.revokeObjectURL(media[index].url);
+                    media.splice(index, 1);
+                }
+                return { ...prevState, media };
+            });
+            return;
+        }
+
+        if (name === "set_thumbnail") {
+            set_product_details((prevState) => ({
+                ...prevState,
+                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id })),
+            }));
+            return;
+        }
+
+        if (name === "featured") {
+            set_product_details((prevState) => ({
+                ...prevState,
+                featured: Boolean(value),
+            }));
+            return;
+        }
+
+        set_product_details((prevState) => ({
+            ...prevState,
+            [name]: value || "",
+        }));
     };
+
+
 
 
     useEffect(() => {
@@ -300,7 +280,6 @@ const Add_product = ({ axios }) => {
         }
     };
 
-
     return (
         <div className='w-full h-full' >
             <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-y-6 border-stone-200 rounded-2xl md:shadow-md">
@@ -386,7 +365,7 @@ const Add_product = ({ axios }) => {
                                     id="media_input"
                                     type="file"
                                     name="media"
-                                    accept='.jpg, .jpeg, .png, .svg, .ico, .webp, video/*'
+                                    accept="image/*, video/*"
                                     onChange={handleChange}
                                     className='hidden'
                                 />

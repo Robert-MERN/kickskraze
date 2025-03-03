@@ -73,7 +73,7 @@ export default async function handler(req, res) {
         // Function to get revenue aggregation per store
         const getRevenueAggregation = async (storeName, fromDate) => {
             return await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status: { $ne: "returned" }, createdAt: { $gte: fromDate } } : { status: { $ne: "returned" }, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {
@@ -146,7 +146,7 @@ export default async function handler(req, res) {
         // Get Gross Revenue Report
         const getRevenueSum = async (storeName, fromDate) => {
             const result = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status: { $ne: "returned" }, createdAt: { $gte: fromDate } } : { status: { $ne: "returned" }, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {
@@ -184,7 +184,7 @@ export default async function handler(req, res) {
         // Get Net Revenue Report
         const getNetRevenueSum = async (storeName, fromDate) => {
             const result = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status: { $ne: "returned" }, createdAt: { $gte: fromDate } } : { status: { $ne: "returned" }, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {

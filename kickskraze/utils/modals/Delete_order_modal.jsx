@@ -62,11 +62,11 @@ const Delete_order_modal = ({
                 </p>
                 <div className='w-full flex justify-between p-[20px] ' >
                     
-                    <button onClick={() => toggle_modal("delete_order_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Close</button>
+                    <button onClick={() => toggle_modal("delete_order_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Close</button>
                     
-                    <div className='w-full flex justify-end gap-5 ' >
-                        <button onClick={() => handle_delete_order("cancel_order=true")} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Cancel Order</button>
-                        <button onClick={() => handle_delete_order()} className='bg-violet-600 hover:opacity-85 active:opacity-60 px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete Order</button>
+                    <div className='w-full flex justify-end gap-3 md:gap-5 ' >
+                        <button onClick={() => handle_delete_order("cancel_order=true")} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Cancel Order</button>
+                        <button onClick={() => handle_delete_order()} className='bg-violet-600 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete Order</button>
                     </div>
 
                 </div>

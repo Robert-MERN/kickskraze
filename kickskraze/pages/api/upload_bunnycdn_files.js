@@ -6,10 +6,11 @@ import { nanoid } from 'nanoid';
 import ffmpeg from 'fluent-ffmpeg';
 import fsSync from 'fs';
 import sharp from 'sharp';
+import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
 
 
-// ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
-ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
+ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
+// ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 
 const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
 const BUNNY_ACCESS_KEY = process.env.BUNNY_ACCESS_KEY;
@@ -76,12 +77,13 @@ const compressVideo = async (inputPath, outputPath) => {
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)
             .outputOptions([
-                '-c:v libx264',   // Use H.264 codec for maximum compatibility
-                '-preset veryfast',   // Faster encoding
-                '-crf 23',        // Balanced quality & file size
-                '-c:a aac',       // Use AAC for audio
-                '-b:a 128k',      // Set audio bitrate
-                '-movflags +faststart' // Optimize for web streaming
+                '-c:v libx264',       // Use H.264 codec
+                '-preset superfast',  // Faster encoding
+                '-crf 30',           // Slightly lower quality for speed
+                '-vf scale=1080:1920', // Scale to 1920p
+                '-an',               // Mute audio (remove audio stream)
+                '-movflags +faststart', // Optimize for web streaming
+                '-threads 2'         // Limit to 2 threads (matches your 2 vCPU cores)
             ]) // Correctly split options
             .on('start', (cmd) => console.log('Started:', cmd))
             .on('progress', (progress) =>
@@ -127,84 +129,86 @@ const uploadToBunnyCDN = async (filePath, filename, res) => {
 };
 
 export default async function handler(req, res) {
-    if (req.method === 'POST') {
-        try {
-            const formData = await new Promise((resolve, reject) => {
-                const form = formidable({ multiples: true });
-                form.parse(req, (err, fields, files) => {
-                    if (err) reject(err);
-                    else resolve({ fields, files });
-                });
+
+    let media = [];
+
+    try {
+        const formData = await new Promise((resolve, reject) => {
+            const form = formidable({ multiples: true });
+            form.parse(req, (err, fields, files) => {
+                if (err) reject(err);
+                else resolve({ fields, files });
             });
+        });
 
-            const data = object_mapping(formData.fields);
-            const _media = (data.media && data.media.length) ? data.media.map(item => (JSON.parse(item))) : [];
-            const media = _media.length ? _media.filter(e => e !== "undefined") : [];
+        const data = object_mapping(formData.fields);
+        const _media = (data.media && data.media.length) ? data.media.map(item => (JSON.parse(item))) : [];
+        media = _media.length ? _media.filter(e => e !== "undefined") : [];
 
-            const images = formData.files.images;
-            const imageThumbnailFlags = Array.isArray(formData.fields.imageThumbnailFlags)
-                ? formData.fields.imageThumbnailFlags
-                : [formData.fields.imageThumbnailFlags];
+        const images = formData.files.images;
+        const imageThumbnailFlags = Array.isArray(formData.fields.imageThumbnailFlags)
+            ? formData.fields.imageThumbnailFlags
+            : [formData.fields.imageThumbnailFlags];
 
-            if (images && images.length) {
-                try {
+        if (images && images.length) {
+            try {
 
-                    for (const [index, image] of (Array.isArray(images) ? images : [images]).entries()) {
+                for (const [index, image] of (Array.isArray(images) ? images : [images]).entries()) {
 
-                        const filename = `${nanoid(10)}.webp`;
-                        const compressedPath = path.resolve(process.cwd(), 'public/compressed_images', filename);
+                    const filename = `${nanoid(10)}.webp`;
+                    const compressedPath = path.resolve(process.cwd(), 'public/compressed_images', filename);
 
-                        // Compress Image
-                        await compressImage(image.filepath, compressedPath);
+                    // Compress Image
+                    await compressImage(image.filepath, compressedPath);
 
-                        // Upload to BunnyCDN
-                        const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
-                        const isThumbnail = imageThumbnailFlags[index] === "true";
-                        if (newUrl) {
-                            media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
-                        }
+                    // Upload to BunnyCDN
+                    const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
+                    const isThumbnail = imageThumbnailFlags[index] === "true";
+                    if (newUrl) {
+                        media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
                     }
-                } finally {
-                    await removeCompressedImagesFolder();
                 }
+            } finally {
+                await removeCompressedImagesFolder();
             }
-
-            const videos = formData.files.videos;
-            const videoThumbnailFlags = Array.isArray(formData.fields.videoThumbnailFlags)
-                ? formData.fields.videoThumbnailFlags
-                : [formData.fields.videoThumbnailFlags];
-
-            if (videos && videos.length) {
-                try {
-                    for (const [index, video] of (Array.isArray(videos) ? videos : [videos]).entries()) {
-
-                        const filename = `${nanoid(10)}${path.basename(video.newFilename)}.mp4`;
-                        const compressedPath = path.resolve(process.cwd(), 'public/compressed_videos', filename);
-
-                        await compressVideo(video.filepath, compressedPath);
-
-                        const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
-                        const isThumbnail = videoThumbnailFlags[index] === "true";
-                        if (newUrl) {
-                            media.push({ type: "video", url: newUrl, thumbnail: isThumbnail, recent: true });
-                        }
-                    }
-                } finally {
-                    await removeCompressedVideosFolder();
-                }
-            }
-
-
-
-            return res.status(200).json({ ...data, media });
-
-        } catch (err) {
-            console.log(err);
-            res.status(500).json({ success: false, message: err.message });
         }
-    } else {
-        res.status(405).json({ message: 'Method not allowed' });
+
+        const videos = formData.files.videos;
+        const videoThumbnailFlags = Array.isArray(formData.fields.videoThumbnailFlags)
+            ? formData.fields.videoThumbnailFlags
+            : [formData.fields.videoThumbnailFlags];
+
+        if (videos && videos.length) {
+            try {
+                for (const [index, video] of (Array.isArray(videos) ? videos : [videos]).entries()) {
+
+                    const filename = `${nanoid(10)}${path.basename(video.newFilename)}.mp4`;
+                    const compressedPath = path.resolve(process.cwd(), 'public/compressed_videos', filename);
+
+                    await compressVideo(video.filepath, compressedPath);
+
+                    const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
+                    const isThumbnail = videoThumbnailFlags[index] === "true";
+                    if (newUrl) {
+                        media.push({ type: "video", url: newUrl, thumbnail: isThumbnail, recent: true });
+                    }
+                }
+            } finally {
+                await removeCompressedVideosFolder();
+            }
+        }
+
+        return res.status(200).json({ ...data, media });
+
+    } catch (err) {
+        if (media.length) {
+            const recent_media = media.filter(e => e.recent);
+            if (recent_media.length) await deleteFiles(recent_media.map(e => e.url), { req, res });
+        }
+        console.log(err);
+        res.status(500).json({ success: false, message: err.message });
     }
+
 }
 
 export const config = {

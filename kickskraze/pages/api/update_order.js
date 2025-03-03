@@ -92,6 +92,28 @@ export default async function handler(req, res) {
         };
 
 
+        // If the order is marked returned (restore stock for purchased products)
+        if (req.body.status && req.body.status === "returned" && order.status !== "returned") {
+            for (const item of order.purchase) {
+                await Products.findByIdAndUpdate(item._id, { $inc: { stock: item.quantity } });
+            }
+            await csvQueue.add("updateCSV", {}); // Enqueue CSV update
+        }
+
+        // If the order was already marked as returned and changing it to another status (remove the purchased products from the stock) 
+        if (req.body.status && req.body.status !== "returned" && order.status === "returned") {
+            const usableOrder = await convert_usable_order(order, Products);
+            for (const item of usableOrder.purchase) {
+                const product = await Products.findById(item._id);
+                if ((product.stock - item.quantity) < 0) {
+                    return res.status("501").json({ success: false, message: "Order status can't be changed. The items are bought by someone else" })
+                }
+                const stock = item.stock - item.quantity;
+                await Products.findByIdAndUpdate(item._id, { stock: stock < 1 ? 0 : stock });
+            };
+            await csvQueue.add("updateCSV", {}); // Enqueue CSV update
+        }
+
 
         // Update the order
         const updatedOrder = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
