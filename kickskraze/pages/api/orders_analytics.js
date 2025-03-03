@@ -232,7 +232,8 @@ export default async function handler(req, res) {
                 }
             ]);
 
-            return orderByCitiesAggregation
+            return orderByCitiesAggregation.map(({ _id, count }) => ({ x: _id, y: count }));
+
         };
 
         const analytics = {};
@@ -280,6 +281,7 @@ export default async function handler(req, res) {
                     allYears: await getTotalOrdersSum(store, new Date(0))
                 },
                 ordersByCity: {
+                    currentMonth: await getOrderByCitiesAggregation(store, firstDayOfMonth),
                     currentYear: await getOrderByCitiesAggregation(store, firstDayOfYear),
                     allYears: await getOrderByCitiesAggregation(store, new Date(0)),
                 },

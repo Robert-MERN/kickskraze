@@ -50,6 +50,7 @@ const Analytics = ({ axios }) => {
     const [store_name, set_store_name] = useState("Total");
     const [stats_time_period, set_stats_time_period] = useState("currentYear");
     const [order_status_time_period, set_order_status_time_period] = useState("currentYear");
+    const [order_by_cities_time_period, set_order_by_cities_time_period] = useState("currentYear");
 
 
     const hasFetched = useRef(false);
@@ -58,7 +59,7 @@ const Analytics = ({ axios }) => {
     useEffect(() => {
         if (hasFetched.current) return;
         hasFetched.current = true;
-        
+
         get_orders_analytics_api(axios, set_analytics, set_is_loading);
     }, []);
 
@@ -256,7 +257,7 @@ const Analytics = ({ axios }) => {
 
 
 
-                            {/* Revenue Line Chart */}
+                            {/* Revenue Bar Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
@@ -328,6 +329,38 @@ const Analytics = ({ axios }) => {
                                 />
                             </div>
 
+
+
+                            {/* Orders By Cities Bar Chart */}
+                            <div className="w-full mt-16 lg:mt-24">
+                                <div className='w-full flex justify-between items-center mb-8' >
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
+                                        Order By City Report
+                                    </h1>
+                                    <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
+                                        <Select
+                                            value={order_by_cities_time_period}
+                                            onChange={(e) => set_order_by_cities_time_period(e.target.value)}
+                                            size='small'
+                                            input={
+                                                <OutlinedInput
+                                                    startAdornment={<CalendarViewMonthIcon style={{ marginRight: 8 }} />} // Icon at start
+                                                />
+                                            }
+                                        >
+                                            <MenuItem value="currentMonth">This Month</MenuItem>
+                                            <MenuItem value="currentYear">This Year</MenuItem>
+                                            <MenuItem value="allYears">All Years</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+
+                                <BarChart
+                                    xAxis={[{ data: analytics[store_name].ordersByCity[order_by_cities_time_period].map(d => d.x), scaleType: 'band' }]}
+                                    series={[{ data: analytics[store_name].ordersByCity[order_by_cities_time_period].map(d => d.y), label: 'Orders', color: "rgb(96,165,250 )" }]}
+                                    className='w-full h-[350px] lg:h-[500px] bg-teal-'
+                                />
+                            </div>
 
 
 

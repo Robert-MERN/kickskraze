@@ -16,6 +16,7 @@ import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import { GiConverseShoe } from "react-icons/gi";
 import { useRouter } from 'next/router';
 import mongoose from 'mongoose';
+import { capitalizeWords } from '@/utils/functions/produc_fn';
 
 
 const Create_product = ({ axios }) => {
@@ -590,11 +591,26 @@ const Create_product = ({ axios }) => {
                             id="section-list"
                             className="w-full"
                             size='medium'
+                            freeSolo
                             options={brand_list}
-                            getOptionLabel={(option) => option.brand} // Display title in the input
-                            value={brand_list.find((option) => option.brand === update_product_details.brand) || null}
+                            getOptionLabel={(option) => option.brand || option} // Display title in the input
+                            value={update_product_details.brand || null}
+                            inputValue={update_product_details.brand || ""}
                             onChange={(event, new_value) => {
-                                set_update_product_details(prev_state => ({ ...prev_state, brand: new_value?.brand || "" })); // Handle cases where new_value is null
+                                // Handle both object (from dropdown) and string (free text) cases
+                                set_update_product_details(prev_state => ({
+                                    ...prev_state,
+                                    brand: new_value?.brand || capitalizeWords(new_value) || ""
+                                }));
+                            }}
+                            onInputChange={(event, new_value) => {
+                                if (event) {
+                                    // Capitalize the input value before updating the state
+                                    set_update_product_details(prev_state => ({
+                                        ...prev_state,
+                                        brand: capitalizeWords(new_value) || ""
+                                    }));
+                                }
                             }}
                             renderOption={(props, option) => {
                                 const { key, ...optionProps } = props;

@@ -12,6 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { brand_list, category_list, condition_list } from '@/utils/shoes_info_list';
 import { FaBasketShopping } from "react-icons/fa6";
 import { GiConverseShoe } from "react-icons/gi";
+import { capitalizeWords } from '@/utils/functions/produc_fn';
 
 
 const Add_product = ({ axios }) => {
@@ -299,6 +300,7 @@ const Add_product = ({ axios }) => {
         }
     };
 
+
     return (
         <div className='w-full h-full' >
             <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-y-6 border-stone-200 rounded-2xl md:shadow-md">
@@ -473,11 +475,26 @@ const Add_product = ({ axios }) => {
                     id="section-list"
                     className="w-full"
                     size='medium'
+                    freeSolo
                     options={brand_list}
-                    getOptionLabel={(option) => option.brand} // Display title in the input
-                    value={brand_list.find((option) => option.brand === product_details.brand) || null}
+                    getOptionLabel={(option) => option.brand || option} // Display title in the input
+                    value={product_details.brand || null}
+                    inputValue={product_details.brand || ""}
                     onChange={(event, new_value) => {
-                        set_product_details(prev_state => ({ ...prev_state, brand: new_value?.brand || "" })); // Handle cases where new_value is null
+                        // Handle both object (from dropdown) and string (free text) cases
+                        set_product_details(prev_state => ({
+                            ...prev_state,
+                            brand: new_value?.brand || capitalizeWords(new_value) || ""
+                        }));
+                    }}
+                    onInputChange={(event, new_value) => {
+                        if (event) {
+                            // Capitalize the input value before updating the state
+                            set_product_details(prev_state => ({
+                                ...prev_state,
+                                brand: capitalizeWords(new_value) || ""
+                            }));
+                        }
                     }}
                     renderOption={(props, option) => {
                         const { key, ...optionProps } = props;
