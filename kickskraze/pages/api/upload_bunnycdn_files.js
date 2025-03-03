@@ -9,8 +9,8 @@ import sharp from 'sharp';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
 
 
-ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
-// ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
+// ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
+ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
 
 const BUNNY_STORAGE_ZONE = process.env.BUNNY_STORAGE_ZONE;
 const BUNNY_ACCESS_KEY = process.env.BUNNY_ACCESS_KEY;
