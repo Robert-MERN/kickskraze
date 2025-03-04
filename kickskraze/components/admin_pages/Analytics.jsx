@@ -123,6 +123,10 @@ const Analytics = ({ axios }) => {
                                     >
                                         <MenuItem value="currentYear">This Year</MenuItem>
                                         <MenuItem value="allYears">All Years</MenuItem>
+                                        <MenuItem value="currentYearDelivered">This Year Delivered</MenuItem>
+                                        <MenuItem value="allYearsDelivered">All Years Delivered</MenuItem>
+                                        <MenuItem value="currentYearUndelivered">This Year Undelivered</MenuItem>
+                                        <MenuItem value="allYearsUndelivered">All Years Undelivered</MenuItem>
 
                                     </Select>
                                 </FormControl>

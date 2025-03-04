@@ -311,7 +311,9 @@ const Add_product = ({ axios }) => {
                     error={Boolean(product_details.errors.media)}
                 >
                     <div className='mb-[15px] px-[20px] md:px-0'>
-                        <h1 className='text-[17px] font-medium text-stone-700 mt-[15px] mb-[10px]'>Media</h1>
+                        <h1 className='text-[17px] font-medium text-stone-500 mt-[15px] mb-[10px]'>
+                            Media {Boolean(product_details.media.length) && `(${product_details.media.length})`}
+                        </h1>
                         <div className={`flex flex-wrap gap-2 md:gap-4 max-h-[400px] md:max-h-[620px] overflow-y-auto ${styles.scroll_bar}`} >
                             {Boolean(product_details.media.length) &&
                                 product_details.media.map((file, index) => (

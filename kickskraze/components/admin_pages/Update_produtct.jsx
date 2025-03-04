@@ -102,71 +102,71 @@ const Create_product = ({ axios }) => {
     }
 
 
-   const handleChange = async (event) => {
-          const { name, value, _id } = event.target;
-  
-          if (name === "media") {
-              const files = event.target.files;
-              if (!files?.length) return;
-  
-              let mediaUpdates = [];
-  
-              for (const file of files) {
-                  const ext = file.name.split(".").pop().toLowerCase();
-                  let fileType = file.type || (ext.includes("heic") ? "image/heic" : null);
-                  let fileUrl = URL.createObjectURL(file);
-                  mediaUpdates.push({
-                      type: fileType.startsWith("image/") ? "image" : fileType.startsWith("video/") ? "video" : "unknown",
-                      url: fileUrl,
-                      thumbnail: false,
-                      _id: nanoid(),
-                  });
-              }
-  
-              // Ensure the update happens correctly
-              set_update_product_details((prevState) => ({
-                  ...prevState,
-                  media: [...(prevState.media || []), ...mediaUpdates],
-              }));
-  
-              event.target.value = "";
-              return;
-          }
-  
-          if (name === "remove_image") {
-              set_update_product_details((prevState) => {
-                  const media = [...(prevState.media || [])];
-                  const index = media.findIndex((e) => e._id === _id);
-                  if (index !== -1) {
-                      URL.revokeObjectURL(media[index].url);
-                      media.splice(index, 1);
-                  }
-                  return { ...prevState, media };
-              });
-              return;
-          }
-  
-          if (name === "set_thumbnail") {
-              set_update_product_details((prevState) => ({
-                  ...prevState,
-                  media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id })),
-              }));
-              return;
-          }
-  
-          if (name === "featured") {
-              set_update_product_details((prevState) => ({
-                  ...prevState,
-                  featured: Boolean(value),
-              }));
-              return;
-          }
-  
-          set_update_product_details((prevState) => ({
-              ...prevState,
-              [name]: value || "",
-          }));
-      };
+    const handleChange = async (event) => {
+        const { name, value, _id } = event.target;
+
+        if (name === "media") {
+            const files = event.target.files;
+            if (!files?.length) return;
+
+            let mediaUpdates = [];
+
+            for (const file of files) {
+                const ext = file.name.split(".").pop().toLowerCase();
+                let fileType = file.type || (ext.includes("heic") ? "image/heic" : null);
+                let fileUrl = URL.createObjectURL(file);
+                mediaUpdates.push({
+                    type: fileType.startsWith("image/") ? "image" : fileType.startsWith("video/") ? "video" : "unknown",
+                    url: fileUrl,
+                    thumbnail: false,
+                    _id: nanoid(),
+                });
+            }
+
+            // Ensure the update happens correctly
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                media: [...(prevState.media || []), ...mediaUpdates],
+            }));
+
+            event.target.value = "";
+            return;
+        }
+
+        if (name === "remove_image") {
+            set_update_product_details((prevState) => {
+                const media = [...(prevState.media || [])];
+                const index = media.findIndex((e) => e._id === _id);
+                if (index !== -1) {
+                    URL.revokeObjectURL(media[index].url);
+                    media.splice(index, 1);
+                }
+                return { ...prevState, media };
+            });
+            return;
+        }
+
+        if (name === "set_thumbnail") {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id })),
+            }));
+            return;
+        }
+
+        if (name === "featured") {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                featured: Boolean(value),
+            }));
+            return;
+        }
+
+        set_update_product_details((prevState) => ({
+            ...prevState,
+            [name]: value || "",
+        }));
+    };
 
 
     useEffect(() => {
@@ -425,7 +425,9 @@ const Create_product = ({ axios }) => {
                             error={Boolean(update_product_details.errors.media)}
                         >
                             <div className='mb-[15px] px-[20px] md:px-0'>
-                                <h1 className='text-[17px] font-medium text-stone-700 mt-[15px] mb-[10px]'>Media</h1>
+                                <h1 className='text-[17px] font-medium text-stone-500 mt-[15px] mb-[10px]'>
+                                    Media {Boolean(update_product_details.media.length) && `(${update_product_details.media.length})`}
+                                </h1>
                                 <div className={`flex flex-wrap gap-2 md:gap-4 max-h-[400px] md:max-h-[620px] overflow-y-auto ${styles.scroll_bar}`} >
                                     {Boolean(update_product_details.media.length) &&
                                         update_product_details.media.map((file, index) => (

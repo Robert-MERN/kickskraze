@@ -359,21 +359,24 @@ const Product_page = ({ axios }) => {
                     <>
                         {/* Breadcrumbs */}
                         <Fade>
-                            <Breadcrumbs className='text-gray-400 text-[13px] md:text-[15px] whitespace-nowrap' separator={<NavigateNextIcon fontSize="small" />} >
-                                <Link
-                                    className='hover:underline active:text-gray-600'
-                                    underline="hover"
-                                    key="1"
-                                    color="inherit"
-                                    href="/collection"
-                                >
-                                    Home
-                                </Link>
+                            <div className="w-full overflow-hidden">
+                                <nav className="flex items-center text-gray-400 text-[13px] md:text-[15px]">
+                                    {/* Home Link */}
+                                    <a href="/collection" className="hover:underline active:text-gray-600 flex-shrink-0">
+                                        Home
+                                    </a>
 
-                                <p className='line-clamp-1 text-ellipsis overflow-hidden'>
-                                    {product?.title || "Product"}
-                                </p>
-                            </Breadcrumbs>
+                                    {/* Separator Icon (MUI) */}
+                                    <NavigateNextIcon className="h-5 w-5 mx-2 text-gray-500" fontSize="small" />
+
+                                    {/* Product Title (Truncated) */}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="truncate overflow-hidden text-ellipsis whitespace-nowrap">
+                                            {product?.title || "Product"}
+                                        </p>
+                                    </div>
+                                </nav>
+                            </div>
                         </Fade>
 
 

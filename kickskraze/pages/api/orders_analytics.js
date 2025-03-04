@@ -117,25 +117,63 @@ export default async function handler(req, res) {
             ]);
         };
 
-
-        // Get Total Order Numbers
-        const getTotalOrdersSum = async (storeName, fromDate) => {
-            const result = await Orders.aggregate([
+        // Function to get orders by cities aggregation per store
+        const getOrderByCitiesAggregation = async (storeName, fromDate) => {
+            // Aggregation for current month
+            const orderByCitiesAggregation = await Orders.aggregate([
+                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
                 {
-                    $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } }
-                },
-                {
-                    $count: "totalOrders"
+                    $group: {
+                        _id: "$city",
+                        count: { $sum: 1 }
+                    }
                 }
+            ]);
+
+            return orderByCitiesAggregation.map(({ _id, count }) => ({ x: _id, y: count }));
+
+        };
+
+
+        // Get Total Order Numbers Report
+        const getTotalOrdersSum = async (storeName, fromDate, statusArg) => {
+
+
+            let matchCondition = { createdAt: { $gte: fromDate } };
+
+            if (storeName) {
+                matchCondition.store_name = storeName;
+            }
+
+            if (statusArg === "delivered") {
+                matchCondition.status = "delivered";
+            } else if (statusArg === "undelivered") {
+                matchCondition.status = { $ne: "delivered" };
+            }
+
+
+            const result = await Orders.aggregate([
+                { $match: matchCondition },
+                { $count: "totalOrders" }
             ]);
 
             return result.length > 0 ? result[0].totalOrders : 0;
         };
 
         // Get Sale Report
-        const getSalesSum = async (storeName, fromDate) => {
+        const getSalesSum = async (storeName, fromDate, statusArg) => {
+
+
+            let status = { $ne: "returned" } // Default
+
+            if (statusArg === "delivered") {
+                status = "delivered"
+            } else if (statusArg === "undelivered") {
+                status = { $nin: ["returned", "delivered"] };
+            }
+
             const result = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status, createdAt: { $gte: fromDate } } : { status, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 { $group: { _id: null, totalSales: { $sum: "$purchase.quantity" } } }
             ]);
@@ -144,9 +182,19 @@ export default async function handler(req, res) {
 
 
         // Get Gross Revenue Report
-        const getRevenueSum = async (storeName, fromDate) => {
+        const getRevenueSum = async (storeName, fromDate, statusArg) => {
+
+            let status = { $ne: "returned" } // Default
+
+            if (statusArg === "delivered") {
+                status = "delivered"
+            } else if (statusArg === "undelivered") {
+                status = { $nin: ["returned", "delivered"] };
+            }
+
+
             const result = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, status: { $ne: "returned" }, createdAt: { $gte: fromDate } } : { status: { $ne: "returned" }, createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status, createdAt: { $gte: fromDate } } : { status, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {
@@ -182,9 +230,18 @@ export default async function handler(req, res) {
 
 
         // Get Net Revenue Report
-        const getNetRevenueSum = async (storeName, fromDate) => {
+        const getNetRevenueSum = async (storeName, fromDate, statusArg) => {
+
+            let status = { $ne: "returned" } // Default
+
+            if (statusArg === "delivered") {
+                status = "delivered"
+            } else if (statusArg === "undelivered") {
+                status = { $nin: ["returned", "delivered"] };
+            }
+
             const result = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, status: { $ne: "returned" }, createdAt: { $gte: fromDate } } : { status: { $ne: "returned" }, createdAt: { $gte: fromDate } } },
+                { $match: storeName ? { store_name: storeName, status, createdAt: { $gte: fromDate } } : { status, createdAt: { $gte: fromDate } } },
                 { $unwind: "$purchase" },
                 {
                     $lookup: {
@@ -219,22 +276,6 @@ export default async function handler(req, res) {
 
 
 
-        // Function to get orders by cities aggregation per store
-        const getOrderByCitiesAggregation = async (storeName, fromDate) => {
-            // Aggregation for current month
-            const orderByCitiesAggregation = await Orders.aggregate([
-                { $match: storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } } },
-                {
-                    $group: {
-                        _id: "$city",
-                        count: { $sum: 1 }
-                    }
-                }
-            ]);
-
-            return orderByCitiesAggregation.map(({ _id, count }) => ({ x: _id, y: count }));
-
-        };
 
         const analytics = {};
 
@@ -264,26 +305,42 @@ export default async function handler(req, res) {
                     monthly: {},
                     yearly: {}
                 },
-                salesReport: {
-                    currentYear: await getSalesSum(store, firstDayOfYear),
-                    allYears: await getSalesSum(store, new Date(0))
-                },
-                revenueReport: {
-                    currentYear: await getRevenueSum(store, firstDayOfYear),
-                    allYears: await getRevenueSum(store, new Date(0))
-                },
-                netRevenueReport: {
-                    currentYear: await getNetRevenueSum(store, firstDayOfYear),
-                    allYears: await getNetRevenueSum(store, new Date(0))
-                },
-                ordersReport: {
-                    currentYear: await getTotalOrdersSum(store, firstDayOfYear),
-                    allYears: await getTotalOrdersSum(store, new Date(0))
-                },
                 ordersByCity: {
                     currentMonth: await getOrderByCitiesAggregation(store, firstDayOfMonth),
                     currentYear: await getOrderByCitiesAggregation(store, firstDayOfYear),
                     allYears: await getOrderByCitiesAggregation(store, new Date(0)),
+                },
+                salesReport: {
+                    currentYear: await getSalesSum(store, firstDayOfYear),
+                    allYears: await getSalesSum(store, new Date(0)),
+                    currentYearDelivered: await getSalesSum(store, firstDayOfYear, "delivered"),
+                    allYearsDelivered: await getSalesSum(store, new Date(0), "delivered"),
+                    currentYearUndelivered: await getSalesSum(store, firstDayOfYear, "undelivered"),
+                    allYearsUndelivered: await getSalesSum(store, new Date(0), "undelivered"),
+                },
+                revenueReport: {
+                    currentYear: await getRevenueSum(store, firstDayOfYear),
+                    allYears: await getRevenueSum(store, new Date(0)),
+                    currentYearDelivered: await getRevenueSum(store, firstDayOfYear, "delivered"),
+                    allYearsDelivered: await getRevenueSum(store, new Date(0), "delivered"),
+                    currentYearUndelivered: await getRevenueSum(store, firstDayOfYear, "undelivered"),
+                    allYearsUndelivered: await getRevenueSum(store, new Date(0), "undelivered"),
+                },
+                netRevenueReport: {
+                    currentYear: await getNetRevenueSum(store, firstDayOfYear),
+                    allYears: await getNetRevenueSum(store, new Date(0)),
+                    currentYearDelivered: await getNetRevenueSum(store, firstDayOfYear, "delivered"),
+                    allYearsDelivered: await getNetRevenueSum(store, new Date(0), "delivered"),
+                    currentYearUndelivered: await getNetRevenueSum(store, firstDayOfYear, "undelivered"),
+                    allYearsUndelivered: await getNetRevenueSum(store, new Date(0), "undelivered"),
+                },
+                ordersReport: {
+                    currentYear: await getTotalOrdersSum(store, firstDayOfYear),
+                    allYears: await getTotalOrdersSum(store, new Date(0)),
+                    currentYearDelivered: await getTotalOrdersSum(store, firstDayOfYear, "delivered"),
+                    allYearsDelivered: await getTotalOrdersSum(store, new Date(0), "delivered"),
+                    currentYearUndelivered: await getTotalOrdersSum(store, firstDayOfYear, "undelivered"),
+                    allYearsUndelivered: await getTotalOrdersSum(store, new Date(0), "undelivered"),
                 },
             };
 

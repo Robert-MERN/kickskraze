@@ -212,48 +212,57 @@ const All_products = ({ axios }) => {
 
 
 
+
+
     // Grid state changing dynamicly
-    const [grid, set_grid] = useState(4);
-    const [screenWidth, setScreenWidth] = useState(0); // Default to 0 (for SSR safety)
+    const [grid, setGrid] = useState(4);
+    const [lastWidth, setLastWidth] = useState(0); // Store last valid width
 
     const change_grid = (val) => {
-        set_grid(val); // Manually set the grid value
+        setGrid(val);
     };
 
-
     useEffect(() => {
-        // Ensure the code runs only on the client-side (browser)
         if (typeof window !== "undefined") {
+            let timeoutId = null;
+
             const handleResize = () => {
                 const currentWidth = window.innerWidth;
 
-                // Update screenWidth state
-                setScreenWidth(currentWidth);
+                // Ignore small height-based changes (which happen on mobile scrolling)
+                if (currentWidth === lastWidth) return;
 
-                // Automatically adjust the grid based on screen width
+                setLastWidth(currentWidth); // Update last valid width
+
                 if (currentWidth >= 1536) {
-                    set_grid(4);
+                    setGrid(4);
                 } else if (currentWidth >= 1280) {
-                    set_grid(3);
+                    setGrid(3);
                 } else if (currentWidth >= 1024) {
-                    set_grid(2);
+                    setGrid(2);
                 } else {
-                    set_grid(2);
+                    setGrid(2);
                 }
             };
 
-            // Initial check
-            handleResize();
+            // Add event listener with debounce to prevent rapid calls
+            const resizeListener = () => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(handleResize, 100); // Delay to prevent spam on mobile
+            };
 
-            // Add resize event listener
-            window.addEventListener("resize", handleResize);
+            handleResize(); // Initial check
+            window.addEventListener("resize", resizeListener);
 
-            // Cleanup on unmount
             return () => {
-                window.removeEventListener("resize", handleResize);
+                clearTimeout(timeoutId);
+                window.removeEventListener("resize", resizeListener);
             };
         }
-    }, [screenWidth]); // Dependency ensures effect runs when screenWidth changes
+    }, [lastWidth]); // ✅ Only runs when actual width changes
+    // <---------Ends Here-------->
+
+
 
 
     const [anchorEl, setAnchorEl] = useState(null);
