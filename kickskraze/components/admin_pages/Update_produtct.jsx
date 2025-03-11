@@ -104,7 +104,6 @@ const Create_product = ({ axios }) => {
 
     const handleChange = async (event) => {
         const { name, value, _id } = event.target;
-
         if (name === "media") {
             const files = event.target.files;
             if (!files?.length) return;
@@ -149,7 +148,7 @@ const Create_product = ({ axios }) => {
         if (name === "set_thumbnail") {
             set_update_product_details((prevState) => ({
                 ...prevState,
-                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id })),
+                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id ? value : false })),
             }));
             return;
         }
@@ -320,6 +319,10 @@ const Create_product = ({ axios }) => {
 
                 await update_product_api(axios, product_id, formData, set_API_loading,
                     isValidObjectId(router.query?.product_id) ? () => { } : reset_all);
+
+                if (product_id) {
+                    await get_product_api(axios, product_id, update_product_details, set_update_product_details, set_API_loading);
+                }
 
             }
         } catch (err) {

@@ -1,5 +1,5 @@
 import React from 'react'
-import Drawer from '@mui/material/Drawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { IoClose } from "react-icons/io5";
 import { FaAngleRight } from "react-icons/fa6";
 import Link from 'next/link';
@@ -28,7 +28,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
     ]
 
     return (
-        <Drawer
+        <SwipeableDrawer
             open={drawer_state.menu_drawer}
             onClose={() => toggle_drawer("menu_drawer")}
         >
@@ -65,7 +65,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
                     <p className='text-[17px] font-medium select-none' >Create an Account</p>
                 </button>
             </div>
-        </Drawer>
+        </SwipeableDrawer>
     )
 }
 

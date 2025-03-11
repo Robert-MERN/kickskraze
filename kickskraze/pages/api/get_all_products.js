@@ -27,9 +27,9 @@ export default async function handler(req, res) {
     const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
 
     // Initialize a query object
-    const query = {isDeleted: false};
+    const query = { isDeleted: false };
 
-    let sort = { createdAt: -1 };
+    let sort = { createdAt: -1, };
 
     // Handle 'size' filter (ensure numbers)
     if (size) {
@@ -100,14 +100,43 @@ export default async function handler(req, res) {
     // Fetch total count of filtered documents
     const filteredCount = await Products.countDocuments(query); // Total count after filters
 
-    // Fetch products with filters, sorting, and pagination
-    const products = await Products.find(query)
-      .sort(sort)
-      .skip(skip)
-      .limit(pageSize);
+    // Step 1: Count total in-stock products
+    const inStockCount = await Products.countDocuments({ ...query, stock: { $gt: 0 } });
 
+    let products = [];
+
+    if (skip < inStockCount) {
+      // Step 2: Fetch in-stock products for the requested page
+      products = await Products.find({ ...query, stock: { $gt: 0 } })
+        .sort(sort)
+        .skip(skip)
+        .limit(pageSize)
+        .lean();
+
+
+      if (products.length < pageSize) {
+        let _products = await Products.find({ ...query, stock: 0 })
+          .sort(sort)
+          .limit(pageSize - products.length)
+          .lean();
+
+        products = [...products, ..._products];
+      }
+    } else {
+      // Step 3: Fetch sold-out products after in-stock pages are exhausted
+      const soldOutSkip = skip - inStockCount; // Adjust skip for sold-out products
+      const soldOutPageSize = pageSize - inStockCount; // Adjust PageSize for sold-out products
+      products = await Products.find({ ...query, stock: 0 })
+        .sort(sort)
+        .skip(soldOutSkip)
+        .limit(soldOutPageSize)
+        .lean();
+    }
+
+    
     // Determine whether more items are available
     const hasMore = pageNumber * pageSize < filteredCount;
+
 
     return res.status(200).json({
       success: true,

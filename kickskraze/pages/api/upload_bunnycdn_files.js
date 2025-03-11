@@ -42,6 +42,7 @@ const compressImage = async (inputPath, outputPath) => {
         }
 
         await sharp(inputPath)
+            .rotate()
             .resize(800) // Resize to 800px width like Cloudinary w_800
             .webp({ quality: 80 }) // Convert to WebP with 80% quality (q_auto equivalent)
             .toFile(outputPath);

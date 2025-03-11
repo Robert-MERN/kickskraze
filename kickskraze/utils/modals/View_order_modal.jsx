@@ -671,6 +671,7 @@ const View_order_modal = ({
                                                     className='outline-none px-0 cursor-pointer'
                                                 >
                                                     <option value="verified">Verified</option>
+                                                    <option value="pending">Pending</option>
                                                     <option value="unverified">Unverified</option>
                                                 </select>
 

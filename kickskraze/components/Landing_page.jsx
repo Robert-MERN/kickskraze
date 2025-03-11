@@ -108,7 +108,7 @@ const Landing_page = ({ axios }) => {
             {/* Offer */}
             <div className='w-full flex flex-col md:flex-row px-[10px] py-[10px] md:py-[25px] h-auto md:h-[100px] bg-[#F9EDE1] justify-between items-center' >
                 <div className='w-full border-b md:border-b-0 md:border-r-2 border-stone-300 flex flex-col justify-center items-center pb-2 md:pb-0' >
-                    <h2 className='text-[13px] md:text-[24px] font-bold  text-stone-800' >FREE SHIPPING OVER 3999*</h2>
+                    <h2 className='text-[13px] md:text-[24px] font-bold  text-stone-800' >100% AUTHENTIC IMPORTED THRIFTED SHOES*</h2>
                     <p className='text-stone-800 text-[12px] md:text-[17px]' >Plus, four-day delivery on thousands of items.</p>
                 </div>
                 <div className='w-full flex flex-col justify-center items-center mt-2 md:mt-0' >

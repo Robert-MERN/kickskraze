@@ -1,5 +1,5 @@
 import React from 'react'
-import Drawer from '@mui/material/Drawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { IoClose } from "react-icons/io5";
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import GroupIcon from '@mui/icons-material/Group';
@@ -59,7 +59,7 @@ const Admin_menu_drawer = ({ drawer_state, toggle_drawer }) => {
     }
 
     return (
-        <Drawer
+        <SwipeableDrawer
             open={drawer_state.admin_menu_drawer}
             onClose={() => toggle_drawer("admin_menu_drawer")}
         >
@@ -91,7 +91,7 @@ const Admin_menu_drawer = ({ drawer_state, toggle_drawer }) => {
                     </div>
                 ))}
             </div>
-        </Drawer >
+        </SwipeableDrawer >
     )
 }
 

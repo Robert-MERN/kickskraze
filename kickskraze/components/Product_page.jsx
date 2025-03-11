@@ -14,11 +14,12 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useStateContext from '@/context/ContextProvider';
 import { useRouter } from 'next/router';
-import { Skeleton } from '@mui/material';
+import { IconButton, Skeleton } from '@mui/material';
 import { calculate_discount_precentage, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
 import Fade from 'react-reveal/Fade';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { MetaPixel } from '@/lib/fpixel';
+import ShareIcon from '@mui/icons-material/Share';
 
 
 const VideoThumbnail = ({ videoUrl }) => {
@@ -78,7 +79,7 @@ const Product_page = ({ axios }) => {
 
     const router = useRouter();
 
-    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart } = useStateContext();
+    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart, toggle_modal } = useStateContext();
     const [is_loading, set_is_loading] = useState(true);
     const [product, set_product] = useState({});
 
@@ -455,8 +456,13 @@ const Product_page = ({ axios }) => {
                                     {Boolean(product.stock) ?
                                         <>
                                             <Fade>
-                                                <div className='w-full mt-6 xl:mt-6'>
+                                                <div className='w-full mt-6 xl:mt-6 flex gap-2 items-center'>
                                                     {/* Checkout Button */}
+                                                    <div>
+                                                        <IconButton onClick={() => toggle_modal("share_link_modal")}>
+                                                            <ShareIcon className='text-[18px] md:text-[23px]' />
+                                                        </IconButton>
+                                                    </div>
                                                     < button onClick={() => add_item_to_cart(product)} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
                                                         ADD TO CART
                                                     </button>

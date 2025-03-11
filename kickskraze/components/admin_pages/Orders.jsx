@@ -181,7 +181,7 @@ const Orders = ({ axios }) => {
             headerName: 'Verification',
             width: 100,
             renderCell: params => (
-                <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${params.row.verification === "verified" ? "text-green-700" : "text-stone-400"} capitalize`}>{params.row.verification}</p>
+                <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${params.row.verification === "verified" ? "text-green-700" : params.row.verification === "pending" ? "text-amber-500" : "text-stone-400"} capitalize`}>{params.row.verification}</p>
             )
         },
         {

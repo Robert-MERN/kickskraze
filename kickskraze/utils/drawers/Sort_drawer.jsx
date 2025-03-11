@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import Drawer from '@mui/material/Drawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { IoClose } from "react-icons/io5";
 import useStateContext from '@/context/ContextProvider';
 import { convert_to_query_string, filter_method, find_filter } from '@/utils/functions/filter_function';
@@ -56,7 +56,7 @@ const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
     return (
         <>
             {(!is_loading && Boolean(products.length) && Boolean(find_filter(filters, "sort_by"))) ?
-                <Drawer
+                <SwipeableDrawer
                     open={drawer_state.sort_drawer}
                     onClose={() => toggle_drawer("sort_drawer")}
                     anchor='bottom'
@@ -84,7 +84,7 @@ const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                         ))}
 
                     </div >
-                </Drawer >
+                </SwipeableDrawer >
                 :
                 <></>
             }

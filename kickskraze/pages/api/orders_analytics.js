@@ -15,6 +15,8 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: "Method not allowed" });
     }
 
+
+
     console.log("Connecting with DB");
     try {
         await connect_mongo();
@@ -27,6 +29,7 @@ export default async function handler(req, res) {
         const currentMonth = DateTime.now().setZone(timezone).month;
         const firstDayOfMonth = DateTime.now().setZone(timezone).set({ year: currentYear, month: currentMonth, day: 1, ...defaultTime }).toJSDate();
         const firstDayOfYear = DateTime.now().setZone(timezone).set({ year: currentYear, month: 1, day: 1, ...defaultTime }).toJSDate();
+
 
         // Fetch all data in a single query
         const fetchAllData = async (storeName, fromDate) => {
@@ -44,9 +47,9 @@ export default async function handler(req, res) {
                             {
                                 $group: {
                                     _id: {
-                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt" } },
-                                        month: { $dateToString: { format: "%b", date: "$createdAt" } },
-                                        year: { $dateToString: { format: "%Y", date: "$createdAt" } },
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } },
                                     },
                                     totalItems: { $sum: "$purchase.quantity" },
                                 },
@@ -67,9 +70,9 @@ export default async function handler(req, res) {
                             {
                                 $group: {
                                     _id: {
-                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt" } },
-                                        month: { $dateToString: { format: "%b", date: "$createdAt" } },
-                                        year: { $dateToString: { format: "%Y", date: "$createdAt" } },
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } },
                                     },
                                     totalRevenue: {
                                         $sum: {
@@ -90,6 +93,9 @@ export default async function handler(req, res) {
                         ],
                         ordersByCity: [
                             { $group: { _id: "$city", count: { $sum: 1 } } },
+                        ],
+                        totalOrdersCount: [
+                            { $group: { _id: null, count: { $sum: 1 } } } // Counts total number of orders
                         ],
                         rawOrders: [ // Fetch raw orders with required fields
                             { $match: matchCondition },
@@ -190,7 +196,7 @@ export default async function handler(req, res) {
             // Sort revenueData.daily by date
             monthlyData.revenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
             yearlyData.revenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
-            
+
             // Populate revenueData.monthly and revenueData.yearly
             const REVENUE_MONTHS = [
                 { x: "Jan", y: 0 },
@@ -286,12 +292,12 @@ export default async function handler(req, res) {
                     allYearsUndelivered: calculateSums(allTimeData.rawOrders, "undelivered").totalNetRevenue,
                 },
                 ordersReport: {
-                    currentYear: calculateSums(yearlyData.rawOrders, null).totalOrders,
-                    allYears: calculateSums(allTimeData.rawOrders, null).totalOrders,
-                    currentYearDelivered: calculateSums(yearlyData.rawOrders, "delivered").totalOrders,
-                    allYearsDelivered: calculateSums(allTimeData.rawOrders, "delivered").totalOrders,
-                    currentYearUndelivered: calculateSums(yearlyData.rawOrders, "undelivered").totalOrders,
-                    allYearsUndelivered: calculateSums(allTimeData.rawOrders, "undelivered").totalOrders,
+                    currentYear: yearlyData.totalOrdersCount?.[0]?.count || 0,
+                    allYears: allTimeData.totalOrdersCount?.[0]?.count || 0,
+                    currentYearDelivered: yearlyData.orderStatus.find(s => s._id === "delivered")?.count || 0,
+                    allYearsDelivered: allTimeData.orderStatus.find(s => s._id === "delivered")?.count || 0,
+                    currentYearUndelivered: yearlyData.totalOrdersCount?.[0]?.count - (yearlyData.orderStatus.find(s => s._id === "delivered")?.count || 0),
+                    allYearsUndelivered: allTimeData.totalOrdersCount?.[0]?.count - (allTimeData.orderStatus.find(s => s._id === "delivered")?.count || 0),
                 },
             };
         }

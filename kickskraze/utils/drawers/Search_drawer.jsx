@@ -1,4 +1,4 @@
-import { Drawer } from '@mui/material'
+import { SwipeableDrawer } from '@mui/material'
 import React, { useState, useEffect } from 'react'
 import { IoClose } from "react-icons/io5";
 import SearchIcon from "@mui/icons-material/Search";
@@ -154,7 +154,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
   }
 
   return (
-    <Drawer
+    <SwipeableDrawer
       open={drawer_state.search_drawer}
       onClose={() => toggle_drawer("search_drawer")}
       className={``}
@@ -433,7 +433,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
           </>
         }
       </div>
-    </Drawer>
+    </SwipeableDrawer>
   )
 }
 

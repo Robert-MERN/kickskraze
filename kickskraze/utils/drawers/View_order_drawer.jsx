@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Drawer from '@mui/material/Drawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
 import Badge from "@mui/material/Badge";
@@ -213,7 +213,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
 
 
     return (
-        <Drawer
+        <SwipeableDrawer
             open={drawer_state.view_order_drawer}
             onClose={close_drawer}
         >
@@ -667,6 +667,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
                                                     className='outline-none px-0 cursor-pointer'
                                                 >
                                                     <option value="verified">Verified</option>
+                                                    <option value="pending">Pending</option>
                                                     <option value="unverified">Unverified</option>
                                                 </select>
 
@@ -811,7 +812,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
 
             </div>
 
-        </Drawer>
+        </SwipeableDrawer>
     )
 }
 

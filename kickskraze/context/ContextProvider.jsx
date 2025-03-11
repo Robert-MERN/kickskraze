@@ -31,6 +31,7 @@ export const ContextProvider = ({ children }) => {
         delete_product_modal: false,
         view_order_modal: false,
         delete_order_modal: false,
+        share_link_modal: false,
     };
     const [modals_state, set_modals_state] = useState(default_modals_state);
 

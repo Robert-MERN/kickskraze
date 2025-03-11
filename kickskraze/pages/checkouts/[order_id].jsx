@@ -12,12 +12,11 @@ export default function Home() {
     const { order_id } = router.query;
 
 
-
     return (
         <>
             <Head>
                 <title>Kickskraze | Confirmed Order</title>
-                <meta name="description" content="Checkouts Page" />
+                <meta name="description" content="Your Order" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>

@@ -111,7 +111,7 @@ const Add_product = ({ axios }) => {
         if (name === "set_thumbnail") {
             set_product_details((prevState) => ({
                 ...prevState,
-                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id })),
+                media: prevState.media.map((item) => ({ ...item, thumbnail: item._id === _id ? value : false })),
             }));
             return;
         }
@@ -129,7 +129,6 @@ const Add_product = ({ axios }) => {
             [name]: value || "",
         }));
     };
-
 
 
 

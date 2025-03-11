@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react'
 import styles from "@/styles/home.module.css";
 import Checkbox from '@mui/material/Checkbox';
-import Drawer from '@mui/material/Drawer';
+import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Slider from '@mui/material/Slider';
 import { IoClose } from "react-icons/io5";
 import useStateContext from '@/context/ContextProvider';
@@ -98,7 +98,7 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
 
 
     return (
-        <Drawer
+        <SwipeableDrawer
             open={drawer_state.filter_drawer_admin}
             onClose={() => toggle_drawer("filter_drawer_admin")}
 
@@ -394,7 +394,7 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
                     }
                 </div>
             </div>
-        </Drawer>
+        </SwipeableDrawer>
     )
 }
 

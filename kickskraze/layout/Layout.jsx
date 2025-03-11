@@ -23,6 +23,7 @@ import View_order_modal from '@/utils/modals/View_order_modal';
 import Delete_order_modal from '@/utils/modals/Delete_order_modal';
 import View_order_drawer from '@/utils/drawers/View_order_drawer';
 import Search_drawer_admin from '@/utils/drawers/Search_drawer_admin';
+import Share_link_modal from '@/utils/modals/Share_link_modal';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -56,6 +57,7 @@ const Layout = ({ children }) => {
         get_all_products_api,
         set_products_title,
         get_all_products_title_api,
+        set_snackbar_alert,
     } = useStateContext();
 
     // lock scroll when drawer opens
@@ -204,6 +206,11 @@ const Layout = ({ children }) => {
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
                 axios={axios}
+            />
+            <Share_link_modal
+                set_snackbar_alert={set_snackbar_alert}
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
             />
 
             {children}
