@@ -32,7 +32,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         set_fetched_products_for_collection: set_products,
         products_for_collection_loading: is_loading,
         set_products_for_collection_loading: set_is_loading,
-        show_more_payload, 
+        show_more_payload,
         set_show_more_payload
     } = useStateContext();
 
@@ -103,7 +103,7 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         <SwipeableDrawer
             open={drawer_state.filter_drawer}
             onClose={() => toggle_drawer("filter_drawer")}
-
+            onOpen={() => toggle_drawer("filter_drawer")}
         >
             <div className='w-[75vw] pt-[10px] pb-[40px] text-stone-950 transition-all duration-300'>
 

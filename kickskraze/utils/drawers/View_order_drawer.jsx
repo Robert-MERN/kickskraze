@@ -216,6 +216,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
         <SwipeableDrawer
             open={drawer_state.view_order_drawer}
             onClose={close_drawer}
+            onOpen={close_drawer}
         >
             <div className={`w-screen ${styles.scroll_bar} overflow-x-hidden`} >
                 <div className='w-full flex justify-between items-center pl-[20px] pr-[15px] py-[8px] bg-slate-50 sticky top-0 z-10' >
@@ -669,6 +670,23 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
                                                     <option value="verified">Verified</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="unverified">Unverified</option>
+                                                </select>
+
+
+
+
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Warehouse Status</p>
+                                                <select
+                                                    id="warehouse_status"
+                                                    name="warehouse_status"
+                                                    value={confirmed_order.warehouse_status || ""}
+                                                    onChange={handleChange}
+                                                    className='outline-none px-0 cursor-pointer'
+                                                >
+                                                    <option value="idle">Idle</option>
+                                                    <option value="found">Found</option>
+                                                    <option value="packed">Packed</option>
+                                                    <option value="not found">Not Found</option>
                                                 </select>
 
 

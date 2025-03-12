@@ -66,7 +66,15 @@ const Dispatched_orders = ({ axios }) => {
             value: "Returned",
             color: "text-rose-600",
         },
-    }
+    };
+
+    // Warehouse Status Colors Selection
+    const warehouse_status_colors = {
+        "idle": "text-stone-400",
+        "found": "text-blue-700",
+        "not found": "text-rose-600",
+        "packed": "text-green-700",
+    };
 
     const date_formatter = (date) => {
         // Create a Date object
@@ -98,7 +106,7 @@ const Dispatched_orders = ({ axios }) => {
         } else if (format === "drawer") {
             toggle_drawer("view_order_drawer");
         }
-    }
+    };
 
     const tracking_url = {
         trax: "https://trax.pk/tracking/",
@@ -181,6 +189,14 @@ const Dispatched_orders = ({ axios }) => {
             width: 100,
             renderCell: params => (
                 <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${params.row.verification === "verified" ? "text-green-700" : params.row.verification === "pending" ? "text-amber-500" : "text-stone-400"} capitalize`}>{params.row.verification}</p>
+            )
+        },
+        {
+            field: 'warehouse_status',
+            headerName: 'Warehouse Status',
+            width: 100,
+            renderCell: params => (
+                <p className={`hover:underline w-[90px] text-ellipsis overflow-hidden cursor-default ${warehouse_status_colors[params.row.warehouse_status]} capitalize`}>{params.row.warehouse_status}</p>
             )
         },
         {

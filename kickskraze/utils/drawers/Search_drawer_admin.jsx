@@ -155,6 +155,7 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
     <SwipeableDrawer
       open={drawer_state.search_drawer_admin}
       onClose={() => toggle_drawer("search_drawer_admin")}
+      onOpen={() => toggle_drawer("search_drawer_admin")}
       className={``}
     >
       <div className='w-[90vw] md:w-[50vw] text-stone-950 transition-all duration-300'>

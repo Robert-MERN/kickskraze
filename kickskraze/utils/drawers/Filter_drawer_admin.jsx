@@ -101,7 +101,7 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
         <SwipeableDrawer
             open={drawer_state.filter_drawer_admin}
             onClose={() => toggle_drawer("filter_drawer_admin")}
-
+            onOpen={() => toggle_drawer("filter_drawer_admin")}
         >
             <div className='w-[75vw] pt-[10px] pb-[40px] text-stone-950 transition-all duration-300'>
 

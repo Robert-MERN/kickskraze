@@ -157,6 +157,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
     <SwipeableDrawer
       open={drawer_state.search_drawer}
       onClose={() => toggle_drawer("search_drawer")}
+      onOpen={() => toggle_drawer("search_drawer")}
       className={``}
     >
       <div className='w-[90vw] md:w-[50vw] text-stone-950 transition-all duration-300'>

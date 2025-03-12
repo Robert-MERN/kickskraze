@@ -31,6 +31,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
         <SwipeableDrawer
             open={drawer_state.menu_drawer}
             onClose={() => toggle_drawer("menu_drawer")}
+            onOpen={() => toggle_drawer("menu_drawer")}
         >
             <div className='w-[90vw] md:w-[50vw] py-[10px] text-stone-950 transition-all duration-300'>
 

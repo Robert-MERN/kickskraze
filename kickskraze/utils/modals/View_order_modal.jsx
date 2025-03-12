@@ -678,6 +678,23 @@ const View_order_modal = ({
 
 
 
+                                                <p className='text-[16px] font-bold text-stone-900 mt-3'>Warehouse Status</p>
+                                                <select
+                                                    id="warehouse_status"
+                                                    name="warehouse_status"
+                                                    value={confirmed_order.warehouse_status || ""}
+                                                    onChange={handleChange}
+                                                    className='outline-none px-0 cursor-pointer'
+                                                >
+                                                    <option value="idle">Idle</option>
+                                                    <option value="found">Found</option>
+                                                    <option value="packed">Packed</option>
+                                                    <option value="not found">Not Found</option>
+                                                </select>
+
+
+
+
                                                 <p className='text-[16px] font-bold text-stone-900 mt-3'>Tracking no.</p>
                                                 <input
                                                     type="text"

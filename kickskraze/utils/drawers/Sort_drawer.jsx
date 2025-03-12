@@ -59,6 +59,7 @@ const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
                 <SwipeableDrawer
                     open={drawer_state.sort_drawer}
                     onClose={() => toggle_drawer("sort_drawer")}
+                    onOpen={() => toggle_drawer("sort_drawer")}
                     anchor='bottom'
                 >
                     <div className='w-full tracking-wider text-stone-950 transition-all duration-300'>

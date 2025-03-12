@@ -66,6 +66,10 @@ const ordersSchema = new Schema(
         store_name: {
             type: String,
         },
+        warehouse_status: {
+            type: String,
+            default: "idle"
+        },
         isDeleted: {
             type: Boolean,
             default: false,
