@@ -5,12 +5,16 @@ import Head from 'next/head'
 import Product_page from '@/components/Product_page'
 import axios from 'axios'
 
-const product = () => {
+const product = ({ fullUrl, logoUrl }) => {
     return (
         <>
             <Head>
                 <title>Kickskraze | Product</title>
-                <meta name="description" content="Product Page" />
+                <meta property="og:title" content="Kickskraze | Product" />
+                <meta property="og:description" content="Product Page" />
+                <meta property="og:image" content={logoUrl} />
+                <meta property="og:url" content={fullUrl} />
+                <meta property="og:type" content="product" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
@@ -26,3 +30,15 @@ const product = () => {
 }
 
 export default product
+
+
+export async function getServerSideProps({ req }) {
+    const protocol = req.headers["x-forwarded-proto"] || "http"; // Detect HTTP or HTTPS
+    const host = req.headers.host; // Get the domain (localhost:3000 or production domain)
+    const fullUrl = `${protocol}://${host}${req.url}`; // Fully dynamic URL
+    const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
+
+    return {
+        props: { fullUrl, logoUrl },
+    };
+}

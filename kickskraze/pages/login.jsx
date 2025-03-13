@@ -5,12 +5,16 @@ import axios from 'axios'
 import { get_cookie } from '@/utils/functions/cookie';
 
 
-const login = () => {
+const login = ({ logoUrl, fullUrl }) => {
     return (
         <div className={`w-screen bg-slate-100 lg:bg-[#1F2822] h-fit relative`} >
             <Head>
                 <title>KicksKraze - Login</title>
-                <meta name="description" content="Pizza Buddies - Login Page" />
+                <meta property="og:title" content="Kickskraze | Login" />
+                <meta property="og:description" content="Login Page" />
+                <meta property="og:image" content={logoUrl} />
+                <meta property="og:url" content={fullUrl} />
+                <meta property="og:type" content="home" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <Login_page axios={axios} />
@@ -34,5 +38,11 @@ export const getServerSideProps = async ({ req, res }) => {
         }
     }
 
-    return { props: { message: "Not signed in" } }
+
+    const protocol = req.headers["x-forwarded-proto"] || "http"; // Detect HTTP or HTTPS
+    const host = req.headers.host; // Get the domain (localhost:3000 or production domain)
+    const fullUrl = `${protocol}://${host}${req.url}`; // Fully dynamic URL
+    const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
+
+    return { props: { message: "Not signed in", fullUrl, logoUrl } }
 }

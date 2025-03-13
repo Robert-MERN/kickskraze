@@ -10,7 +10,7 @@ export const mail_html_structure = (order, mailType) => {
     // If tracking number is available
     const tracking_url = {
       trax: "https://trax.pk/tracking/",
-      leapord: "https://www.leopardscourier.com/tracking",
+      leapord: "https://www.leopardscourier.com",
     };
     const anchor_tag = `<strong>
       <a

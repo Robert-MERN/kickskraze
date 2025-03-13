@@ -731,6 +731,24 @@ export const ContextProvider = ({ children }) => {
     }
 
 
+    const get_trax_shipment_status = async (axios, tracking_no, set_state, set_is_loading) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.get(`https://sonic.pk/api/shipment/track/consignee/public?tracking_number=${tracking_no}`);
+            if (res?.data?.status === 1) {
+                set_state(Object.values(res.data.details)[0].tracking_history);
+            }
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error",
+            });
+        } finally {
+            set_is_loading(false);
+        }
+    }
+
 
     return (
         <StateContext.Provider
@@ -782,6 +800,8 @@ export const ContextProvider = ({ children }) => {
                 login_api,
 
                 confirm_order_api, delete_order_api, get_order_api, get_all_orders_api, update_order_api,
+
+                get_trax_shipment_status,
 
             }}
         >

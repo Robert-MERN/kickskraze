@@ -765,58 +765,56 @@ const Collection_page = ({ axios }) => {
                             ))
                             : Boolean(products.length) ?
                                 products.map((product) => (
-                                    <Fade key={product._id}>
-                                        <Link href={`/product?product_id=${product._id}`} >
-                                            <div
-                                                className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
-                                            >
-                                                <div className='relative'>
-                                                    <div className={`overflow-hidden shadow-sm relative`}>
-                                                        <img
-                                                            alt=""
-                                                            src={select_thumbnail_from_media(product.media)}
-                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
-                                                            className={`
+                                    <Link key={product._id} href={`/product?product_id=${product._id}`} >
+                                        <div
+                                            className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
+                                        >
+                                            <div className='relative'>
+                                                <div className={`overflow-hidden shadow-sm relative`}>
+                                                    <img
+                                                        alt=""
+                                                        src={select_thumbnail_from_media(product.media)}
+                                                        onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                        className={`
                                                                         ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
                                                                         ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}
                                                                         ${grid === 3 ? "w-full h-[320px] xl:h-[420px]" : ""}
                                                                         ${grid === 4 ? "w-full h-[300px]" : ""}
                                                             
                                                             overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500 `} />
-                                                        {!Boolean(product.stock) &&
-                                                            <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
-                                                                SOLD OUT
-                                                            </span>
-                                                        }
-                                                    </div>
-                                                    {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
-                                                        <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
-                                                            {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
-                                                        </p>
-                                                    }
-
-                                                </div>
-
-
-                                                <div className='flex flex-col gap-1'>
-                                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                        <span className='text-[15px] font-bold text-black'>
-                                                            Rs. {product.price.toLocaleString("en-US")}
+                                                    {!Boolean(product.stock) &&
+                                                        <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
+                                                            SOLD OUT
                                                         </span>
-                                                        {" "}
-                                                        {Boolean(product.compare_price) &&
-                                                            <span className='text-[13px] line-through text-red-600'>
-                                                                Rs. {product.compare_price.toLocaleString("en-US")}
-                                                            </span>
-                                                        }
-                                                    </p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                    }
                                                 </div>
+                                                {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
+                                                    <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
+                                                        {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
+                                                    </p>
+                                                }
+
                                             </div>
-                                        </Link>
-                                    </Fade>
+
+
+                                            <div className='flex flex-col gap-1'>
+                                                <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
+                                                <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
+                                                    <span className='text-[15px] font-bold text-black'>
+                                                        Rs. {product.price.toLocaleString("en-US")}
+                                                    </span>
+                                                    {" "}
+                                                    {Boolean(product.compare_price) &&
+                                                        <span className='text-[13px] line-through text-red-600'>
+                                                            Rs. {product.compare_price.toLocaleString("en-US")}
+                                                        </span>
+                                                    }
+                                                </p>
+                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                            </div>
+                                        </div>
+                                    </Link>
                                 ))
                                 :
                                 <Fade>

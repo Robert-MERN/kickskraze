@@ -98,8 +98,6 @@ const Analytics = ({ axios }) => {
                                     <MenuItem value={"Total"}>All Stores</MenuItem>
                                     <MenuItem value={"Barefoot"}>Barefoot Store</MenuItem>
                                     <MenuItem value={"Kickskraze"}>Kickskraze Store</MenuItem>
-                                    <MenuItem value={"Barefoot & Kickskraze"}>Barefoot & Kickskraze Store</MenuItem>
-
                                 </Select>
                             </FormControl>
                         </div>

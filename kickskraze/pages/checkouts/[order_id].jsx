@@ -6,7 +6,7 @@ import { useRouter } from 'next/router';
 
 
 
-export default function Home() {
+export default function Home({ fullUrl, logoUrl }) {
 
     const router = useRouter();
     const { order_id } = router.query;
@@ -16,7 +16,11 @@ export default function Home() {
         <>
             <Head>
                 <title>Kickskraze | Confirmed Order</title>
-                <meta name="description" content="Your Order" />
+                <meta property="og:title" content="Kickskraze | Your Order" />
+                <meta property="og:description" content="Your Order Page" />
+                <meta property="og:image" content={logoUrl} />
+                <meta property="og:url" content={fullUrl} />
+                <meta property="og:type" content="order" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
@@ -31,4 +35,16 @@ export default function Home() {
             </div>
         </>
     )
+}
+
+
+export async function getServerSideProps({ req }) {
+    const protocol = req.headers["x-forwarded-proto"] || "http"; // Detect HTTP or HTTPS
+    const host = req.headers.host; // Get the domain (localhost:3000 or production domain)
+    const fullUrl = `${protocol}://${host}${req.url}`; // Fully dynamic URL
+    const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
+
+    return {
+        props: { fullUrl, logoUrl },
+    };
 }

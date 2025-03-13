@@ -110,7 +110,7 @@ const Dispatched_orders = ({ axios }) => {
 
     const tracking_url = {
         trax: "https://trax.pk/tracking/",
-        leapord: "https://www.leopardscourier.com/tracking",
+        leapord: "https://www.leopardscourier.com",
     };
 
     const columns = [

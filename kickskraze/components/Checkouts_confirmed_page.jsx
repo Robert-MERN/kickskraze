@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import Badge from "@mui/material/Badge";
 import CheckIcon from '@mui/icons-material/Check';
-import { Skeleton } from '@mui/material';
+import { CircularProgress, Skeleton } from '@mui/material';
 import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
 import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 const Checkouts_page = ({ axios, order_id }) => {
 
-    const { get_order_api, set_snackbar_alert } = useStateContext();
+    const { get_order_api, set_snackbar_alert, get_trax_shipment_status } = useStateContext();
 
     useEffect(() => {
         if (document.querySelector(".MuiCheckbox-root")) {
@@ -62,6 +66,17 @@ const Checkouts_page = ({ axios, order_id }) => {
     }, [order_id]);
 
 
+    // Fetching Shipment Status if the courier is TRAX
+    const [shipment_details, set_shipment_details] = useState([]);
+    const [shipment_details_loading, set_shipment_details_loading] = useState(true);
+
+    useEffect(() => {
+        if (confirmed_order?.tracking_no && confirmed_order?.courier_name === "trax") {
+            get_trax_shipment_status(axios, confirmed_order.tracking_no, set_shipment_details, set_shipment_details_loading);
+        }
+    }, [confirmed_order]);
+
+
     const copy_to_clipboard = async (text, msg) => {
         try {
             await navigator.clipboard.writeText(text);
@@ -88,7 +103,7 @@ const Checkouts_page = ({ axios, order_id }) => {
         // If tracking number is available
         const tracking_url = {
             trax: "https://trax.pk/tracking/",
-            leapord: "https://www.leopardscourier.com/tracking",
+            leapord: "https://www.leopardscourier.com",
         };
         const anchor_tag = <strong>
             <a
@@ -128,7 +143,7 @@ const Checkouts_page = ({ axios, order_id }) => {
         return all_status[order.status];
     }
 
-
+    console.log(shipment_details);
     return (
         <div className='w-full px-[20px] flex flex-col lg:flex-row'>
 
@@ -397,6 +412,59 @@ const Checkouts_page = ({ axios, order_id }) => {
                                     <div className='p-4 border border-stone-200 rounded-md flex flex-col gap-4'>
                                         <p className='text-[18px] font-bold text-stone-900'>{order_status(confirmed_order).title}</p>
                                         <p className='text-[16px] text-stone-700'>{order_status(confirmed_order).description}</p>
+                                        {Boolean(confirmed_order.courier_name === "trax") &&
+                                            <>
+                                                {shipment_details_loading ?
+                                                    <p className='text-[16px] text-stone-500 font-semibold flex items-center'>
+                                                        <CircularProgress color='inherit' size={16} className='mr-2' />
+                                                        Fetching Shipment Status...
+                                                    </p>
+
+                                                    : Boolean(shipment_details.length) ?
+                                                        <Accordion
+                                                            elevation={0}
+                                                            sx={{
+                                                                border: 'none',
+                                                                // borderTop: '1px solid #D1D5DB',
+                                                                '&:before': {
+                                                                    display: 'none',
+                                                                },
+                                                            }}
+                                                            className="shadow-none p-0 w-full"
+                                                        >
+                                                            <AccordionSummary
+                                                                expandIcon={<ExpandMoreIcon />}
+                                                                aria-controls="panel1-content"
+                                                                id="panel1-header"
+                                                                className='px-0'
+                                                            >
+                                                                <p className='underline underline-offset-2 text-[16px] text-stone-600 font-semibold'>
+                                                                    View Shipment Status
+                                                                </p>
+                                                            </AccordionSummary>
+
+                                                            {shipment_details.map((each, index) => (
+                                                                <AccordionDetails
+                                                                    style={{ boxShadow: "0 1px 6px rgba(0, 0, 0, 0.175)" }}
+                                                                    className='p-[20px] flex rounded-md mb-[16px]'
+                                                                >
+                                                                    <p className='flex-[1.3] font-bold text-stone-600 text-[16px] break-words'>
+                                                                        {each.status}
+                                                                    </p>
+
+                                                                    <p className='flex-[1] text-[13px] text-stone-400 text-right'>
+                                                                        {each.date_time}
+                                                                    </p>
+                                                                </AccordionDetails>
+                                                            ))
+                                                            }
+
+                                                        </Accordion>
+                                                        :
+                                                        <></>
+                                                }
+                                            </>
+                                        }
                                     </div>
 
                                     <div className='p-4 border border-stone-200 rounded-md'>

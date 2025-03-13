@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfully connected with DB");
 
-        const stores = ["Barefoot", "Kickskraze", "Barefoot & Kickskraze"];
+        const stores = ["Barefoot", "Kickskraze"];
         const timezone = "Asia/Karachi";
         const defaultTime = { hour: 5, minute: 0, second: 0, millisecond: 0 };
         const currentYear = DateTime.now().setZone(timezone).year;
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
         // Fetch all data in a single query
         const fetchAllData = async (storeName, fromDate) => {
-            const matchCondition = storeName ? { store_name: storeName, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } };
+            const matchCondition = storeName ? { store_name: { $in: [storeName, "Barefoot & Kickskraze"] }, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } };
 
             const result = await Orders.aggregate([
                 { $match: matchCondition },
@@ -44,6 +44,16 @@ export default async function handler(req, res) {
                         ],
                         salesData: [
                             { $unwind: "$purchase" },
+                            {
+                                $lookup: {
+                                    from: "products",
+                                    let: { productId: { $toObjectId: "$purchase._id" } },
+                                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                                    as: "productDetails"
+                                }
+                            },
+                            { $unwind: "$productDetails" },
+                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
                             {
                                 $group: {
                                     _id: {
@@ -67,6 +77,7 @@ export default async function handler(req, res) {
                                 }
                             },
                             { $unwind: "$productDetails" },
+                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
                             {
                                 $group: {
                                     _id: {
@@ -108,6 +119,7 @@ export default async function handler(req, res) {
                                     as: "productDetails"
                                 }
                             },
+                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
                             { $unwind: "$productDetails" },
                             {
                                 $project: {
