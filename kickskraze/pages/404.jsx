@@ -1,15 +1,13 @@
 import Link from 'next/link'
 import Head from 'next/head'
 
-export default function FourOhFour({ logoUrl, fullUrl }) {
+export default function FourOhFour() {
     return (
         <div className={`w-screen h-[95vh] text-stone-700 justify-center flex items-center flex-col gap-16`} >
             <Head>
                 <title>Kickskraze | 404</title>
                 <meta property="og:title" content="Kickskraze | 404" />
                 <meta property="og:description" content="404 Not Found Page. You have entered in the wrong page" />
-                <meta property="og:image" content={logoUrl} />
-                <meta property="og:url" content={fullUrl} />
                 <meta property="og:type" content="404" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
@@ -25,16 +23,3 @@ export default function FourOhFour({ logoUrl, fullUrl }) {
     )
 }
 
-
-
-
-export async function getServerSideProps({ req }) {
-    const protocol = req.headers["x-forwarded-proto"] || "http"; // Detect HTTP or HTTPS
-    const host = req.headers.host; // Get the domain (localhost:3000 or production domain)
-    const fullUrl = `${protocol}://${host}${req.url}`; // Fully dynamic URL
-    const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
-
-    return {
-        props: { fullUrl, logoUrl },
-    };
-}
