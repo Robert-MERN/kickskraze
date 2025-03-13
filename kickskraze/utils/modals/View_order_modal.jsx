@@ -119,7 +119,7 @@ const View_order_modal = ({
         const { name, value } = event.target;
         set_confirmed_order((prevState) => ({
             ...prevState,
-            [name]: value,
+            [name]: (name === "tracking_no") ? value.replace(/\s+/g, "") : value,
         }));
     }
 

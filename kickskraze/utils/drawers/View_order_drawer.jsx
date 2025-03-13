@@ -115,7 +115,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
         const { name, value } = event.target;
         set_confirmed_order((prevState) => ({
             ...prevState,
-            [name]: value,
+            [name]: (name === "tracking_no") ? value.replace(/\s+/g, "") : value,
         }));
     }
 
