@@ -130,14 +130,17 @@ export default async function handler(req, res) {
         const trackingChanged = changedKeys.includes("tracking_no");
         const courierChanged = changedKeys.includes("courier_name");
         const verificationChanged = changedKeys.includes("verification");
+        const warehouseStatusChanged = changedKeys.includes("warehouse_status");
 
-        // If verification changed but other fields also changed, we still need to send an update email
+        // If verification or warehouse status changed but other fields also changed, we still need to send an update email
         const onlyVerificationChanged = verificationChanged && changedKeys.length === 1;
+        const onlyWarehouseStatusChanged = warehouseStatusChanged && changedKeys.length === 1;
+        const onlyWarehouseStatusAndVerificationChanged = verificationChanged & warehouseStatusChanged && changedKeys.length === 2;
 
         if (changedKeys.length > 0) {
             if (statusChanged || trackingChanged || courierChanged) {
                 await send_confirm_mail(res, _updatedOrder, "status_update");
-            } else if (!onlyVerificationChanged) {
+            } else if (!onlyVerificationChanged && !onlyWarehouseStatusChanged && !onlyWarehouseStatusAndVerificationChanged) {
                 // Send update email if any field other than verification changed
                 await send_confirm_mail(res, _updatedOrder, "update");
             }
