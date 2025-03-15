@@ -177,6 +177,7 @@ export const ContextProvider = ({ children }) => {
         stock: 1,
         size_desc: "",
         shoes_desc: "",
+        store_name: "",
         media: [],
         featured: false,
         errors: {
@@ -190,6 +191,7 @@ export const ContextProvider = ({ children }) => {
             stock: "",
             size_desc: "",
             shoes_desc: "",
+            store_name: "",
             media: "",
         }
     }
@@ -210,6 +212,7 @@ export const ContextProvider = ({ children }) => {
         size_desc: "",
         shoes_desc: "",
         media: [],
+        store_name: "",
         featured: false,
         errors: {
             title: "",
@@ -222,6 +225,7 @@ export const ContextProvider = ({ children }) => {
             stock: "",
             size_desc: "",
             shoes_desc: "",
+            store_name: "",
             media: "",
         }
     }

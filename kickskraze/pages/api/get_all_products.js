@@ -22,9 +22,8 @@ export default async function handler(req, res) {
     await connect_mongo();
     console.log("Successfuly conneted with DB");
 
-
     // Extract query parameters
-    const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, limit, page } = req.query;
+    const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, store_name, limit, page } = req.query;
 
     // Initialize a query object
     const query = { isDeleted: false };
@@ -71,6 +70,10 @@ export default async function handler(req, res) {
       if (search) {
         query.title = { $regex: search, $options: 'i' };
       }
+    }
+
+    if (store_name) {
+      query.store_name = store_name.charAt(0).toUpperCase() + store_name.slice(1);
     }
 
     // Handle "Category" filter
@@ -133,7 +136,7 @@ export default async function handler(req, res) {
         .lean();
     }
 
-    
+
     // Determine whether more items are available
     const hasMore = pageNumber * pageSize < filteredCount;
 

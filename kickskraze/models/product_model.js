@@ -71,6 +71,11 @@ const productSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    store_name: {
+        type: String,
+        required: [true, "Please enter the product store name"]
+
+    },
     isDeleted: {
         type: Boolean,
         default: false,

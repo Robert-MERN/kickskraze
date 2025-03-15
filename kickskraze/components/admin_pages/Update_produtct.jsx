@@ -1,22 +1,23 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
 import styles from "@/styles/home.module.css";
 import { IoClose } from "react-icons/io5";
-import { Box, FormControl, FormHelperText, IconButton } from '@mui/material';
+import { FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select } from '@mui/material';
 import useStateContext from '@/context/ContextProvider';
 import { nanoid } from 'nanoid';
-import imageCompression from 'browser-image-compression';
 import Switch from '@mui/material/Switch';
 import InputAdornment from '@mui/material/InputAdornment';
-import { brand_list, category_list, condition_list, countries } from '@/utils/shoes_info_list';
+import { brand_list, category_list, condition_list } from '@/utils/shoes_info_list';
 import { TbShoppingBagEdit } from "react-icons/tb";
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import { GiConverseShoe } from "react-icons/gi";
 import { useRouter } from 'next/router';
 import mongoose from 'mongoose';
 import { capitalizeWords } from '@/utils/functions/produc_fn';
+import StoreIcon from '@mui/icons-material/Store';
+
 
 
 const Create_product = ({ axios }) => {
@@ -238,6 +239,11 @@ const Create_product = ({ axios }) => {
             //         error = 'Please enter the shoes description';
             //     }
             //     break;
+            case 'store_name':
+                if (!value) {
+                    error = 'Please enter the store name';
+                }
+                break;
             case 'media':
                 if (!value.length) {
                     error = 'Please add the shoes media';
@@ -718,6 +724,36 @@ const Create_product = ({ axios }) => {
                             helperText={update_product_details.errors.shoes_desc}
                             sx={style_textfield}
                         />
+
+
+                        <FormControl
+                            className='w-full'
+                            variant="outlined"
+
+                            error={Boolean(update_product_details.errors.store_name)}
+                            sx={style_textfield}
+                        >
+                            <InputLabel>Store Name</InputLabel>
+                            <Select
+                                name="store_name"
+                                label="Store Name"
+                                onChange={handleChange}
+                                value={update_product_details.store_name}
+                                renderValue={selected => selected}
+                            >
+                                <MenuItem value="Barefoot">
+                                    <StoreIcon className='mr-2 text-stone-600' />
+                                    <p>Barefoot</p>
+                                </MenuItem>
+                                <MenuItem value="Kickskraze">
+                                    <StoreIcon className='mr-2 text-stone-600' />
+                                    <p>Kickskraze</p>
+                                </MenuItem>
+                            </Select>
+                            {Boolean(update_product_details.errors.store_name) && <FormHelperText>{update_product_details.errors.store_name}</FormHelperText>}
+                        </FormControl>
+
+
 
                         <TextField
                             value={"Feature Product"}

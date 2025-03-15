@@ -286,11 +286,10 @@ const Analytics = ({ axios }) => {
                                         </Select>
                                     </FormControl>
                                 </div>
-
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.x), scaleType: 'band' }]}
                                     series={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.y), label: 'Revenue', color: "rgb(20,184,166)" }]}
-                                    className='w-full h-[350px] lg:h-[500px] bg-teal-'
+                                    className='w-full h-[350px] lg:h-[500px]]'
                                 />
                             </div>
 
@@ -337,7 +336,7 @@ const Analytics = ({ axios }) => {
                             <div className="w-full mt-16 lg:mt-24">
                                 <div className='w-full flex justify-between items-center mb-8' >
                                     <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
-                                        Order By City Report
+                                        Orders By City Report
                                     </h1>
                                     <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
                                         <Select

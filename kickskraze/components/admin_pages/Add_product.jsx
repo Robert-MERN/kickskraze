@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
 import styles from "@/styles/home.module.css";
 import { IoClose } from "react-icons/io5";
-import { FormControl, FormHelperText, IconButton } from '@mui/material';
+import { FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select } from '@mui/material';
 import useStateContext from '@/context/ContextProvider';
 import { nanoid } from 'nanoid';
 import Switch from '@mui/material/Switch';
@@ -13,6 +13,8 @@ import { brand_list, category_list, condition_list } from '@/utils/shoes_info_li
 import { FaBasketShopping } from "react-icons/fa6";
 import { GiConverseShoe } from "react-icons/gi";
 import { capitalizeWords } from '@/utils/functions/produc_fn';
+import StoreIcon from '@mui/icons-material/Store';
+
 
 
 const Add_product = ({ axios }) => {
@@ -202,6 +204,11 @@ const Add_product = ({ axios }) => {
             //         error = 'Please enter the shoes description';
             //     }
             //     break;
+            case 'store_name':
+                if (!value) {
+                    error = 'Please select the store name';
+                }
+                break;
             case 'media':
                 if (!value.length) {
                     error = 'Please add the shoes media';
@@ -601,6 +608,35 @@ const Add_product = ({ axios }) => {
                     helperText={product_details.errors.shoes_desc}
                     sx={style_textfield}
                 />
+
+
+                <FormControl
+                    className='w-full'
+                    variant="outlined"
+
+                    error={Boolean(product_details.errors.store_name)}
+                    sx={style_textfield}
+                >
+                    <InputLabel>Store Name</InputLabel>
+                    <Select
+                        name="store_name"
+                        label="Store Name"
+                        onChange={handleChange}
+                        value={product_details.store_name}
+                        renderValue={selected => selected}
+                    >
+                        <MenuItem value="Barefoot">
+                            <StoreIcon className='mr-2 text-stone-600' />
+                            <p>Barefoot</p>
+                        </MenuItem>
+                        <MenuItem value="Kickskraze">
+                            <StoreIcon className='mr-2 text-stone-600' />
+                            <p>Kickskraze</p>
+                        </MenuItem>
+                    </Select>
+                    {Boolean(product_details.errors.store_name) && <FormHelperText>{product_details.errors.store_name}</FormHelperText>}
+                </FormControl>
+
 
                 <TextField
                     value={"Feature Product"}

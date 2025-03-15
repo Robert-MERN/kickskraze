@@ -53,7 +53,7 @@ export default async function handler(req, res) {
                                 }
                             },
                             { $unwind: "$productDetails" },
-                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
                             {
                                 $group: {
                                     _id: {
@@ -77,7 +77,7 @@ export default async function handler(req, res) {
                                 }
                             },
                             { $unwind: "$productDetails" },
-                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
                             {
                                 $group: {
                                     _id: {
@@ -119,7 +119,7 @@ export default async function handler(req, res) {
                                     as: "productDetails"
                                 }
                             },
-                            { $match: Boolean(storeName) ? { "productDetails.brand": Boolean(storeName === "Barefoot") ? { $in: ["Converse", "Vans"] } : { $nin: ["Converse", "Vans"] } } : {} },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
                             { $unwind: "$productDetails" },
                             {
                                 $project: {
