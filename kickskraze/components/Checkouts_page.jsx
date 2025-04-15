@@ -153,7 +153,7 @@ const Checkouts_page = ({ axios }) => {
         fetch();
     }, []);
 
-
+    const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/;
     const validateField = (fieldName, value) => {
         let error = '';
         switch (fieldName) {
@@ -192,7 +192,7 @@ const Checkouts_page = ({ axios }) => {
             case 'phone':
                 if (!value) {
                     error = 'Please enter your phone';
-                } else if (!/^(?:(?:\+92|0092|92|0)?3\d{9})$/.test(value)) {
+                } else if (!phone_regex.test(value)) {
                     error = 'Please enter a valid phone number e.g. "03102223511"';
                 }
                 break;
