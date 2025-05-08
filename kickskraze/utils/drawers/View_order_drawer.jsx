@@ -119,6 +119,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
         }));
     }
 
+    const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/
     // Validate form
     const validateField = (fieldName, value) => {
         let error = '';
@@ -158,7 +159,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
             case 'phone':
                 if (!value) {
                     error = 'Please enter your phone';
-                } else if (!/^(?:(?:\+92|0092|92|0)?3\d{9})$/.test(value)) {
+                } else if (!phone_regex.test(value)) {
                     error = 'Please enter a valid phone number';
                 }
                 break;

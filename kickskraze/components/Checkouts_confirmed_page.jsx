@@ -143,7 +143,6 @@ const Checkouts_page = ({ axios, order_id }) => {
         return all_status[order.status];
     }
 
-    console.log(shipment_details);
     return (
         <div className='w-full px-[20px] flex flex-col lg:flex-row'>
 
