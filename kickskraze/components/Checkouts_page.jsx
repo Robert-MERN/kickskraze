@@ -153,8 +153,12 @@ const Checkouts_page = ({ axios }) => {
         fetch();
     }, []);
 
+<<<<<<< HEAD
 
     const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/
+=======
+    const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/;
+>>>>>>> 5eb944aa59c4e3df4566f1eddf93de56dd90162c
     const validateField = (fieldName, value) => {
         let error = '';
         switch (fieldName) {
