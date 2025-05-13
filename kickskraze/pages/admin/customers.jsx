@@ -5,6 +5,8 @@ import Head from 'next/head'
 import axios from 'axios'
 import { get_cookie } from '@/utils/functions/cookie'
 import jwt from "jsonwebtoken";
+import Users from '@/models/user_model'
+import connect_mongo from '@/utils/functions/connect_mongo'
 
 
 
@@ -31,7 +33,6 @@ export default function Home({ fullUrl, logoUrl }) {
 }
 
 
-
 export const getServerSideProps = async ({ req, res }) => {
 
     // validating user from cookie
@@ -43,8 +44,37 @@ export const getServerSideProps = async ({ req, res }) => {
     const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
 
     if (user_account_token) {
-        const user = jwt.verify(user_account_token, process.env.JWT_KEY);
-        return { props: { user, fullUrl, logoUrl } }
+
+        console.log("Connecting with DB")
+        try {
+            // connecting with monogDB
+            await connect_mongo();
+            console.log("Successfuly conneted with DB");
+
+            const user = jwt.verify(user_account_token, process.env.JWT_KEY);
+            const user_db = await Users.findOne({ email: user.email });
+
+            if (user.password_update_count !== user_db.password_update_count) {
+                return {
+                    redirect: {
+                        destination: "/login",
+                        permanent: true,
+                    },
+                }
+            }
+            return { props: { user, fullUrl, logoUrl } }
+
+        } catch (err) {
+            console.error(err);
+            return {
+                redirect: {
+                    destination: "/login",
+                    permanent: true,
+                },
+            }
+        }
+
+
     }
 
 
