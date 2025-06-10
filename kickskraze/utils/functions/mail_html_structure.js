@@ -892,9 +892,9 @@ export const mail_html_structure = (order, mailType) => {
                               <tr>
                                 <td align="center"
                                   style="padding:0;Margin:0;padding-top:10px;padding-bottom:10px;font-size:0px"><a
-                                    target="_blank" href="https://kickskraze.shop"
+                                    target="_blank" href="https://kicks-kraze.com"
                                     style="mso-line-height-rule:exactly;text-decoration:underline;color:#5C68E2;font-size:14px"><img
-                                      src="https://kickskraze.shop/images/logo.png" alt="" width="320" title="Logo"
+                                      src="https://kicks-kraze.com/images/logo.png" alt="" width="320" title="Logo"
                                       class="img-4512"
                                       style="display:block;font-size:14px;border:0;outline:none;text-decoration:none"></a>
                                 </td>
@@ -942,7 +942,7 @@ export const mail_html_structure = (order, mailType) => {
                                    
                                     ${mail_messages[mailType].view ?
 
-      `<strong>Order&nbsp;<a target="_blank" href="https://kickskraze.shop/checkouts/${_id}"
+      `<strong>Order&nbsp;<a target="_blank" href="https://kicks-kraze.com/checkouts/${_id}"
                                       style="mso-line-height-rule:exactly;text-decoration:underline;color:#999999;font-size:16px;text-transform: uppercase">#${orderNumber}</a> </strong>`
       :
       `<strong>Order&nbsp;<span
@@ -973,13 +973,13 @@ export const mail_html_structure = (order, mailType) => {
                                     style="border-style:solid;border-color:#e11d48;background:#e11d48;border-width:2px;display:inline-block;border-radius:6px;width:auto">
                                     ${mail_messages[mailType].view ?
       `<a
-                                      href="https://kickskraze.shop/checkouts/${_id}" target="_blank"
+                                      href="https://kicks-kraze.com/checkouts/${_id}" target="_blank"
                                       class="es-button es-button-3343"
                                       style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#ffffff;font-size:18px;padding:10px 30px 10px 30px;display:inline-block;background:#e11d48;border-radius:6px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:21.6px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #e11d48;border-left-width:30px;border-right-width:30px">View
                                       your order</a>`
       :
       `<a
-                                      href="https://kickskraze.shop" target="_blank"
+                                      href="https://kicks-kraze.com" target="_blank"
                                       class="es-button es-button-3343"
                                       style="mso-style-priority:100 !important;text-decoration:none !important;mso-line-height-rule:exactly;color:#ffffff;font-size:18px;padding:10px 30px 10px 30px;display:inline-block;background:#e11d48;border-radius:6px;font-family:arial, 'helvetica neue', helvetica, sans-serif;font-weight:normal;font-style:normal;line-height:21.6px;width:auto;text-align:center;letter-spacing:0;mso-padding-alt:0;mso-border-alt:10px solid #e11d48;border-left-width:30px;border-right-width:30px">Visit
                                       store</a>`
@@ -1284,7 +1284,7 @@ export const mail_html_structure = (order, mailType) => {
                                       <td align="center" valign="top" width="100.00%"
                                         style="Margin:0;border:0;padding-top:5px;padding-bottom:5px;padding-right:5px;padding-left:5px">
                                         <div style="vertical-align:middle;display:block">
-                                          <a target="_blank" href="https://kickskraze.shop"
+                                          <a target="_blank" href="https://kicks-kraze.com"
                                             style="mso-line-height-rule:exactly;text-decoration:none;font-family:arial, 'helvetica neue', helvetica, sans-serif;display:block;color:#999999;font-size:12px">
                                             Visit Us
                                           </a>
