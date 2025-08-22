@@ -124,6 +124,7 @@ const View_order_modal = ({
     }
 
     const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/
+    const email_regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     // Validate form
     const validateField = (fieldName, value) => {
         let error = '';
@@ -131,7 +132,7 @@ const View_order_modal = ({
             case 'email':
                 if (!value) {
                     error = 'Please enter an email';
-                } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+                } else if (!email_regex.test(value)) {
                     error = 'Invalid email address';
                 }
                 break;
