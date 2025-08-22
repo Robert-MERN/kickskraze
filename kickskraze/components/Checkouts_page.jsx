@@ -155,6 +155,7 @@ const Checkouts_page = ({ axios }) => {
 
 
     const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/;
+    const email_regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
     
     const validateField = (fieldName, value) => {
         let error = '';
@@ -162,7 +163,7 @@ const Checkouts_page = ({ axios }) => {
             case 'email':
                 if (!value) {
                     error = 'Please enter an email';
-                } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(value)) {
+                } else if (!email_regex.test(value)) {
                     error = 'Invalid email address';
                 }
                 break;
