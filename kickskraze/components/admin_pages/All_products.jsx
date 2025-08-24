@@ -844,7 +844,7 @@ const All_products = ({ axios }) => {
                                                     </p>
                                                     <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                                                     <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Date: {date_formatter(product.createdAt)}</p>
+                                                    <p className='text-[14px] text-black line-clamp-2 overflow-hidden text-ellipsis' >Date: {date_formatter(product.createdAt)}</p>
                                                 </div>
                                             </div>
                                         </Link>
