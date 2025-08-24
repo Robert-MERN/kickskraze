@@ -257,8 +257,8 @@ const Checkouts_page = ({ axios }) => {
             heading: "EasyPaisa Account Details:",
             icon: <img src="/images/easypaisa.png" className='w-[30px] h-[30px] md:w-[40px] md:h-[40px] object-contain ml-[5px]' />,
             bank_name: "EasyPaisa / Telenor Microfinance Bank",
-            account_title: "Muneeb Ahmed",
-            account_no: "03197705931",
+            account_title: "Safeer Ahmed",
+            account_no: "03135283990",
         },
         easypaisa_babu: {
             heading: "EasyPaisa Account Details:",
