@@ -333,7 +333,27 @@ const All_products = ({ axios }) => {
 
 
 
+    const date_formatter = (date) => {
+        // Create a Date object
+        const dateObject = new Date(date);
 
+        // Format the date and time with the Pakistan time zone
+        const formattedDate = dateObject.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            timeZone: 'Asia/Karachi'
+        });
+
+        const formattedTime = dateObject.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Karachi'
+        });
+
+        return `${formattedDate}  [${formattedTime}]`;
+    };
 
 
 
@@ -824,6 +844,7 @@ const All_products = ({ axios }) => {
                                                     </p>
                                                     <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                                                     <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.createdat}</p>
                                                 </div>
                                             </div>
                                         </Link>
