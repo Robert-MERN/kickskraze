@@ -373,8 +373,9 @@ const Create_product = ({ axios }) => {
                             <TbShoppingBagEdit className='text-[24px] lg:text-[30px]' />
                             Update Product
                          </div>
-                        
-                        <p className="text-[15px] lg:text-[17px] font-medium text-stone-600">{date_formatter(update_product_details.createdAt)}</p>
+                        {Boolean(update_product_details.createdAt)&&
+                            <p className="text-[15px] lg:text-[17px] font-medium text-stone-600">{date_formatter(update_product_details.createdAt)}</p>
+                        }
                     </h1>
                     :
                     <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-2'>
