@@ -337,6 +337,30 @@ const Create_product = ({ axios }) => {
             set_API_loading(false);
         }
     };
+    
+    
+    // Date Formatter
+    const date_formatter = (date) => {
+        // Create a Date object
+        const dateObject = new Date(date);
+
+        // Format the date and time with the Pakistan time zone
+        const formattedDate = dateObject.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            timeZone: 'Asia/Karachi'
+        });
+
+        const formattedTime = dateObject.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Karachi'
+        });
+
+        return `${formattedDate}  [${formattedTime}]`;
+    };
 
 
     return (
@@ -344,13 +368,13 @@ const Create_product = ({ axios }) => {
             <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-y-6 border-stone-200 rounded-2xl md:shadow-md">
 
                 {Boolean(product_id) ?
-                    <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-4 justify-between'>
+                    <h1 className='w-full text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-4 justify-between'>
                         <div className="flex items-center gap-2">
                             <TbShoppingBagEdit className='text-[24px] lg:text-[30px]' />
                             Update Product
                          </div>
                         
-                        <p className="text-[15px]">{update_product_details.createdAt}</p>
+                        <p className="text-[15px] lg:text-[17px] font-medium text-stone-600">{date_formatter(update_product_details.createdAt)}</p>
                     </h1>
                     :
                     <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-2'>
