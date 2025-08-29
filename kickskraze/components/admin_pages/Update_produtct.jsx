@@ -344,9 +344,13 @@ const Create_product = ({ axios }) => {
             <form onSubmit={handle_submit} className="flex-[1] md:px-[40px] py-[40px] flex flex-col gap-y-6 border-stone-200 rounded-2xl md:shadow-md">
 
                 {Boolean(product_id) ?
-                    <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-2'>
-                        <TbShoppingBagEdit className='text-[24px] lg:text-[30px]' />
-                        Update Product
+                    <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-4 justify-between'>
+                        <div className="flex items-center gap-2">
+                            <TbShoppingBagEdit className='text-[24px] lg:text-[30px]' />
+                            Update Product
+                         </div>
+                        
+                        <p className="text-[15px]">{update_product_details.createdAt}</p>
                     </h1>
                     :
                     <h1 className='text-[17px] lg:text-[19px] font-semibold text-stone-700 mb-[15px] flex items-center gap-2'>
