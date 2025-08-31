@@ -238,12 +238,18 @@ const Orders = ({ axios }) => {
     useEffect(() => {
         get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
     }, []);
+    
+    const [show_report, set_show_report] = useState(false);
+    
+    const handle_show_report = ()=> set_show_report(prev=> !prev)
 
 
     return (
         <div className='w-full h-full' >
             
             {Boolean(orders.length > 1) &&
+                <>
+                {show_report && 
                 <div className="w-full mb-4 flex flex-col gap-2">
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
                         Total Orders:
@@ -287,6 +293,17 @@ const Orders = ({ axios }) => {
                        </p>
                     }
                 </div>
+                }
+                
+                    <button onClick={handle_show_report} className="text-stone-700 font-bold underline text-[16px] md:text-[18px]">
+                        {show_report?
+                          "Hide Report"
+                           :
+                          "Show Report"
+                        }
+                        
+                    </button>
+                </>
             }
             
             
