@@ -295,7 +295,7 @@ const Orders = ({ axios }) => {
                 </div>
                 }
                 
-                    <button onClick={handle_show_report} className="mt-3 text-stone-700 font-bold underline text-[16px] md:text-[18px]">
+                    <button onClick={handle_show_report} className="my-2 text-stone-700 font-bold underline text-[16px] md:text-[18px]">
                         {show_report?
                           "Hide Report"
                            :
