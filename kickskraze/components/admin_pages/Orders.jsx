@@ -253,7 +253,7 @@ const Orders = ({ axios }) => {
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
                         Amount:
                         {" "}
-                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_amount), 0)}</span>
+                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_amount), 0).toLocaleString("en-US")}</span>
                     </p>
                 </div>
             }
