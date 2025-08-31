@@ -242,6 +242,22 @@ const Orders = ({ axios }) => {
 
     return (
         <div className='w-full h-full' >
+            {Boolean(orders.length > 1) &&
+                <div className="w-full mb-4 flex items-center justify-between">
+                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                        Orders:
+                        {" "}
+                       <span className="font-normal">{orders.length}</span>
+                    </p>
+                    
+                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                        Amount:
+                        {" "}
+                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_amount), 0)}</span>
+                    </p>
+                </div>
+            }
+            
             <DataGrid
                 sx={{
                     [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
