@@ -286,14 +286,14 @@ const Orders = ({ axios }) => {
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
                         Total Sale:
                         {" "}
-                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                       <span className="font-normal">{orders.reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
                     </p>
                     
                     {Boolean(orders.filter(order=> order.verification === "verified").length) &&
                        <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
                            Total Verified Sale:
                            {" "}
-                           <span className="font-normal">Rs. {orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                           <span className="font-normal">{orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
                        </p>
                     }
                     
