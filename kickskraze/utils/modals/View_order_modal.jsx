@@ -473,6 +473,7 @@ const View_order_modal = ({
                                                                     <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                                     <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
                                                                     <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
+                                                                    <p className="text-gray-600 font-normal">{date_formatter(item.createdAt)}</p>
                                                                 </div>
                                                             </div>
 
