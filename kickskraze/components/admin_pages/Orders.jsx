@@ -242,6 +242,31 @@ const Orders = ({ axios }) => {
 
     return (
         <div className='w-full h-full' >
+            <DataGrid
+                sx={{
+                    [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
+                        outline: 'none',
+                    },
+                    [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]:
+                    {
+                        outline: 'none',
+                    },
+                }}
+                columns={columns}
+                rows={orders.map(row => ({
+                    ...row,
+                    name: `${row.firstName || ""} ${row.lastName || ""}`.trim()
+                }))}
+                getRowId={row => row._id}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                pageSizeOptions={[6, 13]}
+                loading={is_loading}
+                rowSelection={false}
+            />
+            
+            
+            
             {Boolean(orders.length > 1) &&
                 <div className="w-full mt-4 flex flex-col gap-2">
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
@@ -288,28 +313,7 @@ const Orders = ({ axios }) => {
                 </div>
             }
             
-            <DataGrid
-                sx={{
-                    [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
-                        outline: 'none',
-                    },
-                    [`& .${gridClasses.columnHeader}:focus, & .${gridClasses.columnHeader}:focus-within`]:
-                    {
-                        outline: 'none',
-                    },
-                }}
-                columns={columns}
-                rows={orders.map(row => ({
-                    ...row,
-                    name: `${row.firstName || ""} ${row.lastName || ""}`.trim()
-                }))}
-                getRowId={row => row._id}
-                paginationModel={paginationModel}
-                onPaginationModelChange={setPaginationModel}
-                pageSizeOptions={[6, 13]}
-                loading={is_loading}
-                rowSelection={false}
-            />
+            
         </div>
     )
 }
