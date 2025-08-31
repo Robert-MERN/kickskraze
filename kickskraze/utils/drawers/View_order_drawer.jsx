@@ -212,29 +212,6 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
             return { ...prev, purchase };
         });
     }
-    
-    // Date Formatter Function
-    const date_formatter = (date) => {
-        // Create a Date object
-        const dateObject = new Date(date);
-
-        // Format the date and time with the Pakistan time zone
-        const formattedDate = dateObject.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: '2-digit',
-            timeZone: 'Asia/Karachi'
-        });
-
-        const formattedTime = dateObject.toLocaleTimeString('en-US', {
-            hour: 'numeric',
-            minute: '2-digit',
-            hour12: true,
-            timeZone: 'Asia/Karachi'
-        });
-
-        return `${formattedDate}  [${formattedTime}]`;
-    };
 
 
     return (
