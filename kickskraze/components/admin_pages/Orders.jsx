@@ -243,18 +243,48 @@ const Orders = ({ axios }) => {
     return (
         <div className='w-full h-full' >
             {Boolean(orders.length > 1) &&
-                <div className="w-full mb-4 flex items-center justify-between">
+                <div className="w-full mt-4 flex flex-col gap-2">
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                        Orders:
+                        Total Orders:
                         {" "}
-                       <span className="font-normal">{orders.length}</span>
+                       <span className="font-normal">{orders.length.toLocaleString("en-US")}</span>
                     </p>
                     
+                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
+                        <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                            Total Verified Orders:
+                            {" "}
+                        <span className="font-normal">{orders.filter(order=> order.verification === "verified").length.toLocaleString("en-US")}</span>
+                    </p>
+                    }
+                    
                     <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                        Amount:
+                        Total Sale:
+                        {" "}
+                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                    </p>
+                    
+                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
+                       <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                           Total Verified Sale:
+                           {" "}
+                           <span className="font-normal">Rs. {orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                       </p>
+                    }
+                    
+                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                        Total Revenue:
                         {" "}
                        <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_amount), 0).toLocaleString("en-US")}</span>
                     </p>
+                    
+                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
+                       <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                           Total Verified Revenue:
+                           {" "}
+                           <span className="font-normal">Rs. {orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_amount), 0).toLocaleString("en-US")}</span>
+                       </p>
+                    }
                 </div>
             }
             
