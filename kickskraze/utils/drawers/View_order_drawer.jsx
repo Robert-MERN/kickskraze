@@ -212,6 +212,29 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
             return { ...prev, purchase };
         });
     }
+    
+    // Date Formatter Function
+    const date_formatter = (date) => {
+        // Create a Date object
+        const dateObject = new Date(date);
+
+        // Format the date and time with the Pakistan time zone
+        const formattedDate = dateObject.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            timeZone: 'Asia/Karachi'
+        });
+
+        const formattedTime = dateObject.toLocaleTimeString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Karachi'
+        });
+
+        return `${formattedDate}  [${formattedTime}]`;
+    };
 
 
     return (
@@ -469,7 +492,8 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
                                                                     <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
                                                                     <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
                                                                     <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
-                                                                </div>
+                                                                    <p className="text-gray-600 font-normal">{date_formatter(item.createdAt)}</p>
+                                                                 </div>
                                                             </div>
 
                                                             <div className='flex flex-col items-end'>
