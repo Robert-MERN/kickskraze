@@ -65,42 +65,52 @@ export default async function handler(req, res) {
                                 },
                             },
                         ],
-                        revenueData: [
+                        revenueData: [                           
                             { $match: { status: { $ne: "returned" } } },
                             { $unwind: "$purchase" },
+
                             {
                                 $lookup: {
-                                    from: "products",
-                                    let: { productId: { $toObjectId: "$purchase._id" } },
-                                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
-                                    as: "productDetails"
-                                }
+                                             from: "products",
+                                             let: { productId: { $toObjectId: "$purchase._id" } },
+                                             pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                                             as: "productDetails"
+                                         }
                             },
                             { $unwind: "$productDetails" },
                             { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+
+                            // 1) Collapse back to one doc per order (_id), summing the *line totals* only.
                             {
                                 $group: {
-                                    _id: {
-                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                    },
-                                    totalRevenue: {
-                                        $sum: {
-                                            $multiply: [
-                                                { $ifNull: ["$productDetails.price", 0] },
-                                                "$purchase.quantity",
-                                            ],
-                                        },
-                                    },
-                                    deliveryCharges: { $sum: "$delivery_charges" },
-                                },
+                                            _id: "$_id",
+                                            createdAt: { $first: "$createdAt" },
+                                            lineTotal: {
+                                                           $sum: {
+                                                                     $multiply: [
+                                                                                  { $ifNull: ["$productDetails.price", 0] },
+                                                                                  "$purchase.quantity"
+                                                                                ]
+                                                                 }
+                                                        },
+                                            delivery_charges: { $first: "$delivery_charges" } // << add once
+                                        }
                             },
+
+                            // 2) Now group by day and add delivery once per order
                             {
-                                $project: {
-                                    totalRevenue: { $add: ["$totalRevenue", "$deliveryCharges"] },
-                                },
+                                $group: {
+                                           _id: {
+                                                    day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                                    month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                                    year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
+                                                 },
+                                           totalRevenue: { $sum: { $add: ["$lineTotal", { $ifNull: ["$delivery_charges", 0] }] } }
+                                        }
                             },
+
+                            // (optional) keep shape identical to your current code
+                            { $project: { totalRevenue: 1 } }
                         ],
                         ordersByCity: [
                             { $group: { _id: "$city", count: { $sum: 1 } } },
