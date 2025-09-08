@@ -108,28 +108,30 @@ export default async function handler(req, res) {
                         totalOrdersCount: [
                             { $group: { _id: null, count: { $sum: 1 } } } // Counts total number of orders
                         ],
-                        rawOrders: [ // Fetch raw orders with required fields
-                            { $match: matchCondition },
-                            { $unwind: "$purchase" },
-                            {
-                                $lookup: {
-                                    from: "products",
-                                    let: { productId: { $toObjectId: "$purchase._id" } },
-                                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
-                                    as: "productDetails"
-                                }
-                            },
-                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
-                            { $unwind: "$productDetails" },
-                            {
+                        rawOrders: [
+                             { $match: matchCondition },
+                             { $unwind: "$purchase" },
+                             {
+                                 $lookup: {
+                                             from: "products",
+                                             let: { productId: { $toObjectId: "$purchase._id" } },
+                                             pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                                             as: "productDetails"
+                                          }
+                             },
+                             { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+                             { $unwind: "$productDetails" },
+                             {
                                 $project: {
-                                    status: 1,
-                                    purchase: 1,
-                                    productDetails: 1,
-                                    delivery_charges: 1,
-                                },
-                            },
-                        ],
+                                             _id: 1,                // << add this!
+                                             status: 1,
+                                             purchase: 1,
+                                             productDetails: 1,
+                                             delivery_charges: 1,
+                                             createdAt: 1
+                                          }
+                             },
+                         ],
                     },
                 },
             ]);
@@ -139,20 +141,40 @@ export default async function handler(req, res) {
 
         // Helper function to calculate sums
         const calculateSums = (data, statusArg) => {
-            const filteredData = data.filter(order => {
-                if (statusArg === "delivered") return order.status === "delivered";
-                if (statusArg === "undelivered") return order.status !== "delivered" && order.status !== "returned";
-                return order.status !== "returned";
-            });
+             const filteredData = data.filter(order => {
+             if (statusArg === "delivered") return order.status === "delivered";
+             if (statusArg === "undelivered") return order.status !== "delivered" && order.status !== "returned";
+             return order.status !== "returned";
+             });
 
-            const totalOrders = filteredData.length;
-            const totalSales = filteredData.reduce((sum, order) => sum + order.purchase.quantity, 0);
-            const totalRevenue = filteredData.reduce((sum, order) => sum + (order.productDetails.price * order.purchase.quantity) + order.delivery_charges, 0);
-            const totalNetRevenue = filteredData.reduce((sum, order) => sum + ((order.productDetails.price - order.productDetails.cost_price) * order.purchase.quantity), 0);
+             const totalOrders = new Set(filteredData.map(o => String(o._id))).size;
+             const totalSales  = filteredData.reduce((s, o) => s + (o.purchase?.quantity || 0), 0);
 
-            return { totalOrders, totalSales, totalRevenue, totalNetRevenue };
+             // Revenue from items (price * qty), line-level is OK:
+             const itemsRevenue = filteredData.reduce((s, o) =>
+                 s + ((o.productDetails?.price || 0) * (o.purchase?.quantity || 0))
+             , 0);
+
+             // Delivery charges: add once per unique order id
+             const seen = new Set();
+             const deliveryOnce = filteredData.reduce((s, o) => {
+             const id = String(o._id);
+             if (!seen.has(id)) {
+                 seen.add(id);
+                 return s + (o.delivery_charges || 0);
+              }
+              return s;
+             }, 0);
+
+              const totalRevenue = itemsRevenue + deliveryOnce;
+
+              const totalNetRevenue = filteredData.reduce((s, o) =>
+              s + (((o.productDetails?.price || 0) - (o.productDetails?.cost_price || 0)) * (o.purchase?.quantity || 0))
+              , 0); // delivery not part of net revenue/profit per your current logic
+
+          return { totalOrders, totalSales, totalRevenue, totalNetRevenue };
         };
-
+            
         const analytics = {};
 
         // Fetch analytics for each store and total
