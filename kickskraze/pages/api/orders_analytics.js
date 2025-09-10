@@ -351,6 +351,39 @@ export default async function handler(req, res) {
             });
 
             const yearlyRevenueArray = Object.entries(yearlyRevenue).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
+            
+            
+            // Sort netRevenueData.daily by date
+            monthlyData.netRevenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
+            yearlyData.netRevenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
+
+            // Populate netRevenueData.monthly and netRevenueData.yearly
+            const NET_REVENUE_MONTHS = [
+                     { x: "Jan", y: 0 }, { x: "Feb", y: 0 }, { x: "Mar", y: 0 },
+                     { x: "Apr", y: 0 }, { x: "May", y: 0 }, { x: "Jun", y: 0 },
+                     { x: "Jul", y: 0 }, { x: "Aug", y: 0 }, { x: "Sep", y: 0 },
+                     { x: "Oct", y: 0 }, { x: "Nov", y: 0 }, { x: "Dec", y: 0 },
+            ];
+
+            const monthlyNetRevenue = {};
+            yearlyData.netRevenueData.forEach(({ _id, totalNetRevenue }) => {
+                  monthlyNetRevenue[_id.month] = (monthlyNetRevenue[_id.month] || 0) + totalNetRevenue;
+            });
+
+            NET_REVENUE_MONTHS.forEach(month => {
+                  if (monthlyNetRevenue[month.x]) {
+                  month.y = monthlyNetRevenue[month.x];
+              }
+            });
+
+            const yearlyNetRevenue = {};
+            yearlyData.netRevenueData.forEach(({ _id, totalNetRevenue }) => {
+               yearlyNetRevenue[_id.year] = (yearlyNetRevenue[_id.year] || 0) + totalNetRevenue;
+            });
+
+            const yearlyNetRevenueArray = Object.entries(yearlyNetRevenue)
+               .map(([x, y]) => ({ x, y }))
+               .sort((a, b) => a.x.localeCompare(b.x));
 
             analytics[storeKey] = {
                 orderStatus: {
