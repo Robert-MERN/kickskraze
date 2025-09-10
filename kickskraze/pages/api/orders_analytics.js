@@ -314,6 +314,40 @@ export default async function handler(req, res) {
             const yearlySalesArray = Object.entries(yearlySales).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
 
 
+            // Sort ordersData.daily by date
+            monthlyData.ordersData.sort((a, b) => a._id.day.localeCompare(b._id.day));
+            yearlyData.ordersData.sort((a, b) => a._id.day.localeCompare(b._id.day));
+
+            // Populate ordersData.monthly and yearly
+            const ORDERS_MONTHS = [
+                { x: "Jan", y: 0 }, { x: "Feb", y: 0 }, { x: "Mar", y: 0 },
+                { x: "Apr", y: 0 }, { x: "May", y: 0 }, { x: "Jun", y: 0 },
+                { x: "Jul", y: 0 }, { x: "Aug", y: 0 }, { x: "Sep", y: 0 },
+                { x: "Oct", y: 0 }, { x: "Nov", y: 0 }, { x: "Dec", y: 0 },
+             ];
+
+            const monthlyOrders = {};
+                yearlyData.ordersData.forEach(({ _id, totalItems }) => {
+                monthlyOrders[_id.month] = (monthlyOrders[_id.month] || 0) + totalItems;
+             });
+
+            ORDERS_MONTHS.forEach(month => {
+                if (monthlyOrders[month.x]) {
+                month.y = monthlyOrders[month.x];
+            }
+               });
+
+            const yearlyOrders = {};
+            yearlyData.ordersData.forEach(({ _id, totalItems }) => {
+            yearlyOrders[_id.year] = (yearlyOrders[_id.year] || 0) + totalItems;
+             });
+
+            const yearlyOrdersArray = Object.entries(yearlyOrders)
+           .map(([x, y]) => ({ x, y }))
+           .sort((a, b) => a.x.localeCompare(b.x));
+
+
+
             // Sort revenueData.daily by date
             monthlyData.revenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
             yearlyData.revenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
