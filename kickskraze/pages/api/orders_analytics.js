@@ -66,6 +66,30 @@ export default async function handler(req, res) {
                                 },
                             },
                         ],
+                        ordersData: [
+                             { $match: { status: { $ne: "returned" } } },
+                            { $unwind: "$purchase" },
+                            {
+                                $lookup: {
+                                    from: "products",
+                                    let: { productId: { $toObjectId: "$purchase._id" } },
+                                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                                    as: "productDetails"
+                                }
+                            },
+                            { $unwind: "$productDetails" },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+                            {
+                                $group: {
+                                    _id: {
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                    },
+                                    totalItems: { $sum: 1 },
+                                },
+                            },
+                        ],
                         revenueData: [                           
                             { $match: { status: { $ne: "returned" } } },
                             { $unwind: "$purchase" },
