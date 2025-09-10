@@ -436,7 +436,7 @@ export default async function handler(req, res) {
                     yearly: yearlySalesArray,
                 },
                 ordersData: {
-                    daily: monthlyData.ordersData.map(item => ({ x: item._id.day, y: item.totalItems })),
+                    daily: monthlyData.ordersData.map(item => ({ x: item._id.day, y: item.totalOrders })),
                     monthly: ORDERS_MONTHS,
                     yearly: yearlyOrdersArray,
                 },
