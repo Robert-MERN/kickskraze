@@ -43,6 +43,7 @@ export default async function handler(req, res) {
                             { $group: { _id: "$status", count: { $sum: 1 } } },
                         ],
                         salesData: [
+                             { $match: { status: { $ne: "returned" } } },
                             { $unwind: "$purchase" },
                             {
                                 $lookup: {
@@ -112,6 +113,58 @@ export default async function handler(req, res) {
                             // (optional) keep shape identical to your current code
                             { $project: { totalRevenue: 1 } }
                         ],
+                        netRevenueData: [
+                             { $match: { status: { $ne: "returned" } } },
+                             { $unwind: "$purchase" },
+
+                             {
+                                $lookup: {
+                                            from: "products",
+                                            let: { productId: { $toObjectId: "$purchase._id" } },
+                                            pipeline: [
+                                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } }
+                                                      ],
+                                            as: "productDetails"
+                                         }
+                             },
+                             { $unwind: "$productDetails" },
+                             { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+
+                             // 1) Collapse back to one doc per order (_id), summing the *profit margins* only
+                             {
+                                $group: {
+                                           _id: "$_id",
+                      createdAt: { $first: "$createdAt" },
+            netLineTotal: {
+                $sum: {
+                    $multiply: [
+                        { 
+                            $subtract: [
+                                { $ifNull: ["$productDetails.price", 0] },
+                                { $ifNull: ["$productDetails.cost_price", 0] }
+                            ]
+                        },
+                        "$purchase.quantity"
+                    ]
+                }
+            }
+        }
+    },
+
+    // 2) Group by day (net revenue only, no delivery)
+    {
+        $group: {
+            _id: {
+                day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
+            },
+            totalNetRevenue: { $sum: "$netLineTotal" }
+        }
+    },
+
+    { $project: { totalNetRevenue: 1 } }
+],
                         ordersByCity: [
                             { $group: { _id: "$city", count: { $sum: 1 } } },
                         ],
