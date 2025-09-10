@@ -134,37 +134,37 @@ export default async function handler(req, res) {
                              {
                                 $group: {
                                            _id: "$_id",
-                      createdAt: { $first: "$createdAt" },
-            netLineTotal: {
-                $sum: {
-                    $multiply: [
-                        { 
-                            $subtract: [
-                                { $ifNull: ["$productDetails.price", 0] },
-                                { $ifNull: ["$productDetails.cost_price", 0] }
-                            ]
-                        },
-                        "$purchase.quantity"
-                    ]
-                }
-            }
-        }
-    },
+                                           createdAt: { $first: "$createdAt" },
+                                           netLineTotal: {
+                                           $sum: {
+                                           $multiply: [
+                                                        { 
+                                                            $subtract: [
+                                                                          { $ifNull: ["$productDetails.price", 0] },
+                                                                          { $ifNull: ["$productDetails.cost_price", 0] }
+                                                                       ]
+                                                        },
+                                                        "$purchase.quantity"
+                                                      ]
+                                                 }
+                                                        }
+                                        }
+                            },
 
-    // 2) Group by day (net revenue only, no delivery)
-    {
-        $group: {
-            _id: {
-                day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
-            },
-            totalNetRevenue: { $sum: "$netLineTotal" }
-        }
-    },
+                            // 2) Group by day (net revenue only, no delivery)
+                            {
+                               $group: {
+                                         _id: {
+                                                 day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                                 month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                                 year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
+                                              },
+                                         totalNetRevenue: { $sum: "$netLineTotal" }
+                                       }
+                           },
 
-    { $project: { totalNetRevenue: 1 } }
-],
+                           { $project: { totalNetRevenue: 1 } }
+                        ],
                         ordersByCity: [
                             { $group: { _id: "$city", count: { $sum: 1 } } },
                         ],
