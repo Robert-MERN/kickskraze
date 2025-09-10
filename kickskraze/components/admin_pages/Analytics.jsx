@@ -46,7 +46,9 @@ const Analytics = ({ axios }) => {
     const [analytics, set_analytics] = useState(null);
     const [is_loading, set_is_loading] = useState(false);
     const [revenue_time_period, set_revenue_time_period] = useState("daily");
+    const [net_revenue_time_period, set_net_revenue_time_period] = useState("daily");
     const [sales_time_period, set_sales_time_period] = useState("daily");
+    const [orders_time_period, set_orders_time_period] = useState("daily");
     const [store_name, set_store_name] = useState("Total");
     const [stats_time_period, set_stats_time_period] = useState("currentYear");
     const [order_status_time_period, set_order_status_time_period] = useState("currentYear");
@@ -259,12 +261,12 @@ const Analytics = ({ axios }) => {
 
 
 
-                            {/* Revenue Bar Chart */}
+                            {/* Gross Revenue Bar Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
                                     <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
-                                        Revenue Report
+                                        Gross Revenue Report
                                     </h1>
                                     <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
                                         <Select
@@ -288,7 +290,43 @@ const Analytics = ({ axios }) => {
                                 </div>
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.x), scaleType: 'band' }]}
-                                    series={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.y), label: 'Revenue', color: "rgb(20,184,166)" }]}
+                                    series={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.y), label: 'Gross Revenue', color: "rgb(245, 158, 11)" }]}
+                                    className='w-full h-[350px] lg:h-[500px]]'
+                                />
+                            </div>
+                            
+                            
+                            
+                             {/* Net Revenue Bar Chart */}
+                            <div className="w-full mt-16 lg:mt-24">
+
+                                <div className='w-full flex justify-between items-center mb-8' >
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
+                                        Net Revenue Report
+                                    </h1>
+                                    <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
+                                        <Select
+                                            value={net_revenue_time_period}
+                                            onChange={(e) => set_net_revenue_time_period(e.target.value)}
+                                            size='small'
+                                            input={
+                                                <OutlinedInput
+                                                    startAdornment={<CalendarViewMonthIcon style={{ marginRight: 8 }} />} // Icon at start
+                                                />
+                                            }
+                                        >
+                                            {["daily", "monthly", "yearly"].map((period) => (
+                                                <MenuItem key={period} value={period}>
+                                                    {period.charAt(0).toUpperCase() + period.slice(1)} Report
+                                                </MenuItem>
+                                            ))}
+
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <BarChart
+                                    xAxis={[{ data: analytics[store_name].netRevenueData[net_revenue_time_period].map(d => d.x), scaleType: 'band' }]}
+                                    series={[{ data: analytics[store_name].netRevenueData[net_revenue_time_period].map(d => d.y), label: 'Net Revenue', color: "rgb(20,184,166)" }]}
                                     className='w-full h-[350px] lg:h-[500px]]'
                                 />
                             </div>
