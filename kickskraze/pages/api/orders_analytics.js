@@ -317,8 +317,8 @@ export default async function handler(req, res) {
              ];
 
             const monthlyOrders = {};
-                yearlyData.ordersData.forEach(({ _id, totalItems }) => {
-                monthlyOrders[_id.month] = (monthlyOrders[_id.month] || 0) + totalItems;
+                yearlyData.ordersData.forEach(({ _id, totalOrders }) => {
+                monthlyOrders[_id.month] = (monthlyOrders[_id.month] || 0) + totalOrders;
              });
 
             ORDERS_MONTHS.forEach(month => {
@@ -328,8 +328,8 @@ export default async function handler(req, res) {
                });
 
             const yearlyOrders = {};
-            yearlyData.ordersData.forEach(({ _id, totalItems }) => {
-            yearlyOrders[_id.year] = (yearlyOrders[_id.year] || 0) + totalItems;
+            yearlyData.ordersData.forEach(({ _id, totalOrders }) => {
+            yearlyOrders[_id.year] = (yearlyOrders[_id.year] || 0) + totalOrders;
              });
 
             const yearlyOrdersArray = Object.entries(yearlyOrders)
