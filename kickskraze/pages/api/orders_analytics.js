@@ -445,10 +445,20 @@ export default async function handler(req, res) {
                     monthly: SALES_MONTHS,
                     yearly: yearlySalesArray,
                 },
+                ordersData: {
+                    daily: monthlyData.ordersData.map(item => ({ x: item._id.day, y: item.totalItems })),
+                    monthly: ORDERS_MONTHS,
+                    yearly: yearlyOrdersArray,
+                },
                 revenueData: {
                     daily: monthlyData.revenueData.map(item => ({ x: item._id.day, y: item.totalRevenue })),
                     monthly: REVENUE_MONTHS,
                     yearly: yearlyRevenueArray,
+                },
+                netRevenueData: {
+                    daily: monthlyData.netRevenueData.map(item => ({ x: item._id.day, y: item.totalNetRevenue })),
+                    monthly: NET_REVENUE_MONTHS,
+                    yearly: yearlyNetRevenueArray,
                 },
                 ordersByCity: {
                     currentMonth: monthlyData.ordersByCity.map(item => ({ x: item._id, y: item.count })),
