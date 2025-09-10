@@ -332,8 +332,43 @@ const Analytics = ({ axios }) => {
                             </div>
 
 
+                            {/* Orders Bar Chart */}
+                            <div className="w-full mt-16 lg:mt-24">
 
-                            {/* Sales Line Chart */}
+                                <div className='w-full flex justify-between items-center mb-8' >
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>
+                                        Orders Report
+                                    </h1>
+                                    <FormControl className='w-[140px] sm:w-[170px]' variant="outlined">
+                                        <Select
+                                            value={orders_time_period}
+                                            onChange={(e) => set_orders_time_period(e.target.value)}
+                                            size='small'
+                                            input={
+                                                <OutlinedInput
+                                                    startAdornment={<CalendarViewMonthIcon style={{ marginRight: 8 }} />} // Icon at start
+                                                />
+                                            }
+                                        >
+                                            {["daily", "monthly", "yearly"].map((period) => (
+                                                <MenuItem key={period} value={period}>
+                                                    {period.charAt(0).toUpperCase() + period.slice(1)} Report
+                                                </MenuItem>
+                                            ))}
+
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <BarChart
+                                    xAxis={[{ data: analytics[store_name].ordersData[orders_time_period].map(d => d.x), scaleType: 'band' }]}
+                                    series={[{ data: analytics[store_name].ordersData[orders_time_period].map(d => d.y), label: 'Orders', color: "rgb(79, 70, 229)" }]}
+                                    className='w-full h-[350px] lg:h-[500px]]'
+                                />
+                            </div>
+
+
+
+                            {/* Sales Bar Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
@@ -361,9 +396,9 @@ const Analytics = ({ axios }) => {
                                     </FormControl>
                                 </div>
 
-                                <LineChart
+                                <BarChart
                                     xAxis={[{ data: analytics[store_name].salesData[sales_time_period].map(d => d.x), scaleType: 'band' }]}
-                                    series={[{ data: analytics[store_name].salesData[sales_time_period].map(d => d.y), label: 'Sales', area: true, color: "rgb(139,92,246)" }]}
+                                    series={[{ data: analytics[store_name].salesData[sales_time_period].map(d => d.y), label: 'Sales', color: "rgb(139,92,246)" }]}
                                     className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
