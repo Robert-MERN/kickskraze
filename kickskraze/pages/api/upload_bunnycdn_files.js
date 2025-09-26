@@ -8,7 +8,6 @@ import fsSync from 'fs';
 import sharp from 'sharp';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
 
-
 // ffmpeg.setFfmpegPath("C:/Users/AL-RAHEEM TECH/Downloads/ffmpeg/ffmpeg/bin/ffmpeg.exe");
 // ffmpeg.setFfmpegPath("C:/Users/muhammad talha/Downloads/ffmpeg/bin/ffmpeg.exe");
 ffmpeg.setFfmpegPath("/usr/bin/ffmpeg");
@@ -32,87 +31,61 @@ const object_mapping = (obj) => {
     return _obj;
 };
 
-// 🔹 Image Compression Function (Sharp)
-const compressImage = async (inputPath, outputPath) => {
-    try {
-        const outputDir = path.dirname(outputPath);
+// 🔹 Helper to create a unique temp folder
+const createTempFolder = (baseFolder) => {
+    const uniqueDir = path.resolve(process.cwd(), baseFolder, nanoid(10));
+    fsSync.mkdirSync(uniqueDir, { recursive: true });
+    return uniqueDir;
+};
 
-        // Ensure the directory exists
-        if (!fsSync.existsSync(outputDir)) {
-            fsSync.mkdirSync(outputDir, { recursive: true });
-        }
+// 🔹 Image Compression Function (Sharp)
+const compressImage = async (inputPath, baseFolder) => {
+    try {
+        const tempDir = createTempFolder(baseFolder);
+        const filename = `${nanoid(10)}.webp`;
+        const outputPath = path.join(tempDir, filename);
 
         await sharp(inputPath)
             .rotate()
             .resize(800) // Resize to 800px width like Cloudinary w_800
             .webp({ quality: 80 }) // Convert to WebP with 80% quality (q_auto equivalent)
             .toFile(outputPath);
-        return outputPath;
+
+        return { outputPath, tempDir, filename };
     } catch (error) {
         console.error("❌ Image Compression Error:", error);
         throw new Error("Image compression failed");
     }
 };
 
-// Function to remove the compressed images folder
-const removeCompressedImagesFolder = async () => {
-    const folderPath = path.resolve(process.cwd(), 'public/compressed_images');
-    try {
-        if (fsSync.existsSync(folderPath)) {
-            await fs.rm(folderPath, { recursive: true, force: true });
-            console.log("✅ Compressed images folder removed.");
-        }
-    } catch (error) {
-        console.error("❌ Error removing compressed images folder:", error);
-    }
-};
+// 🔹 Video compression function using fluent-ffmpeg
+const compressVideo = async (inputPath, baseFolder) => {
+    const tempDir = createTempFolder(baseFolder);
+    const filename = `${nanoid(10)}.mp4`;
+    const outputPath = path.join(tempDir, filename);
 
-
-
-// Video compression function using fluent-ffmpeg
-const compressVideo = async (inputPath, outputPath) => {
-    // Ensure the uploads directory exists
-    const uploadsDir = path.dirname(outputPath);
-    if (!fsSync.existsSync(uploadsDir)) {
-        fsSync.mkdirSync(uploadsDir, { recursive: true });
-    }
     return new Promise((resolve, reject) => {
         ffmpeg(inputPath)
             .outputOptions([
                 '-c:v libx264',       // Use H.264 codec
                 '-preset superfast',  // Faster encoding
-                '-crf 30',           // Slightly lower quality for speed
+                '-crf 30',            // Slightly lower quality for speed
                 '-vf scale=1080:1920', // Scale to 1920p
-                '-an',               // Mute audio (remove audio stream)
+                '-an',                // Mute audio (remove audio stream)
                 '-movflags +faststart', // Optimize for web streaming
-                '-threads 2'         // Limit to 2 threads (matches your 2 vCPU cores)
-            ]) // Correctly split options
+                '-threads 2'          // Limit to 2 threads (matches your 2 vCPU cores)
+            ])
             .on('start', (cmd) => console.log('Started:', cmd))
             .on('progress', (progress) =>
                 console.log("Progress:", progress)
             )
             .on('error', (err) => reject(err))
-            .on('end', () => resolve(outputPath))
+            .on('end', () => resolve({ outputPath, tempDir, filename }))
             .save(outputPath);
     });
 };
 
-
-// Function to remove the compressed videos folder
-const removeCompressedVideosFolder = async () => {
-    const folderPath = path.resolve(process.cwd(), 'public/compressed_videos');
-    try {
-        if (fsSync.existsSync(folderPath)) {
-            await fs.rm(folderPath, { recursive: true, force: true });
-            console.log("✅ Compressed videos folder removed.");
-        }
-    } catch (error) {
-        console.error("❌ Error removing compressed videos folder:", error);
-    }
-};
-
-
-// Upload to BunnyCDN function
+// 🔹 Upload to BunnyCDN function
 const uploadToBunnyCDN = async (filePath, filename, res) => {
     const fileData = await fs.readFile(filePath);
     const uploadUrl = `https://${BUNNY_STORAGE_ZONE}/${filename}`;
@@ -131,7 +104,6 @@ const uploadToBunnyCDN = async (filePath, filename, res) => {
 };
 
 export default async function handler(req, res) {
-
     let media = [];
 
     try {
@@ -153,25 +125,15 @@ export default async function handler(req, res) {
             : [formData.fields.imageThumbnailFlags];
 
         if (images && images.length) {
-            try {
-
-                for (const [index, image] of (Array.isArray(images) ? images : [images]).entries()) {
-
-                    const filename = `${nanoid(10)}.webp`;
-                    const compressedPath = path.resolve(process.cwd(), 'public/compressed_images', filename);
-
-                    // Compress Image
-                    await compressImage(image.filepath, compressedPath);
-
-                    // Upload to BunnyCDN
-                    const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
-                    const isThumbnail = imageThumbnailFlags[index] === "true";
-                    if (newUrl) {
-                        media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
-                    }
+            const imagesArray = Array.isArray(images) ? images : [images];
+            for (const [index, image] of imagesArray.entries()) {
+                const { outputPath, tempDir, filename } = await compressImage(image.filepath, "public/compressed_images");
+                const newUrl = await uploadToBunnyCDN(outputPath, filename, res);
+                const isThumbnail = imageThumbnailFlags[index] === "true";
+                if (newUrl) {
+                    media.push({ type: "image", url: newUrl, thumbnail: isThumbnail, recent: true });
                 }
-            } finally {
-                await removeCompressedImagesFolder();
+                await fs.rm(tempDir, { recursive: true, force: true });
             }
         }
 
@@ -181,22 +143,15 @@ export default async function handler(req, res) {
             : [formData.fields.videoThumbnailFlags];
 
         if (videos && videos.length) {
-            try {
-                for (const [index, video] of (Array.isArray(videos) ? videos : [videos]).entries()) {
-
-                    const filename = `${nanoid(10)}${path.basename(video.newFilename)}.mp4`;
-                    const compressedPath = path.resolve(process.cwd(), 'public/compressed_videos', filename);
-
-                    await compressVideo(video.filepath, compressedPath);
-
-                    const newUrl = await uploadToBunnyCDN(compressedPath, filename, res);
-                    const isThumbnail = videoThumbnailFlags[index] === "true";
-                    if (newUrl) {
-                        media.push({ type: "video", url: newUrl, thumbnail: isThumbnail, recent: true });
-                    }
+            const videosArray = Array.isArray(videos) ? videos : [videos];
+            for (const [index, video] of videosArray.entries()) {
+                const { outputPath, tempDir, filename } = await compressVideo(video.filepath, "public/compressed_videos");
+                const newUrl = await uploadToBunnyCDN(outputPath, filename, res);
+                const isThumbnail = videoThumbnailFlags[index] === "true";
+                if (newUrl) {
+                    media.push({ type: "video", url: newUrl, thumbnail: isThumbnail, recent: true });
                 }
-            } finally {
-                await removeCompressedVideosFolder();
+                await fs.rm(tempDir, { recursive: true, force: true });
             }
         }
 
@@ -210,7 +165,6 @@ export default async function handler(req, res) {
         console.log(err);
         res.status(500).json({ success: false, message: err.message });
     }
-
 }
 
 export const config = {
