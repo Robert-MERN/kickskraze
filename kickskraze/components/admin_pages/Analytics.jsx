@@ -71,6 +71,7 @@ const Analytics = ({ axios }) => {
 
     const getArcLabel = (param, data) => {
         const TOTAL_ORDERS = data.reduce((sum, item) => sum + item.value, 0);
+        if (TOTAL_ORDERS === 0) return "0%";
         const percent = param.value / TOTAL_ORDERS;
         return `${(percent * 100).toFixed(0)}%`;
     };
