@@ -463,6 +463,7 @@ const Analytics = ({ axios }) => {
                                     </Select>
                                 </FormControl>
                             </div>
+                            
                             {/* Inventory Cards */}
                             <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
                             
