@@ -493,7 +493,7 @@ const Analytics = ({ axios }) => {
                                          </div>
                                         
                                           {/* Out Of Stock */}
-                                         <div className="mt-2 flex items-center gap-2 font-medium">
+                                         <div className="flex items-center gap-2 font-medium">
                                            <span>Out Of Stock</span>
                                            <BootstrapTooltip
                                                placement="bottom"
