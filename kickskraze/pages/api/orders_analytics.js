@@ -1,4 +1,5 @@
 import Orders from "@/models/order_model";
+
 import connect_mongo from "@/utils/functions/connect_mongo";
 import { DateTime } from "luxon";
 
@@ -215,6 +216,36 @@ export default async function handler(req, res) {
 
             return result[0]; // $facet returns an array with a single object
         };
+        
+        // Fetch Inventory Information
+        const fetchInventoryData = async (storeName, fromDate) => {
+            const matchCondition = {
+              isDeleted: false,
+              createdAt: { $gte: fromDate },
+              ...(storeName ? { store_name: storeName } : {}),
+             };
+
+            const result = await Products.aggregate([
+                 { $match: matchCondition },
+                 {
+                    $group: {
+                          _id: null,
+                          inStock: {
+                          $sum: {
+                                   $cond: [{ $gt: ["$stock", 0] }, "$stock", 0] // sum units where stock > 0
+                                }
+                 },
+                    outOfStock: {
+                         $sum: {
+                                  $cond: [{ $eq: ["$stock", 0] }, 1, 0] // count how many products have 0
+                               }
+                             }
+                  }
+                 }
+             ]);
+
+                 return result[0] || { inStock: 0, outOfStock: 0 };
+               };
 
         // Helper function to calculate sums
         const calculateSums = (data, statusArg) => {
