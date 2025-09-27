@@ -471,45 +471,45 @@ const Analytics = ({ axios }) => {
                                     <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[240px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
                                     <img src="/images/ic-glass-sales.svg" className='w-[48px] h-[48px]' alt="" />
 
-                                    <p className='mt-6 font-medium'>Total Inventory</p>
+                                    <p className='mt-3 font-medium'>Total Inventory</p>
                                     
                                          {/* In Stock */}
-<div className="mt-6 flex items-center gap-2 font-medium">
-  <span>In Stock</span>
-  <BootstrapTooltip
-    placement="bottom"
-    arrow
-    title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")}
-  >
-    <span className="text-[19px] md:text-[28px] font-bold cursor-default">
-      <CountUp
-        start={0}
-        end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
-        duration={2}
-        formattingFn={(value) => value.toLocaleString("en-US")}
-      />
-    </span>
-  </BootstrapTooltip>
-</div>
-
-{/* Out Of Stock */}
-<div className="mt-6 flex items-center gap-2 font-medium">
-  <span>Out Of Stock</span>
-  <BootstrapTooltip
-    placement="bottom"
-    arrow
-    title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")}
-  >
-    <span className="text-[19px] md:text-[28px] font-bold cursor-default">
-      <CountUp
-        start={0}
-        end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
-        duration={2}
-        formattingFn={(value) => value.toLocaleString("en-US")}
-      />
-    </span>
-  </BootstrapTooltip>
-</div>
+                                         <div className="mt-2 flex items-center gap-2 font-medium">
+                                           <span>In Stock</span>
+                                           <BootstrapTooltip
+                                               placement="bottom"
+                                               arrow
+                                               title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")}
+                                           >
+                                              <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+                                                 <CountUp
+                                                    start={0}
+                                                    end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
+                                                    duration={2}
+                                                    formattingFn={(value) => value.toLocaleString("en-US")}
+                                                 />
+                                             </span>
+                                           </BootstrapTooltip>
+                                         </div>
+                                        
+                                          {/* Out Of Stock */}
+                                         <div className="mt-2 flex items-center gap-2 font-medium">
+                                           <span>Out Of Stock</span>
+                                           <BootstrapTooltip
+                                               placement="bottom"
+                                               arrow
+                                               title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")}
+                                           >
+                                              <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+                                                 <CountUp
+                                                    start={0}
+                                                    end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
+                                                    duration={2}
+                                                    formattingFn={(value) => value.toLocaleString("en-US")}
+                                                 />
+                                             </span>
+                                           </BootstrapTooltip>
+                                         </div>
                                     
                                 </div>
                             
