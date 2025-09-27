@@ -474,30 +474,42 @@ const Analytics = ({ axios }) => {
                                     <p className='mt-6 font-medium'>Total Inventory</p>
                                     
                                          {/* In Stock */}
-                                              <p className='mt-6 font-medium'>In Stock</p>
-                                                <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")} >
-                                                    <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
-                                                    <CountUp
-                                                       start={0}
-                                                       end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
-                                                       duration={2}
-                                                       formattingFn={(value) => millify(value, { precision: 2 })}
-                                                    />
-                                                    </p>
-                                               </BootstrapTooltip>
-                                        
-                                        {/* Out Of Stock */}
-                                        <p className='mt-6 font-medium'>Out Of Stock</p>
-                                                <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")} >
-                                                    <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
-                                                    <CountUp
-                                                       start={0}
-                                                       end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
-                                                       duration={2}
-                                                       formattingFn={(value) => millify(value, { precision: 2 })}
-                                                    />
-                                                    </p>
-                                               </BootstrapTooltip>
+<div className="mt-6 flex items-center gap-2 font-medium">
+  <span>In Stock</span>
+  <BootstrapTooltip
+    placement="bottom"
+    arrow
+    title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")}
+  >
+    <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+      <CountUp
+        start={0}
+        end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
+        duration={2}
+        formattingFn={(value) => value.toLocaleString("en-US")}
+      />
+    </span>
+  </BootstrapTooltip>
+</div>
+
+{/* Out Of Stock */}
+<div className="mt-6 flex items-center gap-2 font-medium">
+  <span>Out Of Stock</span>
+  <BootstrapTooltip
+    placement="bottom"
+    arrow
+    title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")}
+  >
+    <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+      <CountUp
+        start={0}
+        end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
+        duration={2}
+        formattingFn={(value) => value.toLocaleString("en-US")}
+      />
+    </span>
+  </BootstrapTooltip>
+</div>
                                     
                                 </div>
                             
