@@ -53,6 +53,7 @@ const Analytics = ({ axios }) => {
     const [stats_time_period, set_stats_time_period] = useState("currentYear");
     const [order_status_time_period, set_order_status_time_period] = useState("currentYear");
     const [order_by_cities_time_period, set_order_by_cities_time_period] = useState("currentYear");
+    const [inventory_time_period, set_inventory_time_period] = useState("currentYear");
 
 
     const hasFetched = useRef(false);
@@ -434,6 +435,69 @@ const Analytics = ({ axios }) => {
                                     series={[{ data: analytics[store_name].ordersByCity[order_by_cities_time_period].map(d => d.y), label: 'Orders', color: "rgb(96,165,250 )" }]}
                                     className='w-full h-[350px] lg:h-[500px] bg-teal-'
                                 />
+                            </div>
+                            
+                            
+                          <div className='w-full mt-16 lg:mt-24' >
+            
+                            <div className='w-full flex justify-between items-center mb-8' >
+                                <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Inventory</h1>
+                                <FormControl className='w-[140px] md:w-[160px]' variant="outlined">
+                                    <Select
+                                        value={inventory_time_period}
+                                        onChange={(e) => set_inventory_time_period(e.target.value)}
+                                        size='small'
+                                        input={
+                                            <OutlinedInput
+                                                startAdornment={<CalendarMonthIcon style={{ marginRight: 8 }} />} // Icon at start
+                                            />
+                                        }
+                                    >
+                                        <MenuItem value="currentYear">This Year</MenuItem>
+                                        <MenuItem value="allYears">All Years</MenuItem>
+                                        
+                                    </Select>
+                                </FormControl>
+                            </div>
+                            {/* Sats Cards */}
+                            <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
+                            
+                                <div className="h-[200px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
+                                    <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[240px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
+                                    <img src="/images/ic-glass-sales.svg" className='w-[48px] h-[48px]' alt="" />
+
+                                    <p className='mt-6 font-medium'>Total Inventory</p>
+                                    
+                                         {/* In Stock */}
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                             In Stock 
+                                            <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")} >
+                                            <CountUp
+                                                start={0}
+                                                end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
+                                                duration={2}
+                                                formattingFn={(value) => millify(value, { precision: 2 })}
+                                            />
+                                            </BootstrapTooltip>
+                                        </p>
+                                        
+                                        {/* Out Of Stock */}
+                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                             Out Of Stock 
+                                            <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")} >
+                                            <CountUp
+                                                start={0}
+                                                end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
+                                                duration={2}
+                                                formattingFn={(value) => millify(value, { precision: 2 })}
+                                            />
+                                            </BootstrapTooltip>
+                                        </p>
+                                    
+                                </div>
+                            
+                            </div>
+                            
                             </div>
 
 
