@@ -522,12 +522,12 @@ export default async function handler(req, res) {
                 },
                 inventoryReport: {
                      currentYear: {
-                            inStock: yearlyInventory.in_stock,
-                            outOfStock: yearlyInventory.out_of_stock,
+                            inStock: yearlyInventory.inStock,
+                            outOfStock: yearlyInventory.outOfStock,
                      },
                      allYears: {
-                            inStock: allTimeInventory.in_stock,
-                            outOfStock: allTimeInventory.out_of_stock,
+                            inStock: allTimeInventory.inStock,
+                            outOfStock: allTimeInventory.outOfStock,
                      },
                 },
             };
