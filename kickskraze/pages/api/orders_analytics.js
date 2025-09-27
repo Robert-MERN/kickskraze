@@ -289,10 +289,12 @@ export default async function handler(req, res) {
         for (const store of [null, ...stores]) {
             const storeKey = store || "Total";
 
-            const [monthlyData, yearlyData, allTimeData] = await Promise.all([
+            const [monthlyData, yearlyData, allTimeData, yearlyInventory, allTimeInventory] = await Promise.all([
                 fetchAllData(store, firstDayOfMonth),
                 fetchAllData(store, firstDayOfYear),
                 fetchAllData(store, new Date(0)),
+                fetchInventoryData(store, firstDayOfYear),
+                 fetchInventoryData(store, new Date(0)),
             ]);
 
 
@@ -517,6 +519,16 @@ export default async function handler(req, res) {
                     allYearsDelivered: allTimeData.orderStatus.find(s => s._id === "delivered")?.count || 0,
                     currentYearUndelivered: yearlyData.totalOrdersCount?.[0]?.count - (yearlyData.orderStatus.find(s => s._id === "delivered")?.count || 0),
                     allYearsUndelivered: allTimeData.totalOrdersCount?.[0]?.count - (allTimeData.orderStatus.find(s => s._id === "delivered")?.count || 0),
+                },
+                inventoryReport: {
+                     currentYear: {
+                            inStock: yearlyInventory.in_stock,
+                            outOfStock: yearlyInventory.out_of_stock,
+                     },
+                     allYears: {
+                            inStock: allTimeInventory.in_stock,
+                            outOfStock: allTimeInventory.out_of_stock,
+                     },
                 },
             };
         }
