@@ -439,7 +439,10 @@ const Analytics = ({ axios }) => {
                             </div>
                             
                             
-                          <div className='w-full mt-16 lg:mt-24' >
+                            
+                            
+                          {/* Inventory Information */}
+                          <div className='w-full mt-16 lg:mt-24 mb-10' >
             
                             <div className='w-full flex justify-between items-center mb-8' >
                                 <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Inventory</h1>
