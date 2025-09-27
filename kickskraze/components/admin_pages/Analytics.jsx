@@ -292,7 +292,7 @@ const Analytics = ({ axios }) => {
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.x), scaleType: 'band' }]}
                                     series={[{ data: analytics[store_name].revenueData[revenue_time_period].map(d => d.y), label: 'Gross Revenue', color: "rgb(245, 158, 11)" }]}
-                                    className='w-full h-[350px] lg:h-[500px]]'
+                                    className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
                             
@@ -328,7 +328,7 @@ const Analytics = ({ axios }) => {
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].netRevenueData[net_revenue_time_period].map(d => d.x), scaleType: 'band' }]}
                                     series={[{ data: analytics[store_name].netRevenueData[net_revenue_time_period].map(d => d.y), label: 'Net Revenue', color: "rgb(20,184,166)" }]}
-                                    className='w-full h-[350px] lg:h-[500px]]'
+                                    className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
 
@@ -363,7 +363,7 @@ const Analytics = ({ axios }) => {
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].ordersData[orders_time_period].map(d => d.x), scaleType: 'band' }]}
                                     series={[{ data: analytics[store_name].ordersData[orders_time_period].map(d => d.y), label: 'Orders', color: "rgb(79, 70, 229)" }]}
-                                    className='w-full h-[350px] lg:h-[500px]]'
+                                    className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
 
@@ -433,7 +433,7 @@ const Analytics = ({ axios }) => {
                                 <BarChart
                                     xAxis={[{ data: analytics[store_name].ordersByCity[order_by_cities_time_period].map(d => d.x), scaleType: 'band' }]}
                                     series={[{ data: analytics[store_name].ordersByCity[order_by_cities_time_period].map(d => d.y), label: 'Orders', color: "rgb(96,165,250 )" }]}
-                                    className='w-full h-[350px] lg:h-[500px] bg-teal-'
+                                    className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
                             
@@ -459,7 +459,7 @@ const Analytics = ({ axios }) => {
                                     </Select>
                                 </FormControl>
                             </div>
-                            {/* Sats Cards */}
+                            {/* Inventory Cards */}
                             <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
                             
                                 <div className="h-[200px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
@@ -469,30 +469,30 @@ const Analytics = ({ axios }) => {
                                     <p className='mt-6 font-medium'>Total Inventory</p>
                                     
                                          {/* In Stock */}
-                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
-                                             In Stock 
-                                            <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")} >
-                                            <CountUp
-                                                start={0}
-                                                end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
-                                                duration={2}
-                                                formattingFn={(value) => millify(value, { precision: 2 })}
-                                            />
-                                            </BootstrapTooltip>
-                                        </p>
+                                              <p className='mt-6 font-medium'>In Stock</p>
+                                                <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")} >
+                                                    <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                                    <CountUp
+                                                       start={0}
+                                                       end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
+                                                       duration={2}
+                                                       formattingFn={(value) => millify(value, { precision: 2 })}
+                                                    />
+                                                    </p>
+                                               </BootstrapTooltip>
                                         
                                         {/* Out Of Stock */}
-                                        <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
-                                             Out Of Stock 
-                                            <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")} >
-                                            <CountUp
-                                                start={0}
-                                                end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
-                                                duration={2}
-                                                formattingFn={(value) => millify(value, { precision: 2 })}
-                                            />
-                                            </BootstrapTooltip>
-                                        </p>
+                                        <p className='mt-6 font-medium'>Out Of Stock</p>
+                                                <BootstrapTooltip placement='bottom' arrow title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")} >
+                                                    <p className='text-[19px] md:text-[28px] font-bold mt-2 w-fit cursor-default'>
+                                                    <CountUp
+                                                       start={0}
+                                                       end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
+                                                       duration={2}
+                                                       formattingFn={(value) => millify(value, { precision: 2 })}
+                                                    />
+                                                    </p>
+                                               </BootstrapTooltip>
                                     
                                 </div>
                             
