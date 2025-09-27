@@ -4,7 +4,7 @@ import { IoClose } from "react-icons/io5";
 import { FaAngleRight } from "react-icons/fa6";
 import Link from 'next/link';
 import { RiAccountCircleLine } from "react-icons/ri";
-import { LuUserPlus2 } from "react-icons/lu";
+import { LuUserPlus } from "react-icons/lu";
 
 const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
 
@@ -62,7 +62,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
                     <p className='text-[17px] font-medium select-none' >Sign In</p>
                 </button>
                 <button onClick={() => toggle_drawer("menu_drawer")} className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all w-full' >
-                    <LuUserPlus2 className='text-[24px] text-stone-900 font-thin' />
+                    <LuUserPlus className='text-[24px] text-stone-900 font-thin' />
                     <p className='text-[17px] font-medium select-none' >Create an Account</p>
                 </button>
             </div>
