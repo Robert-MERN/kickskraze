@@ -127,10 +127,17 @@ const Checkouts_page = ({ axios }) => {
 
     const handleChange = (event) => {
         const { name, value } = event.target;
-        set_order_details((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        if (name === "phone") {
+            set_order_details((prevState) => ({
+                ...prevState,
+                [name]: value.replace(/\s+/g, '').trim(),
+            }))
+        } else {
+            set_order_details((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }))
+        };
     }
 
 
@@ -156,7 +163,7 @@ const Checkouts_page = ({ axios }) => {
 
     const phone_regex = /^(?:(?:\+92|0092|92|0)?3\d{9})$/;
     const email_regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    
+
     const validateField = (fieldName, value) => {
         let error = '';
         switch (fieldName) {
@@ -458,6 +465,7 @@ const Checkouts_page = ({ axios }) => {
                                 variant="outlined"
                                 className='w-full'
                                 name="email"
+                                value={order_details.email}
                                 onChange={handleChange}
                                 error={Boolean(order_details.errors.email)}
                                 helperText={order_details.errors.email}
@@ -472,6 +480,7 @@ const Checkouts_page = ({ axios }) => {
                                     variant="outlined"
                                     className='w-full'
                                     name="firstName"
+                                    value={order_details.firstName}
                                     onChange={handleChange}
                                     error={Boolean(order_details.errors.firstName)}
                                     helperText={order_details.errors.firstName}
@@ -482,6 +491,7 @@ const Checkouts_page = ({ axios }) => {
                                     variant="outlined"
                                     className='w-full'
                                     name="lastName"
+                                    value={order_details.lastName}
                                     onChange={handleChange}
                                     error={Boolean(order_details.errors.lastName)}
                                     helperText={order_details.errors.lastName}
@@ -494,6 +504,7 @@ const Checkouts_page = ({ axios }) => {
                                 variant="outlined"
                                 className='w-full'
                                 name="address"
+                                value={order_details.address}
                                 onChange={handleChange}
                                 error={Boolean(order_details.errors.address)}
                                 helperText={order_details.errors.address}
@@ -540,6 +551,7 @@ const Checkouts_page = ({ axios }) => {
                                     variant="outlined"
                                     className='w-full'
                                     name="postalCode"
+                                    value={order_details.postalCode}
                                     onChange={handleChange}
                                     sx={style_textfield}
                                 />
@@ -549,8 +561,10 @@ const Checkouts_page = ({ axios }) => {
                                 label="Phone"
                                 variant="outlined"
                                 className='w-full'
+                                type="tel"
                                 name="phone"
-                                placeholder='0310 2223511'
+                                placeholder='03102223511'
+                                value={order_details.phone}
                                 onChange={handleChange}
                                 error={Boolean(order_details.errors.phone)}
                                 helperText={order_details.errors.phone}

@@ -7,9 +7,19 @@ import { get_cookie } from '@/utils/functions/cookie'
 import jwt from "jsonwebtoken";
 import Users from '@/models/user_model'
 import connect_mongo from '@/utils/functions/connect_mongo'
+import { useEffect } from 'react'
+import useStateContext from '@/context/ContextProvider'
 
 
-export default function Home({ fullUrl, logoUrl }) {
+export default function Home({ fullUrl, logoUrl, user }) {
+    const { set_user } = useStateContext();
+    // setting user in context
+    useEffect(() => {
+        if (user) {
+            set_user(user);
+        }
+    }, [user]);
+
     return (
         <>
             <Head>
@@ -24,7 +34,7 @@ export default function Home({ fullUrl, logoUrl }) {
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<Add_user axios={axios} />} />
+                    <Admin_page_layout admin_children={<Add_user axios={axios} user={user} />} />
                 </div>
             </div>
         </>

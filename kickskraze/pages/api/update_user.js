@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         const user = await Users.findById(user_id);
 
         if (!user) {
-            return res.status(401).json({ success: true, message: `Admin account wasn't found` });
+            return res.status(401).json({ success: true, message: `Account wasn't found` });
         }
 
         if (password) {
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
         }
 
         // sending success response to user
-        return res.status(200).json({ success: true, message: `Admin account has been updated` });
+        return res.status(200).json({ success: true, message: `Account has been updated` });
 
 
     } catch (err) {

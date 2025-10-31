@@ -14,6 +14,9 @@ export const ContextProvider = ({ children }) => {
 
     const router = useRouter();
 
+    // User state
+    const [user, set_user] = useState(null);
+
     // Notification logic
     const [snackbar_alert, set_snackbar_alert] = useState({
         open: false,
@@ -32,6 +35,8 @@ export const ContextProvider = ({ children }) => {
         view_order_modal: false,
         delete_order_modal: false,
         share_link_modal: false,
+        edit_user_profile_modal: false,
+        delete_user_modal: false,
     };
     const [modals_state, set_modals_state] = useState(default_modals_state);
 
@@ -51,6 +56,8 @@ export const ContextProvider = ({ children }) => {
         food_menu_drawer: false,
         admin_menu_drawer: false,
         view_order_drawer: false,
+        edit_user_profile_drawer: false,
+
     }
     const [drawer_state, set_drawer_state] = useState(default_drawer_state);
 
@@ -281,7 +288,7 @@ export const ContextProvider = ({ children }) => {
     const [progress_of_loading, set_progress_of_loading] = useState({ status: false, value: 0 });
 
 
-
+    // <------------------------- Product APIs ----------------------->
     // Create Product API
     const create_product_api = async (axios, data, set_is_loading, reset_states) => {
         // start loading
@@ -433,10 +440,10 @@ export const ContextProvider = ({ children }) => {
     }
 
     // Get All Products Title API
-    const get_all_products_title_api = async (axios, set_state, set_is_loading) => {
+    const get_all_products_title_api = async (axios, set_state, set_is_loading, query) => {
         set_is_loading(true);
         try {
-            const res = await axios.get(`/api/get_all_products_title`);
+            const res = await axios.get(`/api/get_all_products_title${query ? "?" + query : ""}`);
             set_state(res.data);
         } catch (err) {
             set_snackbar_alert({
@@ -551,6 +558,34 @@ export const ContextProvider = ({ children }) => {
     };
 
 
+
+
+
+    // <------------------------- User APIs ----------------------->
+    // Add or Sign Up User API
+    const add_user_api = async (axios, data, set_is_loading, reset_states) => {
+        set_is_loading(true)
+        try {
+            const res = await axios.post("/api/signup", data);
+            set_snackbar_alert({
+                open: true,
+                message: res.data.message,
+                severity: "success"
+            })
+            if (reset_states) {
+                reset_states();
+            }
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error",
+            })
+        } finally {
+            set_is_loading(false)
+        }
+    }
+
     // Login API
     const login_api = async (axios, data, set_is_loading) => {
         set_is_loading(true)
@@ -573,27 +608,124 @@ export const ContextProvider = ({ children }) => {
         }
     }
 
-    // Add User API
-    const add_user_api = async (axios, data, set_is_loading) => {
-        set_is_loading(true)
+
+    const [all_users_details, set_all_users_details] = useState([]);
+    const default_user_details = {
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        isAdmin: false,
+        store_name: "",
+        confirm_password: "",
+        errors: {
+            firstName: "",
+            lastName: "",
+            email: "",
+            password: "",
+            isAdmin: false,
+            store_name: "",
+            confirm_password: "",
+
+        }
+    }
+    const [user_details, set_user_details] = useState({ ...default_user_details });
+    const [modal_user_id, set_modal_user_id] = useState("");
+
+    // get All Users API
+    const get_all_users_api = async (axios, user_id, set_state, set_is_loading) => {
+        set_is_loading(true);
         try {
-            const res = await axios.post("/api/signup", data);
-            set_snackbar_alert({
-                open: true,
-                message: res.data.message,
-                severity: "success"
-            })
+            const res = await axios.get(`/api/get_all_users?user_id=${user_id}`);
+            set_state(res.data || []);
         } catch (err) {
             set_snackbar_alert({
                 open: true,
                 message: err.response.data.message,
-                severity: "error",
-            })
+                severity: "error"
+            });
         } finally {
-            set_is_loading(false)
+            set_is_loading(false);
         }
-    }
+    };
 
+    // get User API
+    const get_user_api = async (axios, user_id, set_state, set_is_loading, next) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.get(`/api/get_user?user_id=${user_id}`);
+            const { _id, ...rest } = res.data;
+            set_state({ ...default_user_details, ...rest, id: _id } || {});
+            if (next) {
+                next();
+            }
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error"
+            });
+        } finally {
+            set_is_loading(false);
+        }
+    };
+
+
+    // Update User API
+    const update_user_api = async (axios, user_id, data, set_is_loading) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.put(`/api/update_user?user_id=${user_id}`, data);
+            set_snackbar_alert({
+                open: true,
+                message: res.data.message,
+                severity: "success"
+            });
+            return true;
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error"
+            });
+            return false;
+        } finally {
+            set_is_loading(false);
+        }
+    };
+
+    // Delete User API
+    const delete_user_api = async (axios, admin_id, user_id, set_is_loading, final_function) => {
+        set_is_loading(true);
+        try {
+            const res = await axios.delete(`/api/delete_user?admin_id=${admin_id}&user_id=${user_id}`);
+            set_snackbar_alert({
+                open: true,
+                message: res.data.message,
+                severity: "success"
+            });
+            if (final_function) {
+                final_function();
+            }
+            return true;
+        } catch (err) {
+            set_snackbar_alert({
+                open: true,
+                message: err.response.data.message,
+                severity: "error"
+            });
+            return false;
+        } finally {
+            set_is_loading(false);
+        }
+    };
+
+
+
+
+
+
+    //<----------------------- Order APIs ----------------------->
 
     // Confirm Order API
     const confirm_order_api = async (axios, data, set_is_loading) => {
@@ -735,6 +867,8 @@ export const ContextProvider = ({ children }) => {
     }
 
 
+    // <--------------------- shipment tracking APIs --------------------->
+    // Get Trax Shipment Status
     const get_trax_shipment_status = async (axios, tracking_no, set_state, set_is_loading) => {
         set_is_loading(true);
         try {
@@ -757,6 +891,9 @@ export const ContextProvider = ({ children }) => {
     return (
         <StateContext.Provider
             value={{
+
+                user, set_user,
+
                 snackbar_alert, set_snackbar_alert, close_snackbar,
 
                 toggle_modal, modals_state,
@@ -795,13 +932,15 @@ export const ContextProvider = ({ children }) => {
                 progress_of_loading, set_progress_of_loading,
 
                 create_product_api, get_all_products_api, get_filter_values_api, update_product_api,
-                delete_product_api, add_user_api, get_product_api, get_all_products_title_api,
+                delete_product_api, get_product_api, get_all_products_title_api,
 
                 orders, set_orders, dispatched_orders, set_dispatched_orders, order_id, set_order_id,
 
                 get_orders_analytics_api,
 
-                login_api,
+                login_api, add_user_api, get_all_users_api, get_user_api, update_user_api, delete_user_api,
+                user_details, set_user_details, modal_user_id, set_modal_user_id, default_user_details,
+                all_users_details, set_all_users_details,
 
                 confirm_order_api, delete_order_api, get_order_api, get_all_orders_api, update_order_api,
 

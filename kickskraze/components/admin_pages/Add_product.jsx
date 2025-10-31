@@ -17,11 +17,11 @@ import StoreIcon from '@mui/icons-material/Store';
 
 
 
-const Add_product = ({ axios }) => {
+const Add_product = ({ axios, user: USER }) => {
 
 
 
-    const { create_product_api, product_details, set_product_details, default_product_details, set_API_loading } = useStateContext()
+    const { create_product_api, product_details, set_product_details, default_product_details, set_API_loading, user, set_user, get_user_api } = useStateContext()
 
     const style_textfield = {
         '& .MuiOutlinedInput-root': {
@@ -60,6 +60,11 @@ const Add_product = ({ axios }) => {
     };
 
 
+    useEffect(() => {
+        if (USER) {
+            get_user_api(axios, USER.id, set_user, set_API_loading);
+        }
+    }, [USER]);
 
     const reset_all = () => {
         set_product_details(default_product_details);

@@ -64,7 +64,7 @@ async function generateCSV() {
                 availability: item.stock ? "in stock" : "out of stock",
                 condition: item.condition === "premium +" ? "new" : "used",
                 price: `${item.price.toFixed(2)} PKR`,
-                link: `https://kickskraze.shop/product?product_id=${item._id}`,
+                link: `https://kicks-kraze.com/product?product_id=${item._id}`,
                 image_link: select_thumbnail_from_media(item.media),
                 brand: item.brand,
                 google_product_category: "Apparel & Accessories > Shoes",

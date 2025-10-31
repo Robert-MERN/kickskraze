@@ -24,6 +24,9 @@ import Delete_order_modal from '@/utils/modals/Delete_order_modal';
 import View_order_drawer from '@/utils/drawers/View_order_drawer';
 import Search_drawer_admin from '@/utils/drawers/Search_drawer_admin';
 import Share_link_modal from '@/utils/modals/Share_link_modal';
+import Edit_user_profile_modal from '@/utils/modals/Edit_user_profile_modal';
+import Delete_user_modal from '@/utils/modals/delete_user_modal';
+import Edit_user_profile_drawer from '@/utils/drawers/Edit_user_profile_drawer';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -171,6 +174,12 @@ const Layout = ({ children }) => {
                 toggle_modal={toggle_modal}
                 axios={axios}
             />
+            <Edit_user_profile_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+                toggle_modal={toggle_modal}
+                axios={axios}
+            />
 
             {/* Modals */}
             <Delete_product_modal
@@ -211,6 +220,17 @@ const Layout = ({ children }) => {
                 set_snackbar_alert={set_snackbar_alert}
                 modals_state={modals_state}
                 toggle_modal={toggle_modal}
+            />
+
+            <Edit_user_profile_modal
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
+                axios={axios}
+            />
+            <Delete_user_modal
+                modals_state={modals_state}
+                toggle_modal={toggle_modal}
+                axios={axios}
             />
 
             {children}

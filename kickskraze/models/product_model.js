@@ -38,10 +38,23 @@ const productSchema = new Schema({
         set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
     },
     size: {
-        type: Number,
-        required: [true, "Please enter the product size"],
-        set: (v) => { if (isNaN(v)) { return undefined; } return v; },// Ignore invalid values
+        type: Schema.Types.Mixed,
+        set: (v) => {
+            // Allow number, string, or array of numbers/strings
+            if (
+                typeof v === 'number' ||
+                typeof v === 'string' ||
+                (Array.isArray(v) &&
+                    v.every(item => typeof item === 'number' || typeof item === 'string'))
+            ) {
+                return v;
+            }
+
+            // Invalid value → ignore (won’t be saved)
+            return undefined;
+        },
     },
+
     brand: {
         type: String,
         required: [true, "Please enter the product brand"]
@@ -64,6 +77,10 @@ const productSchema = new Schema({
         // required: [true, "Please enter the product size description"]
     },
     shoes_desc: {
+        type: String,
+        // required: [true, "Please enter the product description"]
+    },
+    product_desc: {
         type: String,
         // required: [true, "Please enter the product description"]
     },

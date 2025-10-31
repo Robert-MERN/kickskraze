@@ -7,9 +7,18 @@ import jwt from "jsonwebtoken";
 import Analytics from '@/components/admin_pages/Analytics';
 import Users from '@/models/user_model'
 import connect_mongo from '@/utils/functions/connect_mongo'
+import { useEffect } from 'react'
+import useStateContext from '@/context/ContextProvider'
 
 
-export default function Home({ fullUrl, logoUrl }) {
+export default function Home({ fullUrl, logoUrl, user }) {
+    const { set_user } = useStateContext();
+    // setting user in context
+    useEffect(() => {
+        if (user) {
+            set_user(user);
+        }
+    }, [user]);
     return (
         <>
             <Head>

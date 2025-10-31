@@ -16,10 +16,15 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    parentAdmin: {
+        type: Boolean,
+        default: false
+    },
     password_update_count: {
         type: Number,
         default: 1
     },
+    store_name: { type: String },
 }, { timestamps: true });
 
 

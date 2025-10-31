@@ -59,3 +59,96 @@ export default async function handler(req, res) {
     }
 
 }
+
+
+
+
+
+
+
+
+
+// import Products from '@/models/product_model';
+// import connect_mongo from '@/utils/functions/connect_mongo';
+
+// /**
+//  * 
+//  * @param {import('next').NextApiRequest} req 
+//  * @param {import('next').NextApiResponse} res 
+//  */
+
+// export default async function handler(req, res) {
+//   console.log("Connecting with DB");
+//   try {
+//     await connect_mongo();
+//     console.log("Successfully connected with DB");
+
+//     const { store_name } = req.query;
+
+//     // Build the base match query
+//     const matchQuery = { isDeleted: false };
+//     if (store_name) {
+//       matchQuery.store_name = store_name.charAt(0).toUpperCase() + store_name.slice(1);
+//     }
+
+//     // Aggregate pipeline
+//     const result = await Products.aggregate([
+//       { $match: matchQuery },
+//       {
+//         $group: {
+//           _id: null,
+//           sizes: { $addToSet: "$size" },
+//           brands: { $addToSet: "$brand" },
+//           conditions: { $addToSet: "$condition" },
+//           price_lte: { $max: "$price" },
+//         },
+//       },
+//       {
+//         $project: {
+//           sizes: 1,
+//           brands: 1,
+//           conditions: 1,
+//           price_gte: { $literal: 0 },
+//           price_lte: 1,
+//           sort_by: "created-descending",
+//           _id: 0,
+//         },
+//       },
+//     ]);
+
+//     if (!result.length) {
+//       return res.status(200).json({});
+//     }
+
+//     const filters = result[0];
+
+//     // ---- Sorting logic ----
+//     if (store_name === "Apparel") {
+//       // Sort alphabetically by order (S > M > L > XL > XXL)
+//       const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+//       filters.sizes = (filters.sizes || [])
+//         .flat() // Handle array-of-arrays
+//         .filter(Boolean)
+//         .sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b))
+//         .filter(s => sizeOrder.includes(s));
+//     } else {
+//       // Sort numerically for Barefoot, Kickskraze, Jewelry
+//       filters.sizes = (filters.sizes || [])
+//         .flat()
+//         .filter(s => !isNaN(s))
+//         .sort((a, b) => a - b);
+//     }
+
+//     // Remove empty or invalid fields
+//     for (const key of ["brands", "conditions", "sizes"]) {
+//       if (!filters[key] || !filters[key].length || filters[key].every(v => !v)) {
+//         delete filters[key];
+//       }
+//     }
+
+//     return res.status(200).json(filters);
+//   } catch (err) {
+//     console.error(err);
+//     return res.status(501).json({ success: false, message: err.message });
+//   }
+// }

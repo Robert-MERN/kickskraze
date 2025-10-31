@@ -1,5 +1,5 @@
 import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
-import Dispatched_orders from '@/components/admin_pages/Dispatched_orders';
+import Update_other_users from '@/components/admin_pages/Update_other_users'
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
 import axios from 'axios'
@@ -11,8 +11,8 @@ import { useEffect } from 'react'
 import useStateContext from '@/context/ContextProvider'
 
 
-
 export default function Home({ fullUrl, logoUrl, user }) {
+
     const { set_user } = useStateContext();
     // setting user in context
     useEffect(() => {
@@ -24,23 +24,24 @@ export default function Home({ fullUrl, logoUrl, user }) {
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin | Dispatched Orders</title>
-                <meta property="og:title" content="Kickskraze | Admin | Dispatched Orders" />
-                <meta property="og:description" content="Admin / Dispatched Orders Page" />
+                <title>Kickskraze | Admin | Update Other Users</title>
+                <meta property="og:title" content="Kickskraze | Admin | Update Other Users" />
+                <meta property="og:description" content="Admin / Update Other Users Page" />
                 <meta property="og:image" content={logoUrl} />
                 <meta property="og:url" content={fullUrl} />
-                <meta property="og:type" content="admin - dispatched orders" />
+                <meta property="og:type" content="admin - update other users" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<Dispatched_orders axios={axios} />} />
+                    <Admin_page_layout admin_children={<Update_other_users axios={axios} user={user} />} />
                 </div>
             </div>
         </>
     )
 }
+
 
 
 export const getServerSideProps = async ({ req, res }) => {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
@@ -17,7 +17,7 @@ import { useRouter } from 'next/router';
 import mongoose from 'mongoose';
 import { capitalizeWords } from '@/utils/functions/produc_fn';
 import StoreIcon from '@mui/icons-material/Store';
-
+import { CircularProgress } from '@mui/material';
 
 
 const Create_product = ({ axios }) => {
@@ -44,10 +44,32 @@ const Create_product = ({ axios }) => {
 
         if (isValidObjectId(router.query?.product_id)) {
             set_product_id(router.query.product_id);
-        } else {
-            get_all_products_title_api(axios, set_products_title, set_API_loading);
         }
+
     }, [router.isReady, router.query]);
+
+
+    // Search Debounce Functionality
+    const [searchTerm, setSearchTerm] = useState("");
+    const [is_loading_local, set_is_loading_local] = useState(true);
+
+    useEffect(() => {
+        const delayDebounce = setTimeout(() => {
+            if (searchTerm.trim()) {
+                // Search when user types something
+                get_all_products_title_api(axios, set_products_title, set_is_loading_local, `search=${encodeURIComponent(searchTerm)}`);
+            } else {
+                // Default: load latest 100 products
+                get_all_products_title_api(axios, set_products_title, set_is_loading_local);
+            }
+        }, 600);
+
+        return () => clearTimeout(delayDebounce);
+    }, [searchTerm]);
+
+
+
+
 
 
 
@@ -98,6 +120,7 @@ const Create_product = ({ axios }) => {
 
 
     const reset_all = () => {
+        setSearchTerm("")
         set_product_id("");
         set_update_product_details(default_update_product_details);
     }
@@ -337,8 +360,8 @@ const Create_product = ({ axios }) => {
             set_API_loading(false);
         }
     };
-    
-    
+
+
     // Date Formatter
     const date_formatter = (date) => {
         // Create a Date object
@@ -372,8 +395,8 @@ const Create_product = ({ axios }) => {
                         <div className="flex items-center gap-2">
                             <TbShoppingBagEdit className='text-[24px] lg:text-[30px]' />
                             Update Product
-                         </div>
-                        {Boolean(update_product_details.createdAt)&&
+                        </div>
+                        {Boolean(update_product_details.createdAt) &&
                             <p className="text-[15px] lg:text-[17px] font-medium text-stone-600">{date_formatter(update_product_details.createdAt)}</p>
                         }
                     </h1>
@@ -385,35 +408,28 @@ const Create_product = ({ axios }) => {
 
                 }
 
-                {(Boolean(products_title.length) && !product_id) ?
+                {!Boolean(product_id) &&
                     <Autocomplete
-                        className='w-full'
+                        className="w-full"
                         options={products_title}
                         autoHighlight
                         value={products_title.find(e => e._id === product_id) || null}
                         onChange={(event, value) => set_product_id(value ? value._id : "")}
-                        filterOptions={(options, { inputValue }) => {
-                            return options.filter(option =>
-                                option.title.toLowerCase().includes(inputValue.toLowerCase()) ||
-                                option._id.toLowerCase().includes(inputValue.toLowerCase()) // Search by ID
-                            );
+                        onInputChange={(event, newInputValue) => {
+                            setSearchTerm(newInputValue); // trigger useEffect debounce
                         }}
                         getOptionLabel={(option) => option.title}
+                        filterOptions={(x) => x} // Disable local filtering (important!)
                         renderOption={(props, option) => {
                             const { key, ...optionProps } = props;
                             return (
-                                <li
-                                    className=''
-                                    key={option._id}
-                                    {...optionProps}
-                                >
+                                <li key={option._id} {...optionProps}>
                                     <img
-                                        className='mr-4 w-[40px] h-[40px] object-cover rounded-md'
+                                        className="mr-4 w-[40px] h-[40px] object-cover rounded-md"
                                         src={option.url}
                                         alt=""
                                     />
                                     {option.title}
-
                                 </li>
                             );
                         }}
@@ -421,24 +437,20 @@ const Create_product = ({ axios }) => {
                             <TextField
                                 {...params}
                                 label="Search Product"
-                                slotProps={{
-                                    htmlInput: {
-                                        ...params.inputProps,
-                                        autoComplete: 'new-password', // disable autocomplete and autofill
-                                    },
+                                InputProps={{
+                                    ...params.InputProps,
+                                    endAdornment: (
+                                        <>
+                                            {is_loading_local ? (
+                                                <CircularProgress color="inherit" size={20} />
+                                            ) : null}
+                                            {params.InputProps.endAdornment}
+                                        </>
+                                    ),
                                 }}
                             />
                         )}
                     />
-                    :
-                    <>
-                        {Boolean(product_id) ?
-                            <></>
-                            :
-                            <h1 className='text-[16px] lg:text-[19px]  font-medium text-stone-700 mt-[15px] mb-[10px] text-center'>No Product(s)</h1>
-                        }
-                    </>
-
                 }
 
                 {Boolean(product_id) &&

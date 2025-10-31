@@ -11,6 +11,7 @@ import { AiFillProduct } from "react-icons/ai";
 import { FaBasketShopping } from "react-icons/fa6";
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import BarChartIcon from '@mui/icons-material/BarChart';
+import { FaUsersSlash } from "react-icons/fa6";
 import { useRouter } from 'next/router';
 import useStateContext from '@/context/ContextProvider';
 import Link from 'next/link';
@@ -47,6 +48,7 @@ const Admin_menu_drawer = ({ drawer_state, toggle_drawer }) => {
                 { option_name: "App", link: "/admin/app-settings", icon: <AddBusinessIcon className='text-[23px]' /> },
                 { option_name: "Add User", link: "/admin/add-user", icon: <GroupAddIcon className='text-[20px]' /> },
                 { option_name: "Update User", link: "/admin/update-user", icon: <ManageAccountsIcon className='text-[23px]' /> },
+                { option_name: "Edit Other Profiles", link: "/admin/update-other-users", icon: <FaUsersSlash className='text-[23px]' /> },
             ]
         },
     ];
