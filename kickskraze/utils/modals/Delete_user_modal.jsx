@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
@@ -31,8 +31,18 @@ const Delete_user_modal = ({
 
     }
 
+    const [own_account, set_own_account] = useState(false)
+
+    useEffect(() => {
+        if (router.isReady && router.asPath === "/admin/update-user") {
+            set_own_account(true)
+        } else {
+            set_own_account(false);
+        }
+
+    }, [router.isReady, router.asPath])
+
     const handle_delete_menu = () => {
-        const own_account = router.asPath === "/admin/update-user";
 
         delete_user_api(
             axios,
