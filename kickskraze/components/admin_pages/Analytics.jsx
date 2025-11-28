@@ -467,8 +467,8 @@ const Analytics = ({ axios }) => {
                             {/* Inventory Cards */}
                             <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
                             
-                                <div className="h-[200px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
-                                    <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[240px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
+                                <div className="h-[240px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
+                                    <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[260px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
                                     <img src="/images/ic-glass-sales.svg" className='w-[48px] h-[48px]' alt="" />
 
                                     <p className='mt-3 font-medium'>Total Inventory</p>

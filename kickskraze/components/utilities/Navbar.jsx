@@ -18,7 +18,7 @@ import { MetaPixel } from "@/lib/fpixel";
 const Navbar = () => {
 
     const router = useRouter();
-    const { toggle_drawer, cart, get_all_products_api } = useStateContext();
+    const { toggle_drawer, cart, get_all_products_api, filters } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
@@ -130,10 +130,35 @@ const Navbar = () => {
         };
     }, [is_loading, searchTerm]);
 
+    const updateUrlFromFilters = (filters) => {
+        const query = {};
+        filters.forEach(obj => {
+            const key = Object.keys(obj)[0];
+            const value = String(obj[key]); // convert number to string
+
+            if (!query[key]) {
+                // create a new Set to avoid duplicates
+                query[key] = new Set([value]);
+            } else {
+                query[key].add(value);
+            }
+        });
+
+        // Convert Set → comma string
+        Object.keys(query).forEach(key => {
+            query[key] = Array.from(query[key]).join(",");
+        });
+
+        router.push({
+            pathname: "/collection",
+            query
+        }, undefined, { shallow: true });
+    };
+
     const search_btn = () => {
         if (results.length) {
             setAnchorEl(null);
-            router.push(`/collection?search=${debouncedTerm}`)
+            updateUrlFromFilters([{ search: searchTerm }, ...filters]);
         }
     }
 

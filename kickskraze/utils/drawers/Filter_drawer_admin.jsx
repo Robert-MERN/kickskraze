@@ -13,14 +13,19 @@ import {
     remove_all_items_from_filters_realtime_update,
     find_filter,
     convert_to_query_string,
+    store_name_filter_display_fn,
+    sort_store_names,
 } from '@/utils/functions/filter_function';
 import { Fade } from 'react-reveal';
 import { Skeleton } from '@mui/material';
+import { useRouter } from 'next/router';
 
 
 
 
 const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
+
+    const router = useRouter();
 
     const {
         get_all_products_api,
@@ -47,6 +52,31 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
     // APPLYING FILTER AND REMOVING FILTERS LOGICS
     const timerRef = useRef(null);
 
+    const updateUrlFromFilters = (filters) => {
+        const query = {};
+        filters.forEach(obj => {
+            const key = Object.keys(obj)[0];
+            const value = String(obj[key]); // convert number to string
+
+            if (!query[key]) {
+                // create a new Set to avoid duplicates
+                query[key] = new Set([value]);
+            } else {
+                query[key].add(value);
+            }
+        });
+
+        // Convert Set → comma string
+        Object.keys(query).forEach(key => {
+            query[key] = Array.from(query[key]).join(",");
+        });
+
+        router.push({
+            pathname: router.pathname,
+            query
+        }, undefined, { shallow: true });
+    };
+
     const apply_filter = async (filter_obj) => {
         if (timerRef.current) {
             clearTimeout(timerRef.current);
@@ -55,27 +85,27 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
         if (Object.keys(filter_obj).includes("price_gte") || Object.keys(filter_obj).includes("price_lte")) {
             timerRef.current = setTimeout(async () => {
                 const FILTERS = await filter_method(filter_obj, set_filters);
-                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+                updateUrlFromFilters(FILTERS);
             }, 300);
         } else {
             const FILTERS = await filter_method(filter_obj, set_filters);
-            get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+            updateUrlFromFilters(FILTERS);
         }
     };
 
     const remove_item_from_filters_realtime_update_fn = async (set_filters, e, filter_options) => {
         const FILTERS = await remove_item_from_filters_realtime_update(set_filters, e, filter_options);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     const remove_group_items_from_filters_realtime_update_fn = async (set_filters, obj_key) => {
         const FILTERS = await remove_group_items_from_filters_realtime_update(set_filters, obj_key);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     const remove_all_items_from_filters_realtime_update_fn = (filter_options, set_filters) => {
         const FILTERS = remove_all_items_from_filters_realtime_update(filter_options, set_filters);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     // <-----------End Here ----------->
@@ -234,7 +264,7 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
                                             <button
                                                 key={index}
                                                 onClick={() => apply_filter({ size: each })}
-                                                className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 text-ellipsis line-clamp-1 overflow-hidden transition-all ${filters.some(e => e.size === each) ? "bg-gray-200" : ""}`}
+                                                className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 text-ellipsis line-clamp-1 overflow-hidden transition-all ${filters.some(e => String(e.size) === String(each)) ? "bg-gray-200" : ""}`}
                                             >
                                                 {each}
                                             </button>
@@ -275,6 +305,36 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
                                     {filters.some(e => Object.keys(e)[0] === "condition") &&
                                         <button
                                             onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "condition")
+                                            }
+                                            className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                            Clear all
+                                        </button>
+                                    }
+                                </div>
+                            </Fade>
+
+                            {/* Shoes Types */}
+                            <Fade>
+                                <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                    <h1 className='text-[17px] text-stone-900 mb-3'>Shoe Type</h1>
+                                    <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                        {(sort_store_names(filter_options.store_names)).map((each, index) => (
+                                            <button
+                                                key={index}
+                                                onClick={() => apply_filter({ store_name: each })}
+                                                className='flex items-center w-full'
+                                            >
+                                                <Checkbox
+                                                    checked={filters.some(e => e.store_name === each)}
+                                                    size='small'
+                                                />
+                                                <p className='text-[15px] text-stone-900 capitalize'>{store_name_filter_display_fn(each)}</p>
+                                            </button>
+                                        ))}
+                                    </div>
+                                    {filters.some(e => Object.keys(e)[0] === "store_name") &&
+                                        <button
+                                            onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "store_name")
                                             }
                                             className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
                                             Clear all

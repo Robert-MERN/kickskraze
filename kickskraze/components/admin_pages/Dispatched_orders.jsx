@@ -131,10 +131,17 @@ const Dispatched_orders = ({ axios }) => {
             )
         },
         {
-            field: 'createdAt',
-            headerName: 'Invoice Date',
+            field: "search_date",
+            headerName: "Invoice Date",
             width: 180,
-            renderCell: params => `${date_formatter(params.row.createdAt)}`
+            renderCell: params => {
+                const date = date_formatter(params.row.createdAt);
+                return (
+                    <p className="w-full text-ellipsis overflow-hidden capitalize">
+                        {date}
+                    </p>
+                );
+            }
         },
         {
             field: 'name',
@@ -179,9 +186,20 @@ const Dispatched_orders = ({ axios }) => {
             renderCell: params => payment_method[params?.row?.payment_method] || "",
         },
         {
-            field: 'store_name',
+            field: 'search_store',
             headerName: 'Store',
-            width: 120,
+            width: 160,
+            renderCell: params => {
+                const stores = Array.isArray(params.row.store_name)
+                    ? params.row.store_name.join(" / ")
+                    : params.row.store_name || "";
+
+                return (
+                    <p className="w-full text-ellipsis overflow-hidden">
+                        {stores}
+                    </p>
+                );
+            }
         },
         {
             field: 'verification',
@@ -254,7 +272,10 @@ const Dispatched_orders = ({ axios }) => {
                 columns={columns}
                 rows={dispatched_orders.map(row => ({
                     ...row,
-                    name: `${row.firstName || ""} ${row.lastName || ""}`.trim()
+                    /* 🔍 SEARCHABLE KEYWORDS */
+                    name: `${row.firstName} ${row.lastName}`.trim(),
+                    search_date: row.createdAt ? date_formatter(row.createdAt).toLowerCase() : "",
+                    search_store: Array.isArray(row.store_name) ? row.store_name.join(" ").toLowerCase() : (row.store_name || "").toLowerCase()
                 }))}
                 getRowId={row => row._id}
                 paginationModel={paginationModel}

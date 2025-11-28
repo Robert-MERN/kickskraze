@@ -5,6 +5,12 @@ export const purchase_items_displayer = (orders) => {
 
     const purchase_items_html_structure = orders.purchase.map(item => {
 
+        // Variant-aware fields → fallback to base if no variant
+        const size = item?.selectedVariant?.options?.size ?? item?.size ?? null;
+        const color = item?.selectedVariant?.options?.color ?? item?.color ?? null;
+        const brand = item.brand ?? null;
+        const condition = (item.condition && item.condition !== "brand new") ? item.condition : null;
+
         return `
         <tr>
     <td align="left" class="esdev-adapt-off"
@@ -58,10 +64,10 @@ export const purchase_items_displayer = (orders) => {
                                             <p
                                                 style="Margin:0;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;line-height:21px;letter-spacing:0;color:#333333;font-size:14px"
                                             >
-
-                                              size: ${item.size}<br/>
-                                              condition: ${item.condition}<br/>
-                                              brand: ${item.brand}
+                                                ${size ? `Size: ${size}<br/>` : ""}
+                                                ${color ? `Color: ${color}<br/>` : ""}
+                                                ${brand ? `Brand: ${brand}<br/>` : ""}
+                                                ${condition ? `Condition: ${condition}<br/>` : ""}
                                             </p>
                                         </td>
                                     </tr>

@@ -421,6 +421,7 @@ const Checkouts_page = ({ axios, order_id }) => {
 
                                                     : Boolean(shipment_details.length) ?
                                                         <Accordion
+                                                            defaultExpanded
                                                             elevation={0}
                                                             sx={{
                                                                 border: 'none',
@@ -438,7 +439,7 @@ const Checkouts_page = ({ axios, order_id }) => {
                                                                 className='px-0'
                                                             >
                                                                 <p className='underline underline-offset-2 text-[16px] text-stone-600 font-semibold'>
-                                                                    View Shipment Status
+                                                                    Shipment Status
                                                                 </p>
                                                             </AccordionSummary>
 
@@ -532,8 +533,28 @@ const Checkouts_page = ({ axios, order_id }) => {
                                                     </Link>
                                                     <div className="text-stone-800 text-[14px] font-medium">
                                                         <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
-                                                        <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
-                                                        <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
+                                                        {/* ===== SIZE / COLOR ===== */}
+                                                        <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                            {[
+                                                                item.selectedVariant?.options?.size ?? item.size,   // variant > base
+                                                                item.selectedVariant?.options?.color ?? item.color  // variant > base
+                                                            ]
+                                                                .filter(Boolean)         // remove null / empty
+                                                                .join(" / ")             // add slash only if both exist
+                                                            }
+                                                        </p>
+                                                        {/* ===== BRAND / CONDITION ===== */}
+                                                        <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                            {[
+                                                                item.brand || null,                                      // base fallback only
+                                                                item.condition && item.condition.toLowerCase() !== "brand new"
+                                                                    ? item.condition                                     // hide brand new
+                                                                    : null
+                                                            ]
+                                                                .filter(Boolean)
+                                                                .join(" / ")
+                                                            }
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">

@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from "@mui/material/Badge";
 import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, capitalizeWords, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, capitalizeWords, convert_purchase_to_meta, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import useStateContext from '@/context/ContextProvider';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -18,7 +18,8 @@ import { Autocomplete, FormHelperText, IconButton } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { MetaPixel } from '@/lib/fpixel';
-import { PK_cities } from '@/utils/shoes_info_list';
+import { PK_cities } from '@/utils/product_info_list';
+import styles from "@/styles/home.module.css";
 
 
 const Checkouts_page = ({ axios }) => {
@@ -221,6 +222,21 @@ const Checkouts_page = ({ axios }) => {
     }
 
 
+    const [error_shake, set_error_shake] = useState(false);
+    // Error Sound
+    const play_error_sound = () => {
+        const audio = new Audio("/sounds/error.wav");
+        audio.volume = 0.6;
+        audio.play();
+    };
+    // Success Sound
+    const play_success_sound = () => {
+        const audio = new Audio("/sounds/success.wav");
+        audio.volume = 0.6;
+        audio.play();
+    };
+
+    // Submit Order Functionality
     const handle_submit = (e) => {
         e.preventDefault();
         const errors = {};
@@ -239,22 +255,23 @@ const Checkouts_page = ({ axios }) => {
             const { errors, purchase, ...other } = order_details;
             const data_body = {
                 ...other,
-                purchase: purchase.map(e => ({ _id: e._id, quantity: e.quantity })),
+                purchase: purchase.map(e => ({
+                    _id: e._id,
+                    variant_id: e.selectedVariant?.variant_id || null,
+                    quantity: e.quantity,
+                })),
                 store_name: select_store_name(purchase),
             }
-            const meta_body = {
-                content_ids: purchase.map((each) => each._id),
-                content_type: "product_group",
-                content_category: "Shoes",
-                contents: purchase,
-                num_items: calc_total_items(purchase),
-                value: calc_gross_total_amount(order_details).toFixed(2),
-                currency: "PKR"
-            }
-            MetaPixel.trackEvent("Purchase", meta_body);
+
+            MetaPixel.trackEvent("Purchase", convert_purchase_to_meta(purchase));
             confirm_order_api(axios, data_body, set_API_loading);
 
-
+        } else {
+            // trigger shake animation every time on error
+            navigator.vibrate?.([80, 40, 80]);
+            play_error_sound();
+            set_error_shake(true);
+            setTimeout(() => set_error_shake(false), 600)
         }
     }
 
@@ -408,8 +425,29 @@ const Checkouts_page = ({ axios }) => {
                                             </Link>
                                             <div className="text-stone-800 text-[14px] font-medium">
                                                 <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
-                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
-                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
+                                                {/* ===== SIZE / COLOR ===== */}
+                                                <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                    {[
+                                                        item.selectedVariant?.options?.size ?? item.size,   // variant > base
+                                                        item.selectedVariant?.options?.color ?? item.color  // variant > base
+                                                    ]
+                                                        .filter(Boolean)         // remove null / empty
+                                                        .join(" / ")             // add slash only if both exist
+                                                    }
+                                                </p>
+                                                {/* ===== BRAND / CONDITION ===== */}
+                                                <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                    {[
+                                                        item.brand || null,                                      // base fallback only
+                                                        item.condition && item.condition.toLowerCase() !== "brand new"
+                                                            ? item.condition                                     // hide brand new
+                                                            : null
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" / ")
+                                                    }
+                                                </p>
+
                                             </div>
                                         </div>
                                         <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
@@ -599,6 +637,22 @@ const Checkouts_page = ({ axios }) => {
                                 }}
                             />
 
+
+
+                            <TextField
+                                label="Special instructions (optional)"
+                                variant="outlined"
+                                className='w-full'
+                                type="text"
+                                name="special_instructions"
+                                placeholder='Add any special instructions (optional)'
+                                multiline
+                                value={order_details.special_instructions}
+                                onChange={handleChange}
+                                sx={style_textfield}
+                            />
+
+
                             <div className='w-full flex items-center text-[14px] md:text-[16px] font-medium text-stone-900'>
                                 <Checkbox />
                                 <p>Save this information for next time</p>
@@ -782,7 +836,7 @@ const Checkouts_page = ({ axios }) => {
                             }
 
                             {/* Complete Order Button */}
-                            <button type='submit' className='w-full py-[10px] md:py-[16px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] md:text-[15px] hover:bg-white hover:text-stone-800 border border-stone-500  transition-all duration-300 rounded mt-6 lg:mb-20'>
+                            <button type='submit' className={`w-full py-[10px] md:py-[16px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] md:text-[15px] hover:bg-white hover:text-stone-800 border border-stone-500  transition-all duration-300 rounded mt-6 lg:mb-20 ${error_shake ? styles.error_shake : ""}`}>
                                 COMPLETE ORDER
                             </button>
                         </form>
@@ -814,8 +868,29 @@ const Checkouts_page = ({ axios }) => {
                                             </Link>
                                             <div className="text-stone-800 text-[14px] font-medium">
                                                 <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
-                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
-                                                <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
+                                                {/* ===== SIZE / COLOR ===== */}
+                                                <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                    {[
+                                                        item.selectedVariant?.options?.size ?? item.size,   // variant > base
+                                                        item.selectedVariant?.options?.color ?? item.color  // variant > base
+                                                    ]
+                                                        .filter(Boolean)         // remove null / empty
+                                                        .join(" / ")             // add slash only if both exist
+                                                    }
+                                                </p>
+                                                {/* ===== BRAND / CONDITION ===== */}
+                                                <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                    {[
+                                                        item.brand || null,                                      // base fallback only
+                                                        item.condition && item.condition.toLowerCase() !== "brand new"
+                                                            ? item.condition                                     // hide brand new
+                                                            : null
+                                                    ]
+                                                        .filter(Boolean)
+                                                        .join(" / ")
+                                                    }
+                                                </p>
+
                                             </div>
                                         </div>
                                         <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">

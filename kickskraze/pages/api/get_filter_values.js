@@ -16,38 +16,86 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfuly conneted with DB");
 
+
         // Getting filter value with pipeline
         const filter_values = await Products.aggregate([
             {
                 $match: { isDeleted: false }
             },
+
+            // Normalize size field → always convert to array
+            {
+                $addFields: {
+                    size: {
+                        $cond: [
+                            { $isArray: "$size" },
+                            "$size",
+                            ["$size"] // convert single value → array
+                        ]
+                    }
+                }
+            },
+
+            // Normalize color field
+            {
+                $addFields: {
+                    color: {
+                        $cond: [
+                            { $isArray: "$color" },
+                            "$color",
+                            ["$color"]
+                        ]
+                    }
+                }
+            },
+
+            // Unwind them so no nested arrays happen
+            { $unwind: "$size" },
+            { $unwind: "$color" },
+
             {
                 $group: {
                     _id: null,
                     sizes: { $addToSet: "$size" },
+                    colors: { $addToSet: "$color" },
                     brands: { $addToSet: "$brand" },
                     conditions: { $addToSet: "$condition" },
-                    price_lte: { $max: "$price" },
+                    store_names: {
+                        $addToSet: {
+                            $cond: [
+                                { $in: ["$store_name", ["Areeba-sandals", "SM-sandals"]] },
+                                "$type",
+                                "$store_name"
+                            ]
+                        }
+                    },
+                    price_lte: { $max: "$price" }
                 }
             },
+
             {
                 $project: {
                     sizes: 1,
+                    colors: 1,
                     brands: 1,
                     conditions: 1,
-                    price_gte: { $literal: 0 }, // Set price_gte to 0
+                    store_names: 1,
+                    price_gte: { $literal: 0 },
                     price_lte: 1,
-                    sort_by: "created-descending", // Static field for sort_by
-                    _id: 0,
+                    sort_by: "created-descending",
+                    _id: 0
                 }
             },
+
             {
                 $addFields: {
-                    sizes: { $sortArray: { input: "$sizes", sortBy: 1 } }, // Sort sizes numerically (ascending)
-                    brands: { $sortArray: { input: "$brands", sortBy: 1 } }, // Sort brands alphabetically (ascending)
+                    sizes: { $sortArray: { input: "$sizes", sortBy: 1 } },
+                    colors: { $sortArray: { input: "$colors", sortBy: 1 } },
+                    brands: { $sortArray: { input: "$brands", sortBy: 1 } }
                 }
             }
         ]);
+
 
         // sending success response to client
         return res.status(200).json(filter_values[0]);

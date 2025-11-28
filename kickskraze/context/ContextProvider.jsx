@@ -2,6 +2,7 @@ import React, { useState, createContext, useContext, useEffect } from 'react'
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/router';
 import { MetaPixel } from '@/lib/fpixel';
+import { resolve_meta_category, resolve_meta_content_id } from '@/utils/functions/produc_fn';
 
 
 
@@ -82,10 +83,10 @@ export const ContextProvider = ({ children }) => {
 
     const convert_product_to_meta = (product) => {
         const meta_product = {
-            content_ids: [product._id],
+            content_ids: [resolve_meta_content_id(product)],
             content_type: "product",
             content_name: product.title,
-            content_category: "Shoes",
+            content_category: resolve_meta_category(product),
             value: product.price.toFixed(2),
             currency: "PKR",
         }
@@ -115,60 +116,74 @@ export const ContextProvider = ({ children }) => {
         });
     }
 
+    // ADD TO CART — supports variants + base products + BUY NOW logic
     const add_item_to_cart = (item, direct) => {
-        set_cart((prev_cart) => {
-            const updated_cart = [...prev_cart];
-            const index = updated_cart.findIndex((each) => each._id === item._id)
-            if (index !== -1) {
-                if (Number(item.quantity + 1) <= item.stock) {
-                    const new_item = { ...item, quantity: item.quantity + 1 }
-                    updated_cart.splice(index, 1, new_item);
+        set_cart(prev_cart => {
+            const updated = [...prev_cart];
+
+            const index = updated.findIndex(each =>
+                each._id === item._id &&
+                (!item.selectedVariant || each.selectedVariant?.variant_id === item.selectedVariant?.variant_id)
+            );
+
+            const maxStock = item.selectedVariant ? item.selectedVariant.stock : item.stock;
+            const newQty = index !== -1 ? updated[index].quantity + 1 : 1;
+
+            // Prevent adding if stock limit exceeded (except in direct mode we still allow checkout with qty=1)
+            if (newQty > maxStock) {
+                if (!direct) { // only warn for normal Add to Cart
                     set_snackbar_alert({
                         open: true,
-                        message: "Item added to you cart",
-                        severity: "success"
-                    });
-                    save_cart(updated_cart)
-                    return updated_cart;
-                }
-                if (!direct) {
-                    set_snackbar_alert({
-                        open: true,
-                        message: "Item already added to your cart!",
+                        message: "Not enough stock available!",
                         severity: "warning"
                     });
                 }
-                save_cart(updated_cart)
-                MetaPixel.trackEvent("InitiateCheckout", convert_product_to_meta(item));
-                return updated_cart;
+                return updated;
             }
-            set_snackbar_alert({
-                open: true,
-                message: "Item added to you cart",
-                severity: "success"
-            });
-            save_cart([...updated_cart, { ...item, quantity: 1 }]);
-            MetaPixel.trackEvent("AddToCart", convert_product_to_meta(item));
-            return [...updated_cart, { ...item, quantity: 1 }];
+
+            // If item already exists — increase quantity
+            if (index !== -1) {
+                updated[index] = { ...updated[index], quantity: newQty };
+            }
+            // New entry
+            else {
+                updated.push({ ...item, quantity: 1 });
+                MetaPixel.trackEvent("AddToCart", convert_product_to_meta(item)); // analytics
+            }
+
+            save_cart(updated);
+
+            // If not direct — show snackbar normally
+            if (!direct) {
+                set_snackbar_alert({ open: true, message: "Added to cart", severity: "success" });
+            }
+
+            return updated;
         });
-    }
+    };
+
 
     const substract_item_from_cart = (item) => {
-        set_cart((prev_cart) => {
-            const updated_cart = [...prev_cart];
-            const index = updated_cart.findIndex((each) => each._id === item._id)
+        set_cart(prev_cart => {
+            const updated = [...prev_cart];
 
-            if (Number(item.quantity - 1) < 1) {
-                updated_cart.splice(index, 1);
-                save_cart(updated_cart);
-                return updated_cart;
-            }
-            const new_item = { ...item, quantity: item.quantity - 1 }
-            updated_cart.splice(index, 1, new_item);
-            save_cart(updated_cart);
-            return updated_cart;
+            const index = updated.findIndex(each =>
+                each._id === item._id &&
+                (!item.selectedVariant || each.selectedVariant?.variant_id === item.selectedVariant.variant_id)
+            );
+
+            if (index === -1) return updated;
+
+            const q = updated[index].quantity - 1;
+
+            if (q < 1) updated.splice(index, 1);
+            else updated[index].quantity = q;
+
+            save_cart(updated);
+            return updated;
         });
-    }
+    };
+
 
 
     // Create Product Details
@@ -178,26 +193,36 @@ export const ContextProvider = ({ children }) => {
         cost_price: "",
         compare_price: "",
         size: "",
+        color: "",
+        type: "",
         brand: "",
         condition: "",
         category: "",
         stock: 1,
         size_desc: "",
         shoes_desc: "",
+        product_desc: "",
         store_name: "",
         media: [],
         featured: false,
+        variants: [],
+        options: [],
+        has_variants: false,
+        is_thrifted: false,
         errors: {
             title: "",
             price: "",
             cost_price: "",
             size: "",
+            color: "",
+            type: "",
             brand: "",
             condition: "",
             category: "",
             stock: "",
             size_desc: "",
             shoes_desc: "",
+            product_desc: "",
             store_name: "",
             media: "",
         }
@@ -212,26 +237,36 @@ export const ContextProvider = ({ children }) => {
         cost_price: "",
         compare_price: "",
         size: "",
+        color: "",
+        type: "",
         brand: "",
         condition: "",
         category: "",
         stock: 1,
         size_desc: "",
         shoes_desc: "",
+        product_desc: "",
         media: [],
         store_name: "",
         featured: false,
+        variants: [],
+        options: [],
+        has_variants: false,
+        is_thrifted: false,
         errors: {
             title: "",
             price: "",
             cost_price: "",
             size: "",
+            color: "",
+            type: "",
             brand: "",
             condition: "",
             category: "",
             stock: "",
             size_desc: "",
             shoes_desc: "",
+            product_desc: "",
             store_name: "",
             media: "",
         }

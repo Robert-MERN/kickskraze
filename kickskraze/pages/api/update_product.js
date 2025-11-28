@@ -2,6 +2,7 @@ import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
+import { parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/produc_fn';
 
 /**
  * 
@@ -30,6 +31,22 @@ export default async function handler(req, res) {
             return { ...other };
         }) : [];
 
+
+        // Conerting size and color field to array if they are string
+        if (other.size) {
+            other.size = parseMixedField(other.size);
+        }
+
+        if (other.color) {
+            other.color = parseMixedField(other.color);
+        }
+
+
+        // Parsing variants and options fields if the product has variants
+        if (other.has_variants) {
+            other.variants = parseVariantsField(other.variants);
+            other.options = parseOptionsField(other.options);
+        }
 
 
         // updating product

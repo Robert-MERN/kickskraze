@@ -7,11 +7,13 @@ import { Skeleton } from '@mui/material';
 import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import useStateContext from '@/context/ContextProvider';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, formatPakistaniNumber, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import styles from "@/styles/home.module.css";
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 
 const View_order_modal = ({
@@ -22,7 +24,7 @@ const View_order_modal = ({
 
 
 
-    const { get_all_orders_api, set_orders, set_dispatched_orders, get_order_api, order_id, set_order_id, update_order_api, delete_order_api, set_API_loading, } = useStateContext();
+    const { get_all_orders_api, set_orders, set_dispatched_orders, get_order_api, order_id, set_order_id, update_order_api, delete_order_api, set_API_loading, set_snackbar_alert } = useStateContext();
 
 
     const pathname = useRouter().pathname;
@@ -188,26 +190,40 @@ const View_order_modal = ({
     // Handle Update Form
     const handle_submit = async (e) => {
         e.preventDefault();
+
         const errors = {};
         Object.keys(confirmed_order).forEach((fieldName) => {
             const error = validateField(fieldName, confirmed_order[fieldName]);
-            if (error) {
-                errors[fieldName] = error;
-            }
+            if (error) errors[fieldName] = error;
         });
+
         set_errors(errors);
-        if (Object.values(errors).every((error) => !error)) {
-            // Form is valid, submit it
+
+        if (!Object.values(errors).some(Boolean)) {
+
             let { purchase = [], ...others } = confirmed_order;
-            purchase = purchase.length ? purchase.map(e => ({ _id: e._id, quantity: e.quantity })) : [];
-            const updated_order = await update_order_api(axios, order_id, { purchase, ...others }, set_API_loading);
+
+            // 🧠 keep variant_id + keep selectedVariant intact
+            purchase = purchase.map(item => ({
+                _id: item._id,
+                quantity: item.quantity,
+                variant_id: item.variant_id ?? null,
+                selectedVariant: item.selectedVariant ?? null  // ⭐ Don't lose variant
+            }));
+
+            const updated_order = await update_order_api(
+                axios,
+                order_id,
+                { purchase, ...others },
+                set_API_loading
+            );
+
             await get_all_orders_api(axios, pages[pathname].query, pages[pathname].fn, set_API_loading);
 
-            if (!confirmed_order.purchase.length && updated_order) {
-                close_modal();
-            }
+            if (!confirmed_order.purchase.length && updated_order) close_modal();
         }
     };
+
 
 
     const remove_item = (item_id) => {
@@ -216,6 +232,53 @@ const View_order_modal = ({
             return { ...prev, purchase };
         });
     }
+
+
+    const updateOrderQty = (id, change) => {
+        set_confirmed_order(prev => {
+            const updated = prev.purchase.map(item => {
+
+                if (item._id !== id) return item;
+
+                const newQty = item.quantity + change;
+
+                // 🧠 Detect actual stock source
+                const stockToUse = item.selectedVariant?.stock ?? item.stock;
+
+                // 🔻 Min 1 allowed
+                if (newQty < 1) {
+                    set_snackbar_alert({
+                        open: true,
+                        severity: "warning",
+                        message: "Quantity cannot be less than 1"
+                    });
+                    return item;
+                }
+
+                // 🔺 Prevent exceeding available stock
+                if (newQty > stockToUse) {
+                    set_snackbar_alert({
+                        open: true,
+                        severity: "warning",
+                        message: `Only ${stockToUse} left in stock`
+                    });
+                    return item;
+                }
+
+                // 🔥 MUST keep selectedVariant intact
+                return {
+                    ...item,
+                    quantity: newQty,
+                    selectedVariant: item.selectedVariant ?? null,
+                    variant_id: item.variant_id ?? null,
+                };
+            });
+
+            return { ...prev, purchase: updated };
+        });
+    };
+
+
 
 
     return (
@@ -451,43 +514,96 @@ const View_order_modal = ({
                                                     {/* Product price */}
 
                                                     {confirmed_order.purchase.map((item) => (
-                                                        <div key={item._id} className="w-full border-stone-300 flex items-center justify-between my-1">
-                                                            <div className="flex items-center gap-5">
-                                                                <Link href={`/product?product_id=${item._id}`} target="_blank">
-                                                                    <Badge
-                                                                        badgeContent={item.quantity}
-                                                                        color="info"
-                                                                        showZero
+                                                        <div key={item._id} className="w-full my-1">
+                                                            <div className="w-full flex items-center justify-between">
+                                                                <div className="flex items-center gap-5">
+                                                                    <Link href={`/product?product_id=${item._id}`} target="_blank">
+                                                                        <Badge
+                                                                            badgeContent={item.quantity}
+                                                                            color="info"
+                                                                            showZero
+                                                                        >
+                                                                            <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
+                                                                                <img
+                                                                                    alt=""
+                                                                                    src={select_thumbnail_from_media(item.media)}
+                                                                                    className="w-[65px] h-[65px] object-cover"
+                                                                                    onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                                                />
+                                                                            </div>
+                                                                        </Badge>
+                                                                    </Link>
+                                                                    <div className="text-stone-800 text-[14px] font-medium">
+                                                                        <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
+
+                                                                        {/* ───── Size/Color (Variant OR Base) ───── */}
+                                                                        {(item.selectedVariant || item.size || item.color) && (
+                                                                            <p className="text-gray-600 font-normal capitalize">
+                                                                                {/* Variant A */}
+                                                                                {item.selectedVariant ? (
+                                                                                    <>
+                                                                                        {item.selectedVariant.options?.size && <span>{item.selectedVariant.options.size}</span>}
+                                                                                        {item.selectedVariant.options?.size && item.selectedVariant.options?.color && " / "}
+                                                                                        {item.selectedVariant.options?.color && <span>{item.selectedVariant.options.color}</span>}
+                                                                                    </>
+                                                                                ) : (
+                                                                                    <>
+                                                                                        {item.size && <span>{item.size}</span>}
+                                                                                        {item.size && item.color && " / "}
+                                                                                        {item.color && <span>{item.color}</span>}
+                                                                                    </>
+                                                                                )}
+                                                                            </p>
+                                                                        )}
+
+                                                                        {/* ───── Brand/Condition Pair ───── */}
+                                                                        {(item.brand || (item.condition && item.condition !== "brand new")) && (
+                                                                            <p className="text-gray-600 font-normal capitalize">
+                                                                                {item.brand && <span>{item.brand}</span>}
+                                                                                {(item.brand && item.condition && item.condition !== "brand new") && " / "}
+                                                                                {(item.condition && item.condition !== "brand new") && <span>{item.condition}</span>}
+                                                                            </p>
+                                                                        )}
+
+                                                                        <p className="text-gray-600 font-normal">{date_formatter(item.createdAt)}</p>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className='flex flex-col items-end'>
+                                                                    <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
+                                                                        Rs. {Number(item.price).toLocaleString("en-US")}
+                                                                    </p>
+                                                                    <button
+                                                                        type='button'
+                                                                        onClick={() => remove_item(item._id)}
+                                                                        className='w-fit px-[14px] py-[4px] bg-rose-600 text-white hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] mt-1'
                                                                     >
-                                                                        <div className="w-[65px] h-[65px] border border-stone-300 shadow grid place-items-center rounded-md overflow-hidden">
-                                                                            <img
-                                                                                alt=""
-                                                                                src={select_thumbnail_from_media(item.media)}
-                                                                                className="w-[65px] h-[65px] object-cover"
-                                                                                onError={(e) => e.target.src = "/images/logo_error.png"}
-                                                                            />
-                                                                        </div>
-                                                                    </Badge>
-                                                                </Link>
-                                                                <div className="text-stone-800 text-[14px] font-medium">
-                                                                    <p className='line-clamp-1 text-ellipsis overflow-hidden font-semibold capitalize'>{item.title}</p>
-                                                                    <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.size} / {item.condition}</p>
-                                                                    <p className="text-gray-600 font-normal line-clamp-1 text-ellipsis overflow-hidden capitalize">{item.brand}</p>
-                                                                    <p className="text-gray-600 font-normal">{date_formatter(item.createdAt)}</p>
+                                                                        Remove item
+                                                                    </button>
                                                                 </div>
                                                             </div>
 
-                                                            <div className='flex flex-col items-end'>
-                                                                <p className="text-[15px] md:text-[17px] font-medium text-stone-800 line-clamp-1 text-ellipsis overflow-hidden">
-                                                                    Rs. {Number(item.price).toLocaleString("en-US")}
-                                                                </p>
-                                                                <button
-                                                                    type='button'
-                                                                    onClick={() => remove_item(item._id)}
-                                                                    className='w-fit px-[14px] py-[4px] bg-rose-600 text-white hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] mt-1'
+                                                            {/* Quantity Counter */}
+                                                            <div className='py-[12px] flex w-full justify-start'>
+                                                                <div
+                                                                    className={`select-none border border-gray-200 rounded-md flex items-center gap-4`}
                                                                 >
-                                                                    Remove item
-                                                                </button>
+                                                                    <button
+                                                                        onClick={() => updateOrderQty(item._id, -1)}
+                                                                        className='px-[7px]  py-[7px]  text-stone-800 active:text-stone-400 transition-all'
+                                                                    >
+                                                                        <RemoveIcon className='text-[20px] font-bold' />
+                                                                    </button>
+
+                                                                    <p className='text-stone-700 font-semibold text-[14px]'>{item.quantity}</p>
+
+                                                                    <button
+                                                                        onClick={() => updateOrderQty(item._id, 1)}
+                                                                        className='px-[7px] py-[7px] text-stone-800 active:text-stone-400 transition-all'
+                                                                    >
+                                                                        <AddIcon className='text-[20px] font-bold' />
+                                                                    </button>
+                                                                </div>
                                                             </div>
 
                                                         </div>
@@ -632,19 +748,30 @@ const View_order_modal = ({
                                                     </>
                                                 }
                                                 <p className='text-[16px] text-stone-700 px-1'>{"Pakistan"}</p>
-                                                {/* Phone */}
-                                                <input
-                                                    type="phone"
-                                                    name="phone"
-                                                    placeholder='Phone'
-                                                    value={confirmed_order.phone || ""}
-                                                    onChange={handleChange}
-                                                    className='w-full outline-none border-none px-1'
-                                                />
-                                                {errors.phone &&
-                                                    <p className='text-[13px] text-rose-500 line-clamp-1 text-ellipsis overflow-hidden px-2 mb-2'>{errors.phone}</p>
-                                                }
 
+                                                {/* Phone */}
+                                                <div className='w-full flex items-center gap-1' >
+                                                    <input
+                                                        type="phone"
+                                                        name="phone"
+                                                        placeholder='Phone'
+                                                        value={confirmed_order.phone || ""}
+                                                        onChange={handleChange}
+                                                        className='outline-none border-none px-1 w-[130px]'
+                                                    />
+                                                    {errors.phone &&
+                                                        <p className='text-[13px] text-rose-500 line-clamp-1 text-ellipsis overflow-hidden px-2 mb-2'>{errors.phone}</p>
+                                                    }
+                                                    <div className='w-full flex items-center'>
+                                                        < a
+                                                            target='_blank'
+                                                            href={`https://wa.me/${formatPakistaniNumber(confirmed_order.phone)}`}
+                                                            className={`px-[12px] py-[4px] bg-stone-700 rounded-md flex justify-center items-center w-fit`}
+                                                        >
+                                                            <WhatsAppIcon className='text-white text-[23px]' />
+                                                        </a>
+                                                    </div>
+                                                </div>
 
 
 

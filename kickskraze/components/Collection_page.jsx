@@ -11,6 +11,8 @@ import {
     find_filter,
     add_query_filters,
     configure_query_filters,
+    store_name_filter_display_fn,
+    sort_store_names,
 } from '@/utils/functions/filter_function';
 import Slider from '@mui/material/Slider';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -26,10 +28,10 @@ import { IoClose } from "react-icons/io5";
 import { CircularProgress, Skeleton } from '@mui/material';
 import { Fade } from 'react-reveal';
 import { useRouter } from 'next/router';
-import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 // Sort Popover for Windows Screens
-const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axios, get_all_products_api, convert_to_query_string, set_products, set_show_more_payload, set_is_loading }) => {
+const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, updateUrlFromFilters }) => {
 
     const open = Boolean(anchorEl);
     const id = open ? "sort_popover" : undefined;
@@ -37,7 +39,7 @@ const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axi
 
     const select_option = async (obj) => {
         const FILTERS = await filter_method(obj, set_filters);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
         close();
     }
 
@@ -131,8 +133,8 @@ const Collection_page = ({ axios }) => {
 
 
     useEffect(() => {
-        if (!router.isReady) return;
-        const query_filters = configure_query_filters(router.query);
+        if (!router.isReady || !Object.keys(filter_options).length) return;
+        const query_filters = configure_query_filters(router.query, filter_options);
         if (filters.length && query_filters.length && router.asPath !== stored_path) {
             // Initalizing and Reseting Filters
             remove_all_items_from_filters_realtime_update(filter_options, set_filters);
@@ -171,9 +173,46 @@ const Collection_page = ({ axios }) => {
     }, [router.isReady, filters]);
 
 
+    useEffect(() => {
+        if (!router.isReady) return;
+
+        const query_filters = configure_query_filters(router.query);
+        if (query_filters.length) {
+            add_query_filters(query_filters, set_filters);
+        }
+    }, [router.isReady, router.query]);
+
+
 
     // APPLYING FILTER AND REMOVING FILTERS LOGICS
     const timerRef = useRef(null);
+
+    const updateUrlFromFilters = (filters) => {
+        const query = {};
+        filters.forEach(obj => {
+            const key = Object.keys(obj)[0];
+            const value = String(obj[key]); // convert number to string
+
+            if (!query[key]) {
+                // create a new Set to avoid duplicates
+                query[key] = new Set([value]);
+            } else {
+                query[key].add(value);
+            }
+        });
+
+        // Convert Set → comma string
+        Object.keys(query).forEach(key => {
+            query[key] = Array.from(query[key]).join(",");
+        });
+
+        router.push({
+            pathname: router.pathname,
+            query
+        }, undefined, { shallow: true });
+    };
+
+
 
     const apply_filter = async (filter_obj) => {
         if (timerRef.current) {
@@ -183,27 +222,27 @@ const Collection_page = ({ axios }) => {
         if (Object.keys(filter_obj).includes("price_gte") || Object.keys(filter_obj).includes("price_lte")) {
             timerRef.current = setTimeout(async () => {
                 const FILTERS = await filter_method(filter_obj, set_filters);
-                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+                updateUrlFromFilters(FILTERS);
             }, 300);
         } else {
             const FILTERS = await filter_method(filter_obj, set_filters);
-            get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+            updateUrlFromFilters(FILTERS);
         }
     };
 
     const remove_item_from_filters_realtime_update_fn = async (set_filters, e, filter_options) => {
         const FILTERS = await remove_item_from_filters_realtime_update(set_filters, e, filter_options);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     const remove_group_items_from_filters_realtime_update_fn = async (set_filters, obj_key) => {
         const FILTERS = await remove_group_items_from_filters_realtime_update(set_filters, obj_key);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     const remove_all_items_from_filters_realtime_update_fn = (filter_options, set_filters) => {
         const FILTERS = remove_all_items_from_filters_realtime_update(filter_options, set_filters);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
     }
 
     // <-----------Ends Here ----------->
@@ -323,9 +362,6 @@ const Collection_page = ({ axios }) => {
         }, 500)
         return () => clearTimeout(timer);
     }, [router.isReady, router.asPath, filters]);
-
-
-
 
 
     return (
@@ -463,7 +499,7 @@ const Collection_page = ({ axios }) => {
                                                 <button
                                                     key={index}
                                                     onClick={() => apply_filter({ size: each })}
-                                                    className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 transition-all text-ellipsis line-clamp-1 overflow-hidden ${filters.some(e => e.size === each) ? "bg-gray-200" : ""}`}
+                                                    className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 transition-all text-ellipsis line-clamp-1 overflow-hidden ${filters.some(e => String(e.size) === String(each)) ? "bg-gray-200" : ""}`}
                                                 >
                                                     {each}
                                                 </button>
@@ -512,6 +548,36 @@ const Collection_page = ({ axios }) => {
                                     </div>
                                 </Fade>
 
+
+                                {/* Shoes Types */}
+                                <Fade>
+                                    <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                        <h1 className='text-[17px] text-stone-900 mb-3'>Shoe Type</h1>
+                                        <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                            {(sort_store_names(filter_options.store_names)).map((each, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => apply_filter({ store_name: each })}
+                                                    className='flex items-center w-full'
+                                                >
+                                                    <Checkbox
+                                                        checked={filters.some(e => e.store_name === each)}
+                                                        size='small'
+                                                    />
+                                                    <p className='text-[15px] text-stone-900 capitalize'>{store_name_filter_display_fn(each)}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                        {filters.some(e => Object.keys(e)[0] === "store_name") &&
+                                            <button
+                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "store_name")
+                                                }
+                                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                Clear all
+                                            </button>
+                                        }
+                                    </div>
+                                </Fade>
 
                                 {/* Brand */}
                                 <Fade>
@@ -706,12 +772,7 @@ const Collection_page = ({ axios }) => {
                                         sort_options={sort_options}
                                         filters={filters}
                                         set_filters={set_filters}
-                                        axios={axios}
-                                        get_all_products_api={get_all_products_api}
-                                        convert_to_query_string={convert_to_query_string}
-                                        set_products={set_products}
-                                        set_show_more_payload={set_show_more_payload}
-                                        set_is_loading={set_is_loading}
+                                        updateUrlFromFilters={updateUrlFromFilters}
                                     />
                                 </>
                                 :
@@ -782,7 +843,7 @@ const Collection_page = ({ axios }) => {
                                                                         ${grid === 4 ? "w-full h-[300px]" : ""}
                                                             
                                                             overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500 `} />
-                                                    {!Boolean(product.stock) &&
+                                                    {calculate_product_stock(product) === 0 &&
                                                         <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
                                                             SOLD OUT
                                                         </span>
@@ -810,8 +871,12 @@ const Collection_page = ({ axios }) => {
                                                         </span>
                                                     }
                                                 </p>
-                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                {!product.has_variants &&
+                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {Array.isArray(product.size) ? product.size.join(", ") : product.size}</p>
+                                                }
+                                                {product.condition !== "brand new" &&
+                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                }
                                             </div>
                                         </div>
                                     </Link>

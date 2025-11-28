@@ -15,11 +15,14 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useStateContext from '@/context/ContextProvider';
 import { useRouter } from 'next/router';
 import { IconButton, Skeleton } from '@mui/material';
-import { calculate_discount_precentage, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, resolve_meta_category, resolve_meta_content_id, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
 import Fade from 'react-reveal/Fade';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { MetaPixel } from '@/lib/fpixel';
 import ShareIcon from '@mui/icons-material/Share';
+import { color_list } from '@/utils/product_info_list';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 
 
 const VideoThumbnail = ({ videoUrl }) => {
@@ -79,7 +82,7 @@ const Product_page = ({ axios }) => {
 
     const router = useRouter();
 
-    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart, toggle_modal } = useStateContext();
+    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart, toggle_modal, set_snackbar_alert } = useStateContext();
     const [is_loading, set_is_loading] = useState(true);
     const [product, set_product] = useState({});
 
@@ -109,13 +112,27 @@ const Product_page = ({ axios }) => {
         }
     }, [router.query, router.isReady])
 
+    // Set default selected options on product load
+    useEffect(() => {
+        if (!product?.has_variants || !product.variants?.length) return;
+
+        const firstVariant = product.variants[0];
+
+        setSelectedOptions(() => ({
+            size: firstVariant.options.size ?? null,
+            color: firstVariant.options.color ?? null,
+        }));
+
+        setSelectedVariant(firstVariant);
+    }, [product]);
+
 
     const convert_product_to_meta = (product) => {
         const meta_product = {
-            content_ids: [product._id],
+            content_ids: [[resolve_meta_content_id(product)]],
             content_name: product.title,
             content_type: "product",
-            content_category: "Shoes",
+            content_category: resolve_meta_category(product),
             value: product.price.toFixed(2),
             currency: "PKR",
         }
@@ -183,6 +200,149 @@ const Product_page = ({ axios }) => {
             </>
         )
     };
+
+    // Variants and options logic for product
+    const [selectedOptions, setSelectedOptions] = useState({
+        size: null,
+        color: null,
+    });
+
+    const [selectedVariant, setSelectedVariant] = useState(null);
+
+    const [quantity, setQuantity] = useState(1);
+
+    // Option Selection Handler
+    const handleSelectOption = (optionName, value) => {
+        setSelectedOptions(prev => ({
+            ...prev,
+            [optionName]: value,
+        }));
+    };
+
+    // product might be {} or undefined initially
+    const optionsArray = Array.isArray(product?.options) ? product.options : [];
+
+    const sizeOption = optionsArray.find(o => o.name === "size") || null;
+    const colorOption = optionsArray.find(o => o.name === "color") || null;
+
+    // Update selectedVariant when selectedOptions change
+    useEffect(() => {
+        if (!product.variants) return;
+
+        const found = product.variants.find(v => {
+            return Object.keys(v.options).every(
+                key => v.options[key] === selectedOptions[key]
+            );
+        });
+
+        setSelectedVariant(found || null);
+    }, [selectedOptions]);
+
+    // Auto-update quantity when variant changes
+    useEffect(() => {
+        if (product.has_variants) {
+            const stock = selectedVariant?.stock ?? 0;
+
+            if (stock === 0) {
+                setQuantity(0); // Variant unavailable
+            } else if (quantity === 0) {
+                setQuantity(1); // Reset to valid qty if previously 0
+            }
+        }
+    }, [selectedVariant]);
+
+    // Quantity Handlers
+    const increaseQty = () => {
+        const maxStock = product.has_variants
+            ? selectedVariant?.stock || 0
+            : product.stock || 0;
+
+        if (quantity < maxStock) {
+            setQuantity(q => q + 1);
+        } else {
+            set_snackbar_alert({
+                open: true,
+                message: "Not enough stock available!",
+                severity: "warning"
+            });
+        }
+    };
+
+    const decreaseQty = () => {
+        if (quantity > 1) {
+            setQuantity(q => q - 1);
+        }
+    };
+
+    // Stock Checker function
+    const stock_checker = (product) => {
+        if (!Boolean(Object.entries(product).length)) return false;
+
+        const isInStock = product.has_variants
+            ? selectedVariant && selectedVariant.stock > 0
+            : product.stock > 0;
+        return isInStock;
+    };
+
+    // Add to Cart Handler
+    const handleAddToCart = () => {
+        if (product.has_variants) {
+            if (!selectedVariant) {
+                set_snackbar_alert({
+                    open: true,
+                    message: "Please select a variant first",
+                    severity: "warning"
+                });
+                return;
+            }
+
+            add_item_to_cart({
+                ...product,
+                price: selectedVariant.price,
+                stock: selectedVariant.stock,
+                selectedVariant,
+                quantity,
+            });
+
+        } else {
+            add_item_to_cart({
+                ...product,
+                quantity,
+            });
+        }
+    };
+
+    // Buy Now Handler
+    const handleBuyNow = () => {
+        if (product.has_variants) {
+            if (!selectedVariant) {
+                set_snackbar_alert({
+                    open: true,
+                    message: "Please select a variant first",
+                    severity: "warning"
+                });
+                return;
+            }
+            add_item_to_cart(
+                {
+                    ...product,
+                    price: selectedVariant ? selectedVariant.price : product.price,
+                    stock: selectedVariant ? selectedVariant.stock : product.stock,
+                    selectedVariant,
+                    quantity,
+                },
+                "direct" // << 🔥 triggers direct checkout behavior
+            );
+            router.push("/checkouts");
+        } else {
+            add_item_to_cart({
+                ...product,
+                quantity,
+            });
+            router.push("/checkouts");
+        }
+    };
+
 
 
 
@@ -419,7 +579,7 @@ const Product_page = ({ axios }) => {
 
                                         <p className='line-clamp-1 overflow-hidden text-ellipsis mt-1' >
                                             <span className='text-[18px] xl:text-[22px] font-medium text-stone-700'>
-                                                Rs. {Number(product.price).toLocaleString("en-US")}
+                                                Rs. {Number(selectedVariant ? selectedVariant.price : product.price).toLocaleString("en-US")}
                                             </span>
                                             {" "}
                                             <span className='opacity-0 select-none'>1</span>
@@ -432,14 +592,31 @@ const Product_page = ({ axios }) => {
 
                                     </div>
 
+                                    {!product.has_variants &&
+                                        <div className='py-[14px] xl:py-[16px] border-y border-stone-200 text-stone-700 mt-6' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize'><strong>Availability:</strong> {product.stock ? "In Stock" : "Out Of Stock"}</p>
+                                        </div>
+                                    }
 
-                                    <div className='py-[14px] xl:py-[16px] border-y border-stone-200 text-stone-700 mt-6' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize'><strong>Availability:</strong> {product.stock ? "In Stock" : "Out Of Stock"}</p>
-                                    </div>
 
-                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Size:</strong> {product.size}</p>
-                                    </div>
+                                    {(!product.has_variants && product.size) &&
+                                        <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Size:</strong> {product.size}</p>
+                                        </div>
+                                    }
+
+
+                                    {(!product.has_variants && product.color) &&
+                                        <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700 flex items-center' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'>
+                                                <strong>Color:</strong> {product.color}
+                                            </p>
+                                            <div
+                                                className={`ml-3 w-[18px] md:w-[20px] h-[18px] md:h-[20px] rounded-sm md:rounded-md shadow-sm ${color_list.find(e => e.color === product.color)?.bg}`}
+                                            />
+                                        </div>
+                                    }
+
 
                                     <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
                                         <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Brand:</strong> {product.brand}</p>
@@ -449,11 +626,81 @@ const Product_page = ({ axios }) => {
                                         <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Category:</strong> {product.category}</p>
                                     </div>
 
-                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Condition:</strong> {product.condition}</p>
+                                    {product.is_thrifted &&
+                                        <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Condition:</strong> {product.condition}</p>
+                                        </div>
+                                    }
+
+
+                                    {/* Size Selector */}
+                                    {Boolean(sizeOption) && (
+
+                                        <div className='pt-[17px] pb-[24px] xl:pt-[19px] xl:pb-[26px] border-b border-stone-200'>
+                                            <p className='text-stone-700 text-[15px] xl:text-[17px] mb-2'>Size: {selectedOptions.size}</p>
+
+                                            <div className='flex flex-wrap items-center gap-2 md:gap-4'>
+                                                {sizeOption.values.map(size => (
+                                                    <button
+                                                        key={size}
+                                                        onClick={() => handleSelectOption("size", size)}
+                                                        className={`border border-stone-200 w-[50px] md:w-[60px] py-[6px] md:py-[8px] rounded-md text-[15px] md:text-[17px] ${selectedOptions.size === size ? "text-stone-50 bg-stone-600" : "text-stone-700 bg-transparent"}`}
+                                                    >
+                                                        {size}
+                                                    </button>
+                                                ))}
+
+                                            </div>
+                                        </div>
+                                    )}
+
+
+                                    {/* Color Selector */}
+                                    {Boolean(colorOption) && (
+                                        <div className='pt-[17px] pb-[24px] xl:pt-[19px] xl:pb-[26px] border-b border-stone-200'>
+                                            <p className='text-stone-700 text-[15px] xl:text-[17px] mb-2'>Color: {selectedOptions.color}</p>
+
+                                            <div className='flex flex-wrap items-center gap-4 md:gap-6'>
+                                                {colorOption.values.map(color => (
+                                                    <button
+                                                        key={color}
+                                                        onClick={() => handleSelectOption("color", color)}
+                                                        className={`${color_list.find(e => e.color === color)?.bg} w-[34px] h-[34px] md:w-[40px] md:h-[40px] rounded-full border-[3px] ring-offset-1 ring-offset-white transition-all ${selectedOptions.color === color ? "ring-2  ring-stone-700" : "ring-0"}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Quantity Counter */}
+                                    <div className='py-[17px] xl:py-[19px] flex items-center gap-4'>
+                                        <p className='text-gray-400 text-[15px] xl:text-[17px]'>Quantity:</p>
+                                        <div
+                                            className={`select-none border border-gray-200 rounded-md flex items-center gap-6 md:gap-10
+                                                ${selectedVariant?.stock === 0 ? "opacity-50 pointer-events-none" : ""}
+                                                `}
+                                        >
+                                            <button
+                                                onClick={decreaseQty}
+                                                className='px-[10px] md:px-[14px] py-[10px] md:py-[12px] text-stone-800 active:text-stone-400 transition-all'
+                                            >
+                                                <RemoveIcon className='text-[20px] font-bold' />
+                                            </button>
+
+                                            <p className='text-stone-700 font-semibold text-[15px] md:text-[17px]'>{quantity}</p>
+
+                                            <button
+                                                onClick={increaseQty}
+                                                className='px-[10px] md:px-[14px] py-[10px] md:py-[12px] text-stone-800 active:text-stone-400 transition-all'
+                                            >
+                                                <AddIcon className='text-[20px] font-bold' />
+                                            </button>
+                                        </div>
                                     </div>
 
-                                    {Boolean(product.stock) ?
+
+
+                                    {stock_checker(product) ?
                                         <>
                                             <Fade>
                                                 <div className='w-full mt-6 xl:mt-6 flex gap-2 items-center'>
@@ -463,7 +710,7 @@ const Product_page = ({ axios }) => {
                                                             <ShareIcon className='text-[18px] md:text-[23px]' />
                                                         </IconButton>
                                                     </div>
-                                                    < button onClick={() => add_item_to_cart(product)} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
+                                                    < button onClick={handleAddToCart} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
                                                         ADD TO CART
                                                     </button>
                                                 </div>
@@ -473,10 +720,7 @@ const Product_page = ({ axios }) => {
 
                                                 <div className='w-full my-6 xl:mt-8'>
                                                     {/* Checkout Button */}
-                                                    <button onClick={() => {
-                                                        add_item_to_cart(product, "direct");
-                                                        router.push("/checkouts");
-                                                    }} className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500  transition-all duration-300'>
+                                                    <button onClick={handleBuyNow} className='w-full py-[12px] flex justify-center items-center text-white bg-blue-500 font-bold text-[13px] xl:text-[15px] hover:bg-white hover:text-stone-950 border border-transparent hover:border-stone-500  transition-all duration-300'>
                                                         BUY IT NOW
                                                     </button>
                                                 </div>
@@ -487,7 +731,7 @@ const Product_page = ({ axios }) => {
                                             <div className='w-full mt-6 xl:mt-6'>
                                                 {/* Checkout Button */}
                                                 < button disabled className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[13px] xl:text-[15px] opacity-60'>
-                                                    SOLD OUT
+                                                    {product.has_variants ? "OUT OF STOCK" : "SOLD OUT"}
                                                 </button>
                                             </div>
                                         </Fade>
@@ -722,8 +966,12 @@ const Product_page = ({ axios }) => {
                                                                         </span>
                                                                     }
                                                                 </p>
-                                                                <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                                <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                                {!product.has_variants &&
+                                                                    <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                                }
+                                                                {product.condition !== "brand new" &&
+                                                                    <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </Link>

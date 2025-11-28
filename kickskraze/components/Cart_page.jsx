@@ -27,7 +27,7 @@ const Cart_page = () => {
 
     const [cart_input_data, set_cart_input_data] = useState({
         coupon_code: "",
-        additional_instructions: "",
+        special_instructions: "",
     });
 
     const handle_input_change = (e) => {
@@ -139,8 +139,28 @@ const Cart_page = () => {
                                         </Link>
                                         <div className='flex flex-col gap-1 text-[14px] md:text-[17px]' >
                                             <p className='capitalize line-clamp-1 text-ellipsis overflow-hidden' >{item.title}</p>
-                                            <p className='capitalize text-gray-400' >{item.size} / {item.condition}</p>
-                                            <p className='capitalize text-gray-400'>{item.brand}</p>
+                                            {/* ===== SIZE / COLOR ===== */}
+                                            <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                {[
+                                                    item.selectedVariant?.options?.size ?? item.size,   // variant > base
+                                                    item.selectedVariant?.options?.color ?? item.color  // variant > base
+                                                ]
+                                                    .filter(Boolean)         // remove null / empty
+                                                    .join(" / ")             // add slash only if both exist
+                                                }
+                                            </p>
+                                            {/* ===== BRAND / CONDITION ===== */}
+                                            <p className='text-gray-500 text-[13px] md:text-[15px] capitalize'>
+                                                {[
+                                                    item.brand || null,                                      // base fallback only
+                                                    item.condition && item.condition.toLowerCase() !== "brand new"
+                                                        ? item.condition                                     // hide brand new
+                                                        : null
+                                                ]
+                                                    .filter(Boolean)
+                                                    .join(" / ")
+                                                }
+                                            </p>
 
                                             {/* Qunatity Selector for Mobile media (Responsive) */}
                                             <div className='flex sm:hidden justify-start gap-2 sm:gap-4 text-[17px] text-stone-800 font-medium mt-2 select-none'>
@@ -214,9 +234,9 @@ const Cart_page = () => {
                                 <textarea
                                     placeholder="Special instruction for seller..."
                                     type='text'
-                                    name="additional_instructions"
+                                    name="special_instructions"
                                     className='w-full lg:w-[600px] h-[100px] border-2 border-stone-200 px-[15px] py-[10px] outline-none text-[17px] text-stone-800'
-                                    value={cart_input_data.additional_instructions}
+                                    value={cart_input_data.special_instructions}
                                     onChange={handle_input_change}
                                 />
                                 <p className='text-[15px] md:text-[17px] text-stone-400 flex items-center gap-2 mt-2'>

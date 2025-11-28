@@ -64,7 +64,7 @@ const ordersSchema = new Schema(
             default: "unverified"
         },
         store_name: {
-            type: String,
+            type: [String],
         },
         warehouse_status: {
             type: String,

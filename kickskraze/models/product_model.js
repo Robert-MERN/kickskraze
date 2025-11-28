@@ -54,14 +54,19 @@ const productSchema = new Schema({
             return undefined;
         },
     },
-
+    color: {
+        type: Schema.Types.Mixed,
+    },
     brand: {
         type: String,
-        required: [true, "Please enter the product brand"]
+        // required: [true, "Please enter the product brand"]
+    },
+    type: {
+        type: String,
     },
     condition: {
         type: String,
-        required: [true, "Please enter the product condtion"]
+        // required: [true, "Please enter the product condtion"]
     },
     category: {
         type: String,
@@ -97,7 +102,40 @@ const productSchema = new Schema({
         type: Boolean,
         default: false,
     },
+    is_thrifted: {
+        type: Boolean,
+        default: false
+    },
     media: [mediaSchema],
+
+    /** -----------------------------
+     * VARIANT STRUCTURE LIKE SHOPIFY 
+     --------------------------------*/
+
+    options: [
+        {
+            name: String,
+            values: [Schema.Types.Mixed],
+        }
+    ],
+    variants: [
+        {
+            variant_id: { type: String, required: true },
+            sku: { type: String },
+            options: {
+                type: Map,
+                of: Schema.Types.Mixed,
+                required: true
+            },
+            price: { type: Number, required: true },
+            stock: { type: Number, required: true },
+        }
+    ],
+    has_variants: {
+        type: Boolean,
+        default: false
+    },
+    sku: { type: String },
 }, { timestamps: true })
 
 

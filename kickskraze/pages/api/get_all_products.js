@@ -73,8 +73,50 @@ export default async function handler(req, res) {
     }
 
     if (store_name) {
-      query.store_name = store_name.charAt(0).toUpperCase() + store_name.slice(1);
+      const names = Array.isArray(store_name) ? store_name : [store_name];
+
+      const types = [];
+      const stores = [];
+
+      for (const raw of names) {
+        const lower = raw.toLowerCase();
+        const cap = raw.charAt(0).toUpperCase() + raw.slice(1);
+
+        // type filters
+        if (["heels", "sandals", "flats"].includes(lower)) {
+          types.push(lower);
+          continue;
+        }
+
+        // women-sandals → both stores
+        if (cap === "Women-sandals") {
+          stores.push("Areeba-sandals", "SM-sandals");
+          continue;
+        }
+
+        // sandal stores
+        if (["Areeba-sandals", "SM-sandals"].includes(cap)) {
+          stores.push(cap);
+          continue;
+        }
+
+        // normal store_name
+        stores.push(cap);
+      }
+
+      // Final Query → OR LOGIC
+      query.$or = [];
+
+      if (types.length > 0) {
+        query.$or.push({ type: { $in: types } });
+      }
+
+      if (stores.length > 0) {
+        query.$or.push({ store_name: { $in: stores } });
+      }
     }
+
+
 
     // Handle "Category" filter
     if (category) {

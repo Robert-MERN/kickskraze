@@ -47,7 +47,7 @@ export default function App({ Component, pageProps }) {
             fbq('track', 'PageView');
             
             // Initialize second pixel
-            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2});
+            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_BAREFOOT});
             fbq('track', 'PageView');`
             : ``,
         }}
@@ -58,7 +58,7 @@ export default function App({ Component, pageProps }) {
             src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1}&ev=PageView&noscript=1`}
           />
           <img height="1" width="1" style={{ display: "none" }}
-            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_2}&ev=PageView&noscript=1`}
+            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_BAREFOOT}&ev=PageView&noscript=1`}
           />
         </noscript>
       }

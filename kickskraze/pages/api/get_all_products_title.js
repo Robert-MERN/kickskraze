@@ -12,9 +12,9 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfully connected with DB");
 
-        const { search } = req.query;
+        const { search, store_name } = req.query;
 
-        let query = {};
+        let query = {isDeleted: false};
 
         // If there's a search term, match by title or _id
         if (search) {
@@ -27,6 +27,21 @@ export default async function handler(req, res) {
                     ...(isValidObjectId ? [{ _id: new mongoose.Types.ObjectId(search) }] : [])
                 ]
             };
+        }
+
+
+        const all_stores = {
+            "Footwear": ["Barefoot", "Kickskraze", "Casual-footwear", "Formal-footwear", "Areeba-sandals", "SM-sandals", "Footwear-accessories"],
+            "Apparel": ["Apparel"],
+            "Jewelry": ["Jewelry"],
+        }
+        if (store_name) {
+            if (all_stores[store_name]) {
+                query.store_name = { $in: all_stores[store_name] };
+            } else if (Object.values(all_stores).some(stores => stores.includes(store_name))) {
+                // Handling cases like (e.g.) store_name=Barefoot instead of store_name=Footwear
+                query.store_name = store_name;
+            }
         }
 
         const products = await Products.aggregate([

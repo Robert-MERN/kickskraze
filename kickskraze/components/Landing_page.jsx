@@ -21,8 +21,11 @@ import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
 import { CircularProgress, Skeleton } from '@mui/material';
 import { Fade } from 'react-reveal';
-import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import { convert_to_query_string } from '@/utils/functions/filter_function';
+import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
+import { IoBagCheckOutline } from "react-icons/io5";
+import { BsCash } from "react-icons/bs";
 
 
 
@@ -120,20 +123,20 @@ const Landing_page = ({ axios }) => {
             {/* Offer 2 */}
             <div className='w-full h-auto md:h-[60px] bg-[#F8F8F8] grid grid-cols-2 md:flex text-[10px]  gap-x-4 gap-y-2 md:gap-0 xl:text-[19px] font-bold text-stone-800  py-[12px] md:py-[15px] mt-[15px] px-[10px] md:px-0' >
                 <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 border-stone-400 w-full md:justify-center items-center px-1 pb-2 md:p-0' >
-                    <GoInbox className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >EASY & FREE RETURNS</p>
+                    <PublishedWithChangesIcon className='text-[16px] xl:text-[26px] text-stone-800' />
+                    <p className='' >EASY EXCHANGE AVAILABLE</p>
                 </div>
                 <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 w-full border-stone-400 md:justify-center items-center px-1 pb-2 md:p-0' >
                     <MdOutlineVerifiedUser className='text-[16px] xl:text-[26px] text-stone-800' />
                     <p className='' >100% SECURE SHOPPING</p>
                 </div>
                 <div className='flex gap-2 xl:gap-3 md:border-r-2 w-full border-stone-400 md:justify-center items-center px-1 md:p-0' >
-                    <PiGift className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >FREE GIFT WRAPPING</p>
+                    <IoBagCheckOutline className='text-[16px] xl:text-[26px] text-stone-800' />
+                    <p className='' >INSPECTED BEFORE DISPATCH</p>
                 </div>
                 <div className='flex gap-2 xl:gap-3  w-full border-stone-400 md:justify-center items-center px-1 md:p-0' >
-                    <LuBadgePercent className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >STUDENT DISCOUNT</p>
+                    <BsCash className='text-[16px] xl:text-[26px] text-stone-800' />
+                    <p className='' >CASH ON DELIVERY AVAILABLE</p>
                 </div>
 
             </div>
@@ -299,7 +302,7 @@ const Landing_page = ({ axios }) => {
                                                             onError={(e) => e.target.src = "/images/logo_error.png"}
                                                         />
 
-                                                        {!Boolean(product.stock) &&
+                                                        {calculate_product_stock(product) === 0 &&
                                                             <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
                                                                 SOLD OUT
                                                             </span>
@@ -327,8 +330,12 @@ const Landing_page = ({ axios }) => {
                                                             </span>
                                                         }
                                                     </p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                    {!product.has_variants &&
+                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                    }
+                                                    {product.condition !== "brand new" &&
+                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                    }
                                                 </div>
                                             </div>
                                         </Link>

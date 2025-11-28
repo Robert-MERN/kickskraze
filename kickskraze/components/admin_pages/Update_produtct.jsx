@@ -9,24 +9,33 @@ import useStateContext from '@/context/ContextProvider';
 import { nanoid } from 'nanoid';
 import Switch from '@mui/material/Switch';
 import InputAdornment from '@mui/material/InputAdornment';
-import { brand_list, category_list, condition_list } from '@/utils/shoes_info_list';
+import { apparel_type_list, brand_list, category_list, color_list, condition_list, footwear_accessories_type_list, jewelry_type_list, sandals_type_list, size_list, store_list } from '@/utils/product_info_list';
 import { TbShoppingBagEdit } from "react-icons/tb";
 import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import { GiConverseShoe } from "react-icons/gi";
 import { useRouter } from 'next/router';
 import mongoose from 'mongoose';
-import { capitalizeWords } from '@/utils/functions/produc_fn';
+import { build_variants, capitalizeWords, fill_missing_variant_values } from '@/utils/functions/produc_fn';
 import StoreIcon from '@mui/icons-material/Store';
 import { CircularProgress } from '@mui/material';
-
-
-const Create_product = ({ axios }) => {
+import { GiClothes } from "react-icons/gi";
 
 
 
-    const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api, products_title, set_products_title } = useStateContext();
+const Create_product = ({ axios, user: USER }) => {
+
+
+
+    const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api, products_title, set_products_title, user, set_user, get_user_api, set_snackbar_alert } = useStateContext();
 
     const router = useRouter();
+
+    // Fetching user with USER.id to know the current values of user.
+    useEffect(() => {
+        if (USER) {
+            get_user_api(axios, USER.id, set_user, set_API_loading);
+        }
+    }, [USER]);
 
 
     // validate Order ID
@@ -54,18 +63,20 @@ const Create_product = ({ axios }) => {
     const [is_loading_local, set_is_loading_local] = useState(true);
 
     useEffect(() => {
-        const delayDebounce = setTimeout(() => {
-            if (searchTerm.trim()) {
-                // Search when user types something
-                get_all_products_title_api(axios, set_products_title, set_is_loading_local, `search=${encodeURIComponent(searchTerm)}`);
-            } else {
-                // Default: load latest 100 products
-                get_all_products_title_api(axios, set_products_title, set_is_loading_local);
-            }
-        }, 600);
+        if (user) {
+            const delayDebounce = setTimeout(() => {
+                if (searchTerm.trim()) {
+                    // Search when user types something
+                    get_all_products_title_api(axios, set_products_title, set_is_loading_local, `search=${encodeURIComponent(searchTerm)}&store_name=${encodeURIComponent(user.store_name)}`);
+                } else {
+                    // Default: load latest 100 products
+                    get_all_products_title_api(axios, set_products_title, set_is_loading_local, `store_name=${encodeURIComponent(user.store_name)}`);
+                }
+            }, 600);
 
-        return () => clearTimeout(delayDebounce);
-    }, [searchTerm]);
+            return () => clearTimeout(delayDebounce);
+        }
+    }, [searchTerm, user]);
 
 
 
@@ -110,6 +121,9 @@ const Create_product = ({ axios }) => {
     };
 
 
+
+
+
     useEffect(() => {
         if (product_id) {
             get_product_api(axios, product_id, update_product_details, set_update_product_details, set_API_loading);
@@ -119,11 +133,6 @@ const Create_product = ({ axios }) => {
 
 
 
-    const reset_all = () => {
-        setSearchTerm("")
-        set_product_id("");
-        set_update_product_details(default_update_product_details);
-    }
 
 
     const handleChange = async (event) => {
@@ -228,48 +237,64 @@ const Create_product = ({ axios }) => {
                 };
                 break;
             case 'size':
-                if (!value) {
-                    error = 'Please enter the shoes size';
+                if (user?.store_name !== "Jewelry" && update_product_details.store_name !== "Footwear-accessories" && !value) {
+                    error = 'Please enter the product size';
+                }
+                if (update_product_details.type === "socks" && !value) {
+                    error = 'Please enter the product size';
+                }
+                if (value && Array.isArray(value) && value.toString().replaceAll(",", ", ").length > 200) {
+                    error = 'Sizes character limit exceeded 200';
+                }
+                break;
+            case 'color':
+                if (value && Array.isArray(value) && value.toString().replaceAll(",", ", ").length > 200) {
+                    error = 'Colors character limit exceeded 200';
+                }
+                break;
+            case 'type':
+                if ((user?.store_name !== "Footwear" || !/Footwear-accessories|Areeba-sandals|SM-sandals/.test(update_product_details.store_name)) && !value) {
+                    error = 'Please select the product type';
                 }
                 break;
             case 'brand':
                 if (!value) {
-                    error = 'Please select the shoes brand';
+                    error = 'Please select the product brand';
                 }
                 break;
             case 'condition':
                 if (!value) {
-                    error = 'Please select the shoes condition';
+                    error = 'Please select the product condition';
                 }
                 break;
             case 'category':
                 if (!value) {
-                    error = 'Please select the shoes category';
+                    error = 'Please select the product category';
                 }
                 break;
             case 'stock':
                 if (value < 0) {
-                    error = 'Please enter the shoes stock quantity atleast greater than -1';
+                    error = 'Please enter the product stock quantity atleast greater than -1';
                 }
                 break;
             // case 'size_desc':
             //     if (!value) {
-            //         error = 'Please enter the shoes size description';
+            //         error = 'Please enter the product size description';
             //     }
             //     break;
             // case 'shoes_desc':
             //     if (!value) {
-            //         error = 'Please enter the shoes description';
+            //         error = 'Please enter the product description';
             //     }
             //     break;
             case 'store_name':
-                if (!value) {
-                    error = 'Please enter the store name';
+                if (user?.store_name === "Footwear" && !value) {
+                    error = 'Please select the store name';
                 }
                 break;
             case 'media':
                 if (!value.length) {
-                    error = 'Please add the shoes media';
+                    error = 'Please add the product media';
                 }
                 if (value.length && value.every(e => e.type !== "image")) {
                     error = 'Please add atleast 1 image to the media';
@@ -280,7 +305,344 @@ const Create_product = ({ axios }) => {
         }
         return error;
     }
+    // <<<<<<<<<<<<<<<<---------------------- Size and Colors Functionality ------------------->>>>>>>>>>>>>>> \\
+    const default_size_color = {
+        size: "",
+        color: "",
+    }
+    const [size_color, set_size_color] = useState(default_size_color);
+    const default_size_color_array = {
+        size: [],
+        color: [],
+    }
+    const [size_color_array, set_size_color_array] = useState(default_size_color_array);
 
+    const handle_size_color_change = (e) => {
+        const { name, value } = e.target;
+        set_size_color(pre => ({ ...pre, [name]: value }));
+    }
+
+    const handle_size_color_btn = (e, task) => {
+        const { name, value } = e
+        if (value) {
+            const normalizedValue = isNaN(Number(value)) ? value : Number(value);
+            set_size_color_array(prev => {
+                const copy_array = [...prev[name]]
+                const item_index = copy_array.indexOf(normalizedValue);
+                if (item_index !== -1) {
+                    if (task === "remove") {
+                        copy_array.splice(item_index, 1)
+                    } else {
+                        set_snackbar_alert({
+                            open: true,
+                            message: `You can't add the same ${name}`,
+                            severity: "warning",
+                        });
+                    }
+                } else {
+                    copy_array.push(!isNaN(Number(value)) ? Number(value) : value);
+                }
+
+                set_size_color(pre => ({ ...pre, [name]: "" }));
+
+                return { ...prev, [name]: copy_array }
+
+            });
+        } else {
+            set_snackbar_alert({
+                open: true,
+                message: `Please select the ${name}!`,
+                severity: "warning",
+            });
+        }
+    }
+
+    // Populating Size_color and size_color_array states to update_product_details.size & update_product_details.color once user changes the size or color value. 
+
+    // Sorting Size sequence wise before setting to update_product_details.size
+    const sort_sizes = (sizes_array = []) => {
+        if (!sizes_array.length) return [];
+
+        const allNumeric = sizes_array.every(e => !isNaN(Number(e)));
+
+        if (allNumeric) {
+            // Sort numerically
+            return sizes_array.sort((a, b) => Number(a) - Number(b));
+        } else {
+            // Sort by size order
+            const sequence = ["S", "M", "L", "XL", "XXL", "XXXL"];
+            return sizes_array.sort(
+                (a, b) => sequence.indexOf(a.toUpperCase()) - sequence.indexOf(b.toUpperCase())
+            );
+        }
+    };
+    // resetting variants and options condition
+    const reset_condition = (array) => {
+        if (array.length > 1) return array
+        return []
+    }
+    // Now the useEffect to update product_details
+    useEffect(() => {
+        if (Array.isArray(size_color_array.size) && size_color_array.size.length) {
+
+            if (size_color_array.size.length > 1) {
+
+                const { variants, options } = build_variants(sort_sizes(size_color_array.size), size_color_array.color);
+
+                set_update_product_details((prevState) => ({
+                    ...prevState,
+                    size: sort_sizes(size_color_array.size),
+                    variants,
+                    options,
+                    has_variants: true,
+                }));
+            } else {
+                set_update_product_details((prevState) => ({
+                    ...prevState,
+                    size: !isNaN(Number(size_color_array.size[0])) ? Number(size_color_array.size[0]) : size_color_array.size[0],
+                    variants: build_variants([], reset_condition(size_color_array.color)).variants,
+                    options: build_variants([], reset_condition(size_color_array.color)).options,
+                    has_variants: Boolean(build_variants([], reset_condition(size_color_array.color)).variants.length),
+                }));
+            }
+
+        } else if (size_color.size) {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                size: !isNaN(Number(size_color.size)) ? Number(size_color.size) : size_color.size,
+                variants: build_variants([], reset_condition(size_color_array.color)).variants,
+                options: build_variants([], reset_condition(size_color_array.color)).options,
+                has_variants: Boolean(build_variants([], reset_condition(size_color_array.color)).variants.length),
+            }));
+        } else {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                size: "",
+                variants: build_variants([], reset_condition(size_color_array.color)).variants,
+                options: build_variants([], reset_condition(size_color_array.color)).options,
+                has_variants: Boolean(build_variants([], reset_condition(size_color_array.color)).variants.length),
+            }));
+        }
+
+
+        if (Array.isArray(size_color_array.color) && size_color_array.color.length) {
+
+            if (size_color_array.color.length > 1) {
+                const { variants, options } = build_variants(sort_sizes(size_color_array.size), size_color_array.color);
+                set_update_product_details((prevState) => ({
+                    ...prevState,
+                    color: size_color_array.color,
+                    variants,
+                    options,
+                    has_variants: true,
+                }));
+            } else {
+                set_update_product_details((prevState) => ({
+                    ...prevState,
+                    color: size_color_array.color[0],
+                    variants: build_variants(reset_condition(size_color_array.size), []).variants,
+                    options: build_variants(reset_condition(size_color_array.size), []).options,
+                    has_variants: Boolean(build_variants(reset_condition(size_color_array.size), []).variants.length),
+                }));
+            }
+        } else if (size_color.color) {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                color: size_color.color,
+                variants: build_variants(reset_condition(size_color_array.size), []).variants,
+                options: build_variants(reset_condition(size_color_array.size), []).options,
+                has_variants: Boolean(build_variants(reset_condition(size_color_array.size), []).variants.length),
+            }));
+        } else {
+            set_update_product_details((prevState) => ({
+                ...prevState,
+                color: "",
+                variants: build_variants(reset_condition(size_color_array.size), []).variants,
+                options: build_variants(reset_condition(size_color_array.size), []).options,
+                has_variants: Boolean(build_variants(reset_condition(size_color_array.size), []).variants.length),
+            }));
+        }
+
+    }, [size_color.size, size_color.color, size_color_array.size.length, size_color_array.color.length]);
+
+    // Variant field update function
+    const updateVariantField = (variantId, field, value) => {
+        set_update_product_details(prev => ({
+            ...prev,
+            variants: prev.variants.map(v =>
+                v.variant_id === variantId ? { ...v, [field]: value } : v
+            )
+        }));
+    };
+
+
+
+    // <<<<<<<---------  ************* --------->>>>>>>
+
+
+
+
+    // <================= Managing Stores Conditions: ===================>
+
+    const [size_format, set_size_format] = useState("numeric");
+
+    const switch_size_format = () => {
+        if (size_format === "numeric") {
+            set_size_format("alphabetic");
+        } else if (size_format === "alphabetic") {
+            set_size_format("numeric");
+        }
+        // Finally
+        set_size_color(prev => ({ ...prev, size: "" }));
+        set_size_color_array(prev => ({ ...prev, size: [] }));
+        set_update_product_details(prev => ({ ...prev, size: "" }))
+    };
+
+    // Resetting sizes and color on page load, also setting size format and update_product_details
+    useEffect(() => {
+        if (user && user.store_name !== "Footwear") {
+            set_update_product_details(prev => ({ ...prev, store_name: user.store_name }))
+        } else if (user && user.store_name === "Footwear") {
+            set_update_product_details(prev => ({ ...prev, store_name: "" }))
+        }
+
+
+        if (!update_product_details.size) {
+            if (user && user.store_name === "Footwear") set_size_format("numeric");
+            if (user && user.store_name === "Jewelry") set_size_format("numeric");
+            if (user && user.store_name === "Apparel") set_size_format("alphabetic");
+            set_size_color(prev => ({ ...prev, size: "" }));
+            set_size_color_array(prev => ({ ...prev, size: [] }));
+            set_update_product_details(prev => ({ ...prev, size: "" }));
+
+        }
+
+        if (!update_product_details.color) {
+            set_size_color(prev => ({ ...prev, color: "" }));
+            set_size_color_array(prev => ({ ...prev, color: [] }));
+            set_update_product_details(prev => ({ ...prev, color: "" }));
+
+        }
+
+
+    }, [user]);
+
+
+    // ================== Populate Size + Color + Type when product fetches ==================
+    useEffect(() => {
+        if (!update_product_details?._id) return;
+
+        // ===== SIZE =====
+        if (update_product_details.size && size_color_array.size.length === 0 && !size_color.size) {
+            const sizeValue = update_product_details.size;
+
+            const numeric = Array.isArray(sizeValue)
+                ? sizeValue.every(e => !isNaN(e))
+                : !isNaN(sizeValue);
+
+            set_size_format(numeric ? "numeric" : "alphabetic");
+
+            if (Array.isArray(sizeValue)) {
+                set_size_color_array(prev => ({ ...prev, size: sizeValue }));
+            } else {
+                set_size_color(prev => ({ ...prev, size: sizeValue }));
+            }
+        }
+
+        // ===== COLOR =====
+        if (update_product_details.color && size_color_array.color.length === 0 && !size_color.color) {
+            if (Array.isArray(update_product_details.color)) {
+                set_size_color_array(prev => ({ ...prev, color: update_product_details.color }));
+            } else {
+                set_size_color(prev => ({ ...prev, color: update_product_details.color }));
+            }
+        }
+
+        // ===== TYPE (Your missing part) =====
+        if (!size_color.size && update_product_details.type && !size_color_array.typeSet) {
+            set_update_product_details(prev => ({ ...prev, type: update_product_details.type }));
+        }
+
+    }, [update_product_details?._id]);
+
+
+
+
+    // Prevent unwanted reset on first fetch — only trigger when user changes store name or type manually
+    const [loadLock, setLoadLock] = useState(false);
+
+    useEffect(() => {
+        // Don't run on first fetch
+        if (!update_product_details._id) return;
+
+        // First time product loads → store existing values & exit
+        if (!loadLock) {
+            setLoadLock(true);
+            return;
+        }
+
+        // ============== STORE CHANGE RESET LOGIC ==================
+        if (update_product_details.store_name === "Footwear-accessories") {
+            // Footwear accessories → no sizes required
+            set_update_product_details(prev => ({ ...prev, size: "", type: "" }));
+            set_size_color(default_size_color);
+            set_size_color_array(default_size_color_array);
+        }
+
+        if (update_product_details.store_name !== "Footwear-accessories") {
+            // Normal footwear → sizes allowed but not colors
+            set_update_product_details(prev => ({ ...prev, color: "", type: "" }));
+            set_size_color(prev => ({ ...prev, color: "" }));
+            set_size_color_array(prev => ({ ...prev, color: [] }));
+        }
+
+    }, [update_product_details.store_name]);
+
+
+    // ================= TYPE CHANGE RESET ====================
+    useEffect(() => {
+        if (!update_product_details._id) return;
+        if (!loadLock) return; // stop initial wipe
+
+        // If store is footwear & TYPE ≠ socks → clear sizes
+        if (update_product_details.store_name === "Footwear" &&
+            update_product_details.type !== "socks") {
+
+            set_update_product_details(prev => ({ ...prev, size: "" }));
+            set_size_color(prev => ({ ...prev, size: "" }));
+            set_size_color_array(prev => ({ ...prev, size: [] }));
+        }
+
+    }, [update_product_details.type]);
+
+
+    // <==========   ***************   =============>
+
+    // reset buton/api function
+    const reset_all = () => {
+        setSearchTerm("")
+        set_product_id("");
+        set_update_product_details(default_update_product_details);
+        set_size_color(default_size_color);
+        set_size_color_array(default_size_color_array);
+        setLoadLock(false);
+    }
+
+    // <========================= Updating Product Function / Submit Function ====================>
+
+    const [error_shake, set_error_shake] = useState(false);
+    // Error Sound
+    const play_error_sound = () => {
+        const audio = new Audio("/sounds/error.wav");
+        audio.volume = 0.6;
+        audio.play();
+    };
+    // Success Sound
+    const play_success_sound = () => {
+        const audio = new Audio("/sounds/success.wav");
+        audio.volume = 0.6;
+        audio.play();
+    };
 
     const handle_submit = async (e) => {
         e.preventDefault();
@@ -304,10 +666,33 @@ const Create_product = ({ axios }) => {
             if (Object.values(errors).every((error) => !error)) {
 
                 //     // Form is valid, submit it
-                const { errors, media, ...otherData } = update_product_details;
+                const { errors, media, variants, ...otherData } = update_product_details;
 
 
                 const formData = new FormData();
+
+                // Fixed variants by filling missing values
+                otherData.variants = fill_missing_variant_values(variants, otherData);
+
+                // Setting is_thrifted field
+                otherData.is_thrifted = otherData.condition === "brand new" ? false : true;
+
+                // Append other data fields
+                Object.keys(otherData).forEach((key) => {
+                    let value = otherData[key];
+
+                    // Convert arrays to JSON
+                    if (Array.isArray(value)) {
+                        if (value.length > 1) {
+                            value = JSON.stringify(value);
+                        } else if (value.length === 1) {
+                            value = value[0];
+                        } else {
+                            value = "";
+                        }
+                    }
+                    formData.append(key, value);
+                });
 
                 // Step 1: Filter media items that already have a BunnyCDN URL
                 const unupdated_media = media.length ?
@@ -322,7 +707,14 @@ const Create_product = ({ axios }) => {
 
                 // Step 2: Append other data fields
                 Object.keys(otherData).forEach((key) => {
-                    formData.append(key, otherData[key]);
+                    let value = otherData[key];
+
+                    // Convert arrays to JSON
+                    if (Array.isArray(value)) {
+                        value = JSON.stringify(value);
+                    }
+
+                    formData.append(key, value);
                 });
 
                 // Step 3: Process each media file
@@ -345,7 +737,7 @@ const Create_product = ({ axios }) => {
                 }
 
 
-
+                play_success_sound();
                 await update_product_api(axios, product_id, formData, set_API_loading,
                     isValidObjectId(router.query?.product_id) ? () => { } : reset_all);
 
@@ -353,6 +745,12 @@ const Create_product = ({ axios }) => {
                     await get_product_api(axios, product_id, update_product_details, set_update_product_details, set_API_loading);
                 }
 
+            } else {
+                // trigger shake animation every time on error
+                navigator.vibrate?.([80, 40, 80]);
+                play_error_sound();
+                set_error_shake(true);
+                setTimeout(() => set_error_shake(false), 600)
             }
         } catch (err) {
             console.error(err);
@@ -384,6 +782,8 @@ const Create_product = ({ axios }) => {
 
         return `${formattedDate}  [${formattedTime}]`;
     };
+
+
 
 
     return (
@@ -455,6 +855,101 @@ const Create_product = ({ axios }) => {
 
                 {Boolean(product_id) &&
                     <>
+
+
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Store Names List</h1> */}
+                        {user?.store_name === "Footwear" &&
+                            <Autocomplete
+                                id="store-list"
+                                className="w-full"
+                                size='medium'
+                                options={store_list}
+                                getOptionLabel={(option) => option.title || option} // Display title in the input
+                                value={update_product_details.store_name || null}
+                                inputValue={update_product_details.store_name || ""}
+                                onChange={(event, new_value) => {
+                                    // Handle both object (from dropdown) and string (free text) cases
+                                    handleChange({ target: { name: "store_name", value: new_value?.store_name || new_value } })
+                                }}
+                                onInputChange={(event, new_value) => {
+                                    if (event) {
+                                        // Capitalize the input value before updating the state
+                                        handleChange({ target: { name: "store_name", value: new_value } })
+                                    }
+                                }}
+                                renderOption={(props, option) => {
+                                    const { key, ...optionProps } = props;
+                                    return (
+                                        <li key={option.store_name} {...optionProps}>
+                                            <StoreIcon className='mr-2 text-stone-600' />
+                                            <span className=''>
+                                                {option.title}
+                                            </span>
+                                        </li>
+                                    )
+                                }}
+
+                                renderInput={(params) =>
+                                    <TextField {...params}
+                                        label="Select Store"
+                                        error={Boolean(update_product_details.errors.store_name)}
+                                        helperText={update_product_details.errors.store_name}
+                                    />}
+                            />
+                        }
+
+
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Types</h1> */}
+                        {(user?.store_name !== "Footwear" || /Footwear-accessories|Areeba-sandals|SM-sandals/.test(update_product_details.store_name)) &&
+                            <Autocomplete
+                                id="type-list"
+                                className="w-full"
+                                size='medium'
+                                options={
+                                    user?.store_name === "Jewelry" ?
+                                        jewelry_type_list
+                                        : user?.store_name === "Apparel" ?
+                                            apparel_type_list
+                                            : update_product_details.store_name === "Footwear-accessories" ?
+                                                footwear_accessories_type_list
+                                                : /Areeba-sandals|SM-sandals/.test(update_product_details.store_name) ?
+                                                    sandals_type_list
+                                                    : []
+                                }
+                                getOptionLabel={(option) => option.title || option} // Display title in the input
+                                value={update_product_details.type || null}
+                                inputValue={update_product_details.type || ""}
+                                onChange={(event, new_value) => {
+                                    // Handle both object (from dropdown) and string (free text) cases
+                                    handleChange({ target: { name: "type", value: new_value?.type || new_value } })
+                                }}
+                                onInputChange={(event, new_value) => {
+                                    if (event) {
+                                        // Capitalize the input value before updating the state
+                                        handleChange({ target: { name: "type", value: new_value } })
+                                    }
+                                }}
+                                renderOption={(props, option) => {
+                                    const { key, ...optionProps } = props;
+                                    return (
+                                        <li key={option.type} {...optionProps}>
+                                            <StoreIcon className='mr-2 text-stone-600' />
+                                            <span className=''>
+                                                {option.title}
+                                            </span>
+                                        </li>
+                                    )
+                                }}
+
+                                renderInput={(params) =>
+                                    <TextField {...params}
+                                        label="Select Product Type"
+                                        error={Boolean(update_product_details.errors.type)}
+                                        helperText={update_product_details.errors.type}
+                                    />}
+                            />
+                        }
+
 
                         <TextField
                             label="Product title"
@@ -599,20 +1094,223 @@ const Create_product = ({ axios }) => {
                         />
 
 
+
                         {/* <h1 className='text-[17px] font-medium mt-5'>Size </h1> */}
-                        <TextField
-                            label="Size"
-                            variant="outlined"
-                            className='w-full'
-                            name="size"
-                            size="medium"
-                            type='number'
-                            value={update_product_details.size}
-                            onChange={handleChange}
-                            error={Boolean(update_product_details.errors.size)}
-                            helperText={update_product_details.errors.size}
-                            sx={style_textfield}
-                        />
+                        {(update_product_details.store_name !== "Footwear-accessories" || update_product_details.type === "socks") &&
+                            <div className='flex flex-col gap-3'>
+
+                                <div className='flex flex-wrap gap-2' >
+                                    {Boolean(size_color_array.size.length) &&
+                                        sort_sizes(size_color_array.size).map((each, index) => (
+                                            <button
+                                                onClick={() => handle_size_color_btn({ name: "size", value: each }, "remove")}
+                                                type="button"
+                                                key={index}
+                                                className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
+                                            >
+                                                {each}
+                                                <IoClose />
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+
+                                <div className='flex gap-3 md:gap-4 items-center' >
+                                    {size_format === "numeric" ?
+                                        <TextField
+                                            label="Size (Numeric)"
+                                            variant="outlined"
+                                            className='w-full'
+                                            name="size"
+                                            size="medium"
+                                            type='number'
+                                            value={size_color.size}
+                                            onChange={handle_size_color_change}
+                                            error={Boolean(update_product_details.errors.size)}
+                                            helperText={update_product_details.errors.size}
+                                            sx={style_textfield}
+                                        />
+                                        :
+                                        <Autocomplete
+                                            id="size-list"
+                                            className="w-full"
+                                            size='medium'
+                                            options={size_list}
+                                            getOptionLabel={(option) => option.title || option} // Display title in the input
+                                            value={size_color.size || null}
+                                            inputValue={size_color.size || ""}
+                                            onChange={(event, new_value) => {
+                                                // Handle both object (from dropdown) and string (free text) cases
+                                                handle_size_color_change({ target: { name: "size", value: new_value?.size || new_value } })
+                                            }}
+                                            onInputChange={(event, new_value) => {
+                                                if (event) {
+                                                    // Capitalize the input value before updating the state
+                                                    handle_size_color_change({ target: { name: "size", value: new_value } })
+                                                }
+                                            }}
+                                            renderOption={(props, option) => {
+                                                const { key, ...optionProps } = props;
+                                                return (
+                                                    <li key={option.size} {...optionProps}>
+                                                        <GiClothes className='mr-2 text-stone-600 text-[21px]' />
+                                                        <span className='capitalize'>
+                                                            {option.title}
+                                                        </span>
+                                                    </li>
+                                                )
+                                            }}
+
+                                            renderInput={(params) =>
+                                                <TextField {...params}
+                                                    label="Size (Alphabetic)"
+                                                    error={Boolean(update_product_details.errors.size)}
+                                                    helperText={update_product_details.errors.size}
+                                                />}
+                                        />
+                                    }
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handle_size_color_btn({ name: "size", value: size_color.size })}
+                                        className='bg-blue-500 text-white  whitespace-nowrap px-2 md:px-4 py-2 rounded-md hover:opacity-90 active:opacity-60 transition-all select-none text-[13px] md:text-[16px]' >
+                                        Add more
+                                    </button>
+                                </div>
+
+                                <div className='flex items-center w-full  justify-end'>
+                                    <p className='text-[13px] md:text-[14px] text-stone-500 px-2' >{`Switch to ${size_format === "numeric" ? "alphabetic" : "numeric"} size format`}</p>
+                                    <Switch
+                                        checked={size_format === "numeric"}
+                                        onChange={switch_size_format}
+                                    // size='small'
+                                    />
+                                </div>
+                            </div>
+                        }
+
+
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Colors</h1> */}
+                        {(user?.store_name !== "Footwear" || update_product_details.store_name === "Footwear-accessories") &&
+                            <div className='flex flex-col gap-3'>
+
+                                <div className='flex flex-wrap gap-2' >
+                                    {Boolean(size_color_array.color.length) &&
+                                        sort_sizes(size_color_array.color).map((each, index) => (
+                                            <button
+                                                onClick={() => handle_size_color_btn({ name: "color", value: each }, "remove")}
+                                                type="button"
+                                                key={index}
+                                                className='flex items-center justify-center pl-[10px] pr-[6px] py-[4px] bg-stone-100 text-stone-600 rounded hover:bg-stone-500 hover:text-white active:opacity-65 transition-all duration-300 gap-1'
+                                            >
+                                                {each}
+                                                <IoClose />
+                                            </button>
+                                        ))
+                                    }
+                                </div>
+
+                                <div className='flex gap-3 md:gap-4 items-center' >
+
+
+                                    <Autocomplete
+                                        id="colors-list"
+                                        className="w-full"
+                                        size='medium'
+                                        freeSolo
+                                        options={color_list}
+                                        getOptionLabel={(option) => option.color || option} // Display title in the input
+                                        value={size_color.color || null}
+                                        inputValue={size_color.color || ""}
+                                        onChange={(event, new_value) => {
+                                            // Handle both object (from dropdown) and string (free text) cases
+                                            handle_size_color_change({ target: { name: "color", value: new_value?.color || new_value } })
+                                        }}
+                                        onInputChange={(event, new_value) => {
+                                            if (event) {
+                                                // Capitalize the input value before updating the state
+                                                handle_size_color_change({ target: { name: "color", value: new_value } })
+                                            }
+                                        }}
+                                        renderOption={(props, option) => {
+                                            const { key, ...optionProps } = props;
+                                            return (
+                                                <li key={option.color} {...optionProps}>
+                                                    <div className={`mr-2 md:mr-3 p-3 md:p-4 ${option.bg} rounded-full shadow-lg`} />
+                                                    <span className='capitalize'>
+                                                        {option.color}
+                                                    </span>
+                                                </li>
+                                            )
+                                        }}
+
+                                        renderInput={(params) =>
+                                            <TextField {...params}
+                                                label="Select Color"
+                                                error={Boolean(update_product_details.errors.color)}
+                                                helperText={update_product_details.errors.color}
+                                            />}
+                                    />
+
+
+                                    <button
+                                        type="button"
+                                        onClick={() => handle_size_color_btn({ name: "color", value: size_color.color })}
+                                        className='bg-blue-500 text-white  whitespace-nowrap px-2 md:px-4 py-2 rounded-md hover:opacity-90 active:opacity-60 transition-all select-none text-[13px] md:text-[16px]' >
+                                        Add more
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Variants</h1> */}
+                        {Boolean(update_product_details.variants.length > 0) &&
+                            <div className="overflow-x-auto mb-6">
+                                <table className="min-w-full border-collapse rounded-md">
+                                    <thead>
+                                        <tr className="bg-gray-100 rounded-md">
+                                            <th className="px-3 py-2 w-1/2 text-left text-[14px] md:text-[16px] font-semibold truncate text-stone-600">
+                                                Variant ({update_product_details.variants.length})
+                                            </th>
+                                            <th className="px-3 py-2 w-1/3 text-left text-[14px] md:text-[16px] font-semibold truncate text-stone-600">
+                                                Price
+                                            </th>
+                                            <th className="px-3 py-2 w-1/4 text-left text-[14px] md:text-[16px] font-semibold truncate text-stone-600">
+                                                Stock
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {update_product_details.variants.map((variant, idx) => (
+                                            <tr key={idx} className="border-b">
+                                                <td className="px-3 py-2  text-[15px] md:text-[17px] truncate text-stone-700">
+                                                    {[variant.options.size, variant.options.color].filter(Boolean).join(" / ")}
+                                                </td>
+
+                                                <td className="px-3 py-2 text-[15px] md:text-[17px] truncate text-stone-700">
+                                                    <input
+                                                        type="number"
+                                                        value={variant.price}
+                                                        onChange={(e) => updateVariantField(variant.variant_id, "price", e.target.value)}
+                                                        className="w-full bg-gray-50 border rounded px-2 py-1 text-md outline-none"
+                                                    />
+                                                </td>
+
+                                                <td className="px-3 py-2 text-[15px] md:text-[17px] truncate text-stone-700">
+                                                    <input
+                                                        type="number"
+                                                        value={variant.stock}
+                                                        onChange={(e) => updateVariantField(variant.variant_id, "stock", e.target.value)}
+                                                        className="w-full bg-gray-50 border rounded px-2 py-1 text-md outline-none"
+                                                    />
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
 
 
                         {/* <h1 className='text-[17px] font-medium mt-5'>Brands</h1> */}
@@ -662,6 +1360,7 @@ const Create_product = ({ axios }) => {
                         />
 
 
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Condition</h1> */}
                         <Autocomplete
                             className="w-full"
                             size='medium'
@@ -692,6 +1391,7 @@ const Create_product = ({ axios }) => {
                         />
 
 
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Category</h1> */}
                         <Autocomplete
                             className="w-full"
                             size='medium'
@@ -723,6 +1423,7 @@ const Create_product = ({ axios }) => {
 
 
 
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Stock Quantity</h1> */}
                         <TextField
                             label="Stock Quantiy"
                             variant="outlined"
@@ -738,7 +1439,7 @@ const Create_product = ({ axios }) => {
                         />
 
 
-
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Size Description</h1> */}
                         <TextField
                             label="Size Description"
                             variant="outlined"
@@ -753,8 +1454,9 @@ const Create_product = ({ axios }) => {
                         />
 
 
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Product Description</h1> */}
                         <TextField
-                            label="Shoes Description"
+                            label="Product Description"
                             variant="outlined"
                             className='w-full'
                             name="shoes_desc"
@@ -767,35 +1469,7 @@ const Create_product = ({ axios }) => {
                         />
 
 
-                        <FormControl
-                            className='w-full'
-                            variant="outlined"
-
-                            error={Boolean(update_product_details.errors.store_name)}
-                            sx={style_textfield}
-                        >
-                            <InputLabel>Store Name</InputLabel>
-                            <Select
-                                name="store_name"
-                                label="Store Name"
-                                onChange={handleChange}
-                                value={update_product_details.store_name}
-                                renderValue={selected => selected}
-                            >
-                                <MenuItem value="Barefoot">
-                                    <StoreIcon className='mr-2 text-stone-600' />
-                                    <p>Barefoot</p>
-                                </MenuItem>
-                                <MenuItem value="Kickskraze">
-                                    <StoreIcon className='mr-2 text-stone-600' />
-                                    <p>Kickskraze</p>
-                                </MenuItem>
-                            </Select>
-                            {Boolean(update_product_details.errors.store_name) && <FormHelperText>{update_product_details.errors.store_name}</FormHelperText>}
-                        </FormControl>
-
-
-
+                        {/* <h1 className='text-[17px] font-medium mt-5'>Featured Product</h1> */}
                         <TextField
                             value={"Feature Product"}
                             variant="outlined"
@@ -822,6 +1496,7 @@ const Create_product = ({ axios }) => {
                         />
 
 
+                        {/* Buttons */}
                         <div className="w-full flex justify-between items-center my-[30px]">
                             <button
                                 onClick={() => { toggle_modal("delete_product_modal") }}
@@ -842,7 +1517,10 @@ const Create_product = ({ axios }) => {
                                     </button>
                                 }
 
-                                <button type='submit' className='w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-emerald-600 text-white hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px]'>
+                                <button
+                                    type='submit'
+                                    className={`w-fit px-[12px] lg:px-[28px] py-[6px] lg:py-[8px] bg-emerald-600 text-white hover:opacity-75 active:opacity-50 transition-all text-nowrap rounded text-[13px] lg:text-[14px] ${error_shake ? styles.error_shake : ""}`}
+                                >
                                     UPDATE
                                 </button>
                             </div>

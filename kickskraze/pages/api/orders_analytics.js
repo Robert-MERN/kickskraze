@@ -23,7 +23,7 @@ export default async function handler(req, res) {
         await connect_mongo();
         console.log("Successfully connected with DB");
 
-        const stores = ["Barefoot", "Kickskraze"];
+        const stores = ["Barefoot", "Kickskraze", "Casual-footwear", "Formal-footwear", "Areeba-sandals", "SM-sandals", "Footwear-accessories", "Jewelry", "Apparel",];
         const timezone = "Asia/Karachi";
         const defaultTime = { hour: 5, minute: 0, second: 0, millisecond: 0 };
         const currentYear = DateTime.now().setZone(timezone).year;
@@ -34,7 +34,7 @@ export default async function handler(req, res) {
 
         // Fetch all data in a single query
         const fetchAllData = async (storeName, fromDate) => {
-            const matchCondition = storeName ? { store_name: { $in: [storeName, "Barefoot & Kickskraze"] }, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } };
+            const matchCondition = storeName ? { store_name: { $in: [storeName] }, createdAt: { $gte: fromDate } } : { createdAt: { $gte: fromDate } };
 
             const result = await Orders.aggregate([
                 { $match: matchCondition },
@@ -44,18 +44,32 @@ export default async function handler(req, res) {
                             { $group: { _id: "$status", count: { $sum: 1 } } },
                         ],
                         salesData: [
-                             { $match: { status: { $ne: "returned" } } },
+                            { $match: { status: { $ne: "returned" } } },
                             { $unwind: "$purchase" },
                             {
                                 $lookup: {
                                     from: "products",
-                                    let: { productId: { $toObjectId: "$purchase._id" } },
-                                    pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                                    let: { productId: { $toObjectId: "$purchase._id" }, vId: "$purchase.variant_id" },
+                                    pipeline: [
+                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                                        {
+                                            $addFields: {
+                                                variant: {
+                                                    $first: {
+                                                        $filter: {
+                                                            input: "$variants",
+                                                            cond: { $eq: ["$$this.variant_id", "$$vId"] }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
                                     as: "productDetails"
                                 }
                             },
                             { $unwind: "$productDetails" },
-                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": { $in: [storeName] } } : {} },
                             {
                                 $group: {
                                     _id: {
@@ -68,117 +82,142 @@ export default async function handler(req, res) {
                             },
                         ],
                         ordersData: [
-                             { $match: { status: { $ne: "returned" } } },
-                             {
-                                  $group: {
-                                             _id: {
-                                                      day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                      month: { $dateToString: { format: "%b",    date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                      year:  { $dateToString: { format: "%Y",    date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                  },
-                                             totalOrders: { $sum: 1 }
-                                          }
-                              },
-                              { $project: { totalOrders: 1 } }
+                            { $match: { status: { $ne: "returned" } } },
+                            {
+                                $group: {
+                                    _id: {
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                    },
+                                    totalOrders: { $sum: 1 }
+                                }
+                            },
+                            { $project: { totalOrders: 1 } }
                         ],
-                        revenueData: [                           
+                        revenueData: [
                             { $match: { status: { $ne: "returned" } } },
                             { $unwind: "$purchase" },
 
                             {
                                 $lookup: {
-                                             from: "products",
-                                             let: { productId: { $toObjectId: "$purchase._id" } },
-                                             pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
-                                             as: "productDetails"
-                                         }
+                                    from: "products",
+                                    let: { productId: { $toObjectId: "$purchase._id" }, vId: "$purchase.variant_id" },
+                                    pipeline: [
+                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                                        {
+                                            $addFields: {
+                                                variant: {
+                                                    $first: {
+                                                        $filter: {
+                                                            input: "$variants",
+                                                            cond: { $eq: ["$$this.variant_id", "$$vId"] }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    as: "productDetails"
+                                }
                             },
                             { $unwind: "$productDetails" },
-                            { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": { $in: [storeName] } } : {} },
 
                             // 1) Collapse back to one doc per order (_id), summing the *line totals* only.
                             {
                                 $group: {
-                                            _id: "$_id",
-                                            createdAt: { $first: "$createdAt" },
-                                            lineTotal: {
-                                                           $sum: {
-                                                                     $multiply: [
-                                                                                  { $ifNull: ["$productDetails.price", 0] },
-                                                                                  "$purchase.quantity"
-                                                                                ]
-                                                                 }
-                                                        },
-                                            delivery_charges: { $first: "$delivery_charges" } // << add once
+                                    _id: "$_id",
+                                    createdAt: { $first: "$createdAt" },
+                                    lineTotal: {
+                                        $sum: {
+                                            $multiply: [
+                                                { $ifNull: ["$productDetails.variant.price", "$productDetails.price"] },
+                                                "$purchase.quantity"
+                                            ]
                                         }
+                                    },
+                                    delivery_charges: { $first: "$delivery_charges" } // << add once
+                                }
                             },
 
                             // 2) Now group by day and add delivery once per order
                             {
                                 $group: {
-                                           _id: {
-                                                    day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                    month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                    year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
-                                                 },
-                                           totalRevenue: { $sum: { $add: ["$lineTotal", { $ifNull: ["$delivery_charges", 0] }] } }
-                                        }
+                                    _id: {
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
+                                    },
+                                    totalRevenue: { $sum: { $add: ["$lineTotal", { $ifNull: ["$delivery_charges", 0] }] } }
+                                }
                             },
 
                             // (optional) keep shape identical to your current code
                             { $project: { totalRevenue: 1 } }
                         ],
                         netRevenueData: [
-                             { $match: { status: { $ne: "returned" } } },
-                             { $unwind: "$purchase" },
-
-                             {
+                            { $match: { status: { $ne: "returned" } } },
+                            { $unwind: "$purchase" },
+                            {
                                 $lookup: {
-                                            from: "products",
-                                            let: { productId: { $toObjectId: "$purchase._id" } },
-                                            pipeline: [
-                                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } }
-                                                      ],
-                                            as: "productDetails"
-                                         }
-                             },
-                             { $unwind: "$productDetails" },
-                             { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
-
-                             // 1) Collapse back to one doc per order (_id), summing the *profit margins* only
-                             {
-                                $group: {
-                                           _id: "$_id",
-                                           createdAt: { $first: "$createdAt" },
-                                           netLineTotal: {
-                                           $sum: {
-                                           $multiply: [
-                                                        { 
-                                                            $subtract: [
-                                                                          { $ifNull: ["$productDetails.price", 0] },
-                                                                          { $ifNull: ["$productDetails.cost_price", 0] }
-                                                                       ]
-                                                        },
-                                                        "$purchase.quantity"
-                                                      ]
-                                                 }
+                                    from: "products",
+                                    let: { productId: { $toObjectId: "$purchase._id" }, vId: "$purchase.variant_id" },
+                                    pipeline: [
+                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                                        {
+                                            $addFields: {
+                                                variant: {
+                                                    $first: {
+                                                        $filter: {
+                                                            input: "$variants",
+                                                            cond: { $eq: ["$$this.variant_id", "$$vId"] }
                                                         }
+                                                    }
+                                                }
+                                            }
                                         }
+                                    ],
+                                    as: "productDetails"
+                                }
+                            },
+                            { $unwind: "$productDetails" },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": { $in: [storeName] } } : {} },
+
+                            // 1) Collapse back to one doc per order (_id), summing the *profit margins* only
+                            {
+                                $group: {
+                                    _id: "$_id",
+                                    createdAt: { $first: "$createdAt" },
+                                    netLineTotal: {
+                                        $sum: {
+                                            $multiply: [
+                                                {
+                                                    $subtract: [
+                                                        { $ifNull: ["$productDetails.variant.price", "$productDetails.price"] },
+                                                        { $ifNull: ["$productDetails.variant.cost_price", "$productDetails.cost_price"] }
+                                                    ]
+                                                },
+                                                "$purchase.quantity"
+                                            ]
+                                        }
+                                    }
+                                }
                             },
 
                             // 2) Group by day (net revenue only, no delivery)
                             {
-                               $group: {
-                                         _id: {
-                                                 day:   { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                 month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
-                                                 year:  { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
-                                              },
-                                         totalNetRevenue: { $sum: "$netLineTotal" }
-                                       }
-                           },
+                                $group: {
+                                    _id: {
+                                        day: { $dateToString: { format: "%d-%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        month: { $dateToString: { format: "%b", date: "$createdAt", timezone: "Asia/Karachi" } },
+                                        year: { $dateToString: { format: "%Y", date: "$createdAt", timezone: "Asia/Karachi" } }
+                                    },
+                                    totalNetRevenue: { $sum: "$netLineTotal" }
+                                }
+                            },
 
-                           { $project: { totalNetRevenue: 1 } }
+                            { $project: { totalNetRevenue: 1 } }
                         ],
                         ordersByCity: [
                             { $group: { _id: "$city", count: { $sum: 1 } } },
@@ -187,102 +226,150 @@ export default async function handler(req, res) {
                             { $group: { _id: null, count: { $sum: 1 } } } // Counts total number of orders
                         ],
                         rawOrders: [
-                             { $match: matchCondition },
-                             { $unwind: "$purchase" },
-                             {
-                                 $lookup: {
-                                             from: "products",
-                                             let: { productId: { $toObjectId: "$purchase._id" } },
-                                             pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
-                                             as: "productDetails"
-                                          }
-                             },
-                             { $match: Boolean(storeName) ? { "productDetails.store_name": storeName } : {} },
-                             { $unwind: "$productDetails" },
-                             {
+                            { $match: matchCondition },
+                            { $unwind: "$purchase" },
+                            {
+                                $lookup: {
+                                    from: "products",
+                                    let: { productId: { $toObjectId: "$purchase._id" }, vId: "$purchase.variant_id" },
+                                    pipeline: [
+                                        { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                                        {
+                                            $addFields: {
+                                                variant: {
+                                                    $first: {
+                                                        $filter: {
+                                                            input: "$variants",
+                                                            cond: { $eq: ["$$this.variant_id", "$$vId"] }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    ],
+                                    as: "productDetails"
+                                }
+                            },
+                            { $match: Boolean(storeName) ? { "productDetails.store_name": { $in: [storeName] } } : {} },
+                            { $unwind: "$productDetails" },
+                            {
                                 $project: {
-                                             _id: 1,                // << add this!
-                                             status: 1,
-                                             purchase: 1,
-                                             productDetails: 1,
-                                             delivery_charges: 1,
-                                             createdAt: 1
-                                          }
-                             },
-                         ],
+                                    _id: 1,                // << add this!
+                                    status: 1,
+                                    purchase: 1,
+                                    productDetails: 1,
+                                    delivery_charges: 1,
+                                    createdAt: 1
+                                }
+                            },
+                        ],
                     },
                 },
             ]);
 
             return result[0]; // $facet returns an array with a single object
         };
-        
-        // Fetch Inventory Information
+
+        // Fetch Inventory Information (Variant priority — base stock ignored if variants exist)
         const fetchInventoryData = async (storeName, fromDate) => {
             const matchCondition = {
-              isDeleted: false,
-              createdAt: { $gte: fromDate },
-              ...(storeName ? { store_name: storeName } : {}),
-             };
+                isDeleted: false,
+                createdAt: { $gte: fromDate },
+                ...(storeName ? { store_name: storeName } : {}),
+            };
 
             const result = await Products.aggregate([
-                 { $match: matchCondition },
-                 {
-                    $group: {
-                          _id: null,
-                          inStock: {
-                          $sum: {
-                                   $cond: [{ $gt: ["$stock", 0] }, "$stock", 0] // sum units where stock > 0
-                                }
-                 },
-                    outOfStock: {
-                         $sum: {
-                                  $cond: [{ $eq: ["$stock", 0] }, 1, 0] // count how many products have 0
-                               }
-                             }
-                  }
-                 }
-             ]);
+                { $match: matchCondition },
 
-                 return result[0] || { inStock: 0, outOfStock: 0 };
-               };
+                // Build totalStock:
+                // If variants exist => sum only variant stock
+                // If no variants => use base stock
+                {
+                    $addFields: {
+                        variantStock: {
+                            $sum: {
+                                $map: {
+                                    input: { $ifNull: ["$variants", []] },
+                                    as: "v",
+                                    in: { $ifNull: ["$$v.stock", 0] }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        totalStock: {
+                            $cond: [
+                                { $gt: ["$variantStock", 0] },   // If variants exist
+                                "$variantStock",                  // take variants stock
+                                { $ifNull: ["$stock", 0] }        // else use base stock
+                            ]
+                        }
+                    }
+                },
+
+                {
+                    $group: {
+                        _id: null,
+
+                        // Total units available
+                        inStock: {
+                            $sum: {
+                                $cond: [{ $gt: ["$totalStock", 0] }, "$totalStock", 0]
+                            }
+                        },
+
+                        // Count how many products are 0 stock
+                        outOfStock: {
+                            $sum: {
+                                $cond: [{ $eq: ["$totalStock", 0] }, 1, 0]
+                            }
+                        }
+                    }
+                }
+            ]);
+
+            return result[0] || { inStock: 0, outOfStock: 0 };
+        };
+
 
         // Helper function to calculate sums
         const calculateSums = (data, statusArg) => {
-             const filteredData = data.filter(order => {
-             if (statusArg === "delivered") return order.status === "delivered";
-             if (statusArg === "undelivered") return order.status !== "delivered" && order.status !== "returned";
-             return order.status !== "returned";
-             });
+            const filteredData = data.filter(order => {
+                if (statusArg === "delivered") return order.status === "delivered";
+                if (statusArg === "undelivered") return order.status !== "delivered" && order.status !== "returned";
+                return order.status !== "returned";
+            });
 
-             const totalOrders = new Set(filteredData.map(o => String(o._id))).size;
-             const totalSales  = filteredData.reduce((s, o) => s + (o.purchase?.quantity || 0), 0);
+            const totalOrders = new Set(filteredData.map(o => String(o._id))).size;
+            const totalSales = filteredData.reduce((s, o) => s + (o.purchase?.quantity || 0), 0);
 
-             // Revenue from items (price * qty), line-level is OK:
-             const itemsRevenue = filteredData.reduce((s, o) =>
-                 s + ((o.productDetails?.price || 0) * (o.purchase?.quantity || 0))
-             , 0);
+            // Revenue from items (price * qty), line-level is OK:
+            const itemsRevenue = filteredData.reduce((s, o) =>
+                s + ((o.productDetails?.price || 0) * (o.purchase?.quantity || 0))
+                , 0);
 
-             // Delivery charges: add once per unique order id
-             const seen = new Set();
-             const deliveryOnce = filteredData.reduce((s, o) => {
-             const id = String(o._id);
-             if (!seen.has(id)) {
-                 seen.add(id);
-                 return s + (o.delivery_charges || 0);
-              }
-              return s;
-             }, 0);
+            // Delivery charges: add once per unique order id
+            const seen = new Set();
+            const deliveryOnce = filteredData.reduce((s, o) => {
+                const id = String(o._id);
+                if (!seen.has(id)) {
+                    seen.add(id);
+                    return s + (o.delivery_charges || 0);
+                }
+                return s;
+            }, 0);
 
-              const totalRevenue = itemsRevenue + deliveryOnce;
+            const totalRevenue = itemsRevenue + deliveryOnce;
 
-              const totalNetRevenue = filteredData.reduce((s, o) =>
-              s + (((o.productDetails?.price || 0) - (o.productDetails?.cost_price || 0)) * (o.purchase?.quantity || 0))
-              , 0); // delivery not part of net revenue/profit per your current logic
+            const totalNetRevenue = filteredData.reduce((s, o) =>
+                s + (((o.productDetails?.price || 0) - (o.productDetails?.cost_price || 0)) * (o.purchase?.quantity || 0))
+                , 0); // delivery not part of net revenue/profit per your current logic
 
-          return { totalOrders, totalSales, totalRevenue, totalNetRevenue };
+            return { totalOrders, totalSales, totalRevenue, totalNetRevenue };
         };
-            
+
         const analytics = {};
 
         // Fetch analytics for each store and total
@@ -294,7 +381,7 @@ export default async function handler(req, res) {
                 fetchAllData(store, firstDayOfYear),
                 fetchAllData(store, new Date(0)),
                 fetchInventoryData(store, firstDayOfYear),
-                 fetchInventoryData(store, new Date(0)),
+                fetchInventoryData(store, new Date(0)),
             ]);
 
 
@@ -347,27 +434,27 @@ export default async function handler(req, res) {
                 { x: "Apr", y: 0 }, { x: "May", y: 0 }, { x: "Jun", y: 0 },
                 { x: "Jul", y: 0 }, { x: "Aug", y: 0 }, { x: "Sep", y: 0 },
                 { x: "Oct", y: 0 }, { x: "Nov", y: 0 }, { x: "Dec", y: 0 },
-             ];
+            ];
 
             const monthlyOrders = {};
-                yearlyData.ordersData.forEach(({ _id, totalOrders }) => {
+            yearlyData.ordersData.forEach(({ _id, totalOrders }) => {
                 monthlyOrders[_id.month] = (monthlyOrders[_id.month] || 0) + totalOrders;
-             });
+            });
 
             ORDERS_MONTHS.forEach(month => {
                 if (monthlyOrders[month.x]) {
-                month.y = monthlyOrders[month.x];
-            }
-               });
+                    month.y = monthlyOrders[month.x];
+                }
+            });
 
             const yearlyOrders = {};
             yearlyData.ordersData.forEach(({ _id, totalOrders }) => {
-            yearlyOrders[_id.year] = (yearlyOrders[_id.year] || 0) + totalOrders;
-             });
+                yearlyOrders[_id.year] = (yearlyOrders[_id.year] || 0) + totalOrders;
+            });
 
             const yearlyOrdersArray = Object.entries(yearlyOrders)
-           .map(([x, y]) => ({ x, y }))
-           .sort((a, b) => a.x.localeCompare(b.x));
+                .map(([x, y]) => ({ x, y }))
+                .sort((a, b) => a.x.localeCompare(b.x));
 
 
 
@@ -408,39 +495,39 @@ export default async function handler(req, res) {
             });
 
             const yearlyRevenueArray = Object.entries(yearlyRevenue).map(([x, y]) => ({ x, y })).sort((a, b) => a.x.localeCompare(b.x));
-            
-            
+
+
             // Sort netRevenueData.daily by date
             monthlyData.netRevenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
             yearlyData.netRevenueData.sort((a, b) => a._id.day.localeCompare(b._id.day));
 
             // Populate netRevenueData.monthly and netRevenueData.yearly
             const NET_REVENUE_MONTHS = [
-                     { x: "Jan", y: 0 }, { x: "Feb", y: 0 }, { x: "Mar", y: 0 },
-                     { x: "Apr", y: 0 }, { x: "May", y: 0 }, { x: "Jun", y: 0 },
-                     { x: "Jul", y: 0 }, { x: "Aug", y: 0 }, { x: "Sep", y: 0 },
-                     { x: "Oct", y: 0 }, { x: "Nov", y: 0 }, { x: "Dec", y: 0 },
+                { x: "Jan", y: 0 }, { x: "Feb", y: 0 }, { x: "Mar", y: 0 },
+                { x: "Apr", y: 0 }, { x: "May", y: 0 }, { x: "Jun", y: 0 },
+                { x: "Jul", y: 0 }, { x: "Aug", y: 0 }, { x: "Sep", y: 0 },
+                { x: "Oct", y: 0 }, { x: "Nov", y: 0 }, { x: "Dec", y: 0 },
             ];
 
             const monthlyNetRevenue = {};
             yearlyData.netRevenueData.forEach(({ _id, totalNetRevenue }) => {
-                  monthlyNetRevenue[_id.month] = (monthlyNetRevenue[_id.month] || 0) + totalNetRevenue;
+                monthlyNetRevenue[_id.month] = (monthlyNetRevenue[_id.month] || 0) + totalNetRevenue;
             });
 
             NET_REVENUE_MONTHS.forEach(month => {
-                  if (monthlyNetRevenue[month.x]) {
-                  month.y = monthlyNetRevenue[month.x];
-              }
+                if (monthlyNetRevenue[month.x]) {
+                    month.y = monthlyNetRevenue[month.x];
+                }
             });
 
             const yearlyNetRevenue = {};
             yearlyData.netRevenueData.forEach(({ _id, totalNetRevenue }) => {
-               yearlyNetRevenue[_id.year] = (yearlyNetRevenue[_id.year] || 0) + totalNetRevenue;
+                yearlyNetRevenue[_id.year] = (yearlyNetRevenue[_id.year] || 0) + totalNetRevenue;
             });
 
             const yearlyNetRevenueArray = Object.entries(yearlyNetRevenue)
-               .map(([x, y]) => ({ x, y }))
-               .sort((a, b) => a.x.localeCompare(b.x));
+                .map(([x, y]) => ({ x, y }))
+                .sort((a, b) => a.x.localeCompare(b.x));
 
             analytics[storeKey] = {
                 orderStatus: {
@@ -521,14 +608,14 @@ export default async function handler(req, res) {
                     allYearsUndelivered: allTimeData.totalOrdersCount?.[0]?.count - (allTimeData.orderStatus.find(s => s._id === "delivered")?.count || 0),
                 },
                 inventoryReport: {
-                     currentYear: {
-                            inStock: yearlyInventory.inStock,
-                            outOfStock: yearlyInventory.outOfStock,
-                     },
-                     allYears: {
-                            inStock: allTimeInventory.inStock,
-                            outOfStock: allTimeInventory.outOfStock,
-                     },
+                    currentYear: {
+                        inStock: yearlyInventory.inStock,
+                        outOfStock: yearlyInventory.outOfStock,
+                    },
+                    allYears: {
+                        inStock: allTimeInventory.inStock,
+                        outOfStock: allTimeInventory.outOfStock,
+                    },
                 },
             };
         }

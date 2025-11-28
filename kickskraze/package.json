@@ -43,7 +43,8 @@
     "react-medium-image-zoom": "^5.2.11",
     "react-multi-carousel": "^2.8.5",
     "react-reveal": "^1.2.2",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "use-sound": "^5.0.0"
   },
   "devDependencies": {
     "postcss": "^8",

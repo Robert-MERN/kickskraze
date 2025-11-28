@@ -7,7 +7,7 @@ import style from "@/styles/home.module.css";
 import { useRouter } from 'next/router';
 import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
-import { calculate_discount_precentage, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 
 
@@ -246,7 +246,7 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
                                 className={`w-full h-[150px] hover:scale-[1.1] object-cover transition-all duration-500`}
                               />
 
-                              {!Boolean(product.stock) &&
+                              {calculate_product_stock(product) === 0 &&
                                 <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>
                                   SOLD OUT
                                 </span>
@@ -274,8 +274,12 @@ const Search_drawer_admin = ({ drawer_state, toggle_drawer, get_all_products_api
                                 </span>
                               }
                             </p>
-                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                            {!product.has_variants &&
+                              <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                            }
+                            {product.condition !== "brand new" &&
+                              <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                            }
                           </div>
                         </div>
                       </Link>

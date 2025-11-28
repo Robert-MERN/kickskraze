@@ -6,7 +6,7 @@ import RevealFade from "react-reveal/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import { Popper, Skeleton } from "@mui/material";
-import { calculate_discount_precentage, select_thumbnail_from_media } from '../functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '../functions/produc_fn';
 
 const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, debouncedTerm, searchTerm, results, trending_results,
     is_loading, is_trending_loading, show_more_payload, router }) => {
@@ -166,7 +166,7 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                                         onError={(e) => e.target.src = "/images/logo_error.png"}
                                                                     />
 
-                                                                    {!Boolean(product.stock) &&
+                                                                    {calculate_product_stock(product) === 0 &&
                                                                         <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[14px]'>
                                                                             SOLD OUT
                                                                         </span>
@@ -194,8 +194,12 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                                         </span>
                                                                     }
                                                                 </p>
-                                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                                {!product.has_variants &&
+                                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                                }
+                                                                {product.condition !== "brand new" &&
+                                                                    <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </Link>

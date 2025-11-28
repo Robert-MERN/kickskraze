@@ -132,10 +132,17 @@ const Orders = ({ axios }) => {
             )
         },
         {
-            field: 'createdAt',
-            headerName: 'Invoice Date',
+            field: "search_date",
+            headerName: "Invoice Date",
             width: 180,
-            renderCell: params => `${date_formatter(params.row.createdAt)}`
+            renderCell: params => {
+                const date = date_formatter(params.row.createdAt);
+                return (
+                    <p className="w-full text-ellipsis overflow-hidden capitalize">
+                        {date}
+                    </p>
+                );
+            }
         },
         {
             field: 'name',
@@ -180,9 +187,20 @@ const Orders = ({ axios }) => {
             renderCell: params => payment_method[params?.row?.payment_method] || "",
         },
         {
-            field: 'store_name',
+            field: 'search_store',
             headerName: 'Store',
-            width: 120,
+            width: 160,
+            renderCell: params => {
+                const stores = Array.isArray(params.row.store_name)
+                    ? params.row.store_name.join(" / ")
+                    : params.row.store_name || "";
+
+                return (
+                    <p className="w-full text-ellipsis overflow-hidden">
+                        {stores}
+                    </p>
+                );
+            }
         },
         {
             field: 'verification',
@@ -238,75 +256,75 @@ const Orders = ({ axios }) => {
     useEffect(() => {
         get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
     }, []);
-    
+
     const [show_report, set_show_report] = useState(false);
-    
-    const handle_show_report = ()=> set_show_report(prev=> !prev)
+
+    const handle_show_report = () => set_show_report(prev => !prev)
 
 
     return (
         <div className='w-full h-full' >
-            
+
             {Boolean(orders.length > 1) &&
                 <>
-                {show_report && 
-                <div className="w-full mb-4 flex flex-col gap-2">
-                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                        Total Orders:
-                        {" "}
-                       <span className="font-normal">{orders.length.toLocaleString("en-US")}</span>
-                    </p>
-                    
-                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
-                        <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                            Total Verified Orders:
-                            {" "}
-                        <span className="font-normal">{orders.filter(order=> order.verification === "verified").length.toLocaleString("en-US")}</span>
-                    </p>
+                    {show_report &&
+                        <div className="w-full mb-4 flex flex-col gap-2">
+                            <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                Total Orders:
+                                {" "}
+                                <span className="font-normal">{orders.length.toLocaleString("en-US")}</span>
+                            </p>
+
+                            {Boolean(orders.filter(order => order.verification === "verified").length) &&
+                                <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                    Total Verified Orders:
+                                    {" "}
+                                    <span className="font-normal">{orders.filter(order => order.verification === "verified").length.toLocaleString("en-US")}</span>
+                                </p>
+                            }
+
+                            <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                Total Sale:
+                                {" "}
+                                <span className="font-normal">{orders.reduce((total, order) => (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                            </p>
+
+                            {Boolean(orders.filter(order => order.verification === "verified").length) &&
+                                <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                    Total Verified Sale:
+                                    {" "}
+                                    <span className="font-normal">{orders.filter(order => order.verification === "verified").reduce((total, order) => (total + order.total_items), 0).toLocaleString("en-US")}</span>
+                                </p>
+                            }
+
+                            <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                Total Revenue:
+                                {" "}
+                                <span className="font-normal">Rs. {orders.reduce((total, order) => (total + order.total_amount), 0).toLocaleString("en-US")}</span>
+                            </p>
+
+                            {Boolean(orders.filter(order => order.verification === "verified").length) &&
+                                <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
+                                    Total Verified Revenue:
+                                    {" "}
+                                    <span className="font-normal">Rs. {orders.filter(order => order.verification === "verified").reduce((total, order) => (total + order.total_amount), 0).toLocaleString("en-US")}</span>
+                                </p>
+                            }
+                        </div>
                     }
-                    
-                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                        Total Sale:
-                        {" "}
-                       <span className="font-normal">{orders.reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
-                    </p>
-                    
-                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
-                       <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                           Total Verified Sale:
-                           {" "}
-                           <span className="font-normal">{orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_items), 0).toLocaleString("en-US")}</span>
-                       </p>
-                    }
-                    
-                    <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                        Total Revenue:
-                        {" "}
-                       <span className="font-normal">Rs. {orders.reduce((total, order)=> (total + order.total_amount), 0).toLocaleString("en-US")}</span>
-                    </p>
-                    
-                    {Boolean(orders.filter(order=> order.verification === "verified").length) &&
-                       <p className="text-stone-600 text-[15px] md:text-[17px] font-semibold">
-                           Total Verified Revenue:
-                           {" "}
-                           <span className="font-normal">Rs. {orders.filter(order=> order.verification === "verified").reduce((total, order)=> (total + order.total_amount), 0).toLocaleString("en-US")}</span>
-                       </p>
-                    }
-                </div>
-                }
-                
+
                     <button onClick={handle_show_report} className="my-2 text-stone-700 font-bold underline text-[16px] md:text-[18px]">
-                        {show_report?
-                          "Hide Report"
-                           :
-                          "Show Report"
+                        {show_report ?
+                            "Hide Report"
+                            :
+                            "Show Report"
                         }
-                        
+
                     </button>
                 </>
             }
-            
-            
+
+
             <DataGrid
                 sx={{
                     [`& .${gridClasses.cell}:focus, & .${gridClasses.cell}:focus-within`]: {
@@ -320,7 +338,10 @@ const Orders = ({ axios }) => {
                 columns={columns}
                 rows={orders.map(row => ({
                     ...row,
-                    name: `${row.firstName || ""} ${row.lastName || ""}`.trim()
+                    /* 🔍 SEARCHABLE KEYWORDS */
+                    name: `${row.firstName} ${row.lastName}`.trim(),
+                    search_date: row.createdAt ? date_formatter(row.createdAt).toLowerCase() : "",
+                    search_store: Array.isArray(row.store_name) ? row.store_name.join(" ").toLowerCase() : (row.store_name || "").toLowerCase()
                 }))}
                 getRowId={row => row._id}
                 paginationModel={paginationModel}
@@ -329,7 +350,7 @@ const Orders = ({ axios }) => {
                 loading={is_loading}
                 rowSelection={false}
             />
-            
+
         </div>
     )
 }

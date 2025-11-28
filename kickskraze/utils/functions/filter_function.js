@@ -5,17 +5,10 @@ export const filter_method = async (newObj, set_state) => {
         set_state((prevObjects) => {
             // Check if an object with the same size exists
             var index;
-            if (newObj.size) {
-                index = prevObjects.findIndex((obj) => obj.size === newObj.size);
-            };
-
-            if (newObj.condition) {
-                index = prevObjects.findIndex((obj) => obj.condition === newObj.condition);
-            };
-
-            if (newObj.brand) {
-                index = prevObjects.findIndex((obj) => obj.brand === newObj.brand);
-            };
+            const key = Object.keys(newObj)[0];
+            if (["size", "condition", "brand", "store_name"].includes(key)) {
+                index = prevObjects.findIndex((obj) => obj[key] === newObj[key]);
+            }
 
 
             if (Object.keys(newObj)[0] === "price_gte" || Object.keys(newObj)[0] === "price_lte" || Object.keys(newObj)[0] === "sort_by") {
@@ -75,7 +68,8 @@ export const filters_realtime_update = (filter_options, arr) => {
             const key = Object.keys(e)[0];
             const value = Object.values(e)[0];
 
-            if (key === "size" || key === "brand" || key === "condition") {
+            if (["size", "brand", "condition", "store_name"].includes(key)) {
+                if (key === "store_name") return store_name_filter_display_fn(value);
                 return value; // Return the value directly
             }
         })
@@ -96,13 +90,24 @@ export const remove_item_from_filters_realtime_update = async (set_arr, obj_val,
     const FILTERS = await new Promise(resolve => {
         set_arr((prev_arr) => {
             if (obj_val.toString().includes("Rs.")) {
-                const without_prices_arr = [...prev_arr].filter(obj => Object.keys(obj) !== "price_gte" && Object.keys(obj) !== "price_lte");
+                const without_prices_arr = prev_arr.filter(obj => {
+                    const k = Object.keys(obj)[0];
+                    return k !== "price_gte" && k !== "price_lte";
+                });
                 const { price_gte, price_lte } = filter_options;
 
                 resolve([{ price_gte }, { price_lte }].concat(without_prices_arr));
                 return [{ price_gte }, { price_lte }].concat(without_prices_arr);
             }
-            const index = prev_arr.findIndex((obj) => Object.values(obj)[0] === obj_val);
+
+
+            // 🔥 convert friendly store_name back to actual key
+            let realValue = STORE_NAME_REVERSE_MAP[obj_val] || obj_val;
+
+            const index = prev_arr.findIndex(
+                (obj) => Object.values(obj)[0] === realValue
+            );
+
             if (index >= 0) {
                 const updated_arr = [...prev_arr];
                 updated_arr.splice(index, 1);
@@ -134,9 +139,17 @@ export const remove_all_items_from_filters_realtime_update = (filter_options, se
 };
 
 
-export const configure_query_filters = (router_query) => {
+export const configure_query_filters = (router_query, filter_options = {}) => {
+
+    const defaults = [
+        { sort_by: filter_options.sort_by || "created-descending" },
+        { price_gte: filter_options.price_gte || 0 },
+        { price_lte: filter_options.price_lte ?? 999999 }, // fallback if API fails
+    ];
+
+    const query_filters = [];
+
     if (typeof router_query === "object" && !Array.isArray(router_query) && Object.keys(router_query).length) {
-        const query_filters = [];
         Object.entries(router_query).forEach(([key, value]) => {
             if (typeof value === "string") {
                 value.split(",").forEach((val) => {
@@ -148,6 +161,14 @@ export const configure_query_filters = (router_query) => {
                 });
             }
         });
+
+        // Add dynamic defaults if missing
+        defaults.forEach(def => {
+            const key = Object.keys(def)[0];
+            const exists = query_filters.some(q => Object.keys(q)[0] === key);
+            if (!exists) query_filters.push(def);
+        });
+
         return query_filters;
     }
     return [];
@@ -156,26 +177,26 @@ export const configure_query_filters = (router_query) => {
 export const add_query_filters = async (query_filters, set_filters) => {
     let FILTERS;
 
-    const s_c_b_h = query_filters.filter(e => {
-        const key = Object.keys(e)[0]
-        return (key === "size" || key === "condition" || key === "brand" || key === "hide_brand")
+    const s_c_b_h_s = query_filters.filter(e => {
+        const key = Object.keys(e)[0];
+        return ["size", "condition", "brand", "hide_brand", "store_name"].includes(key);
     });
 
-    const without_s_c_b_h = query_filters.filter(e => {
+    const without_s_c_b_h_s = query_filters.filter(e => {
         const key = Object.keys(e)[0]
-        return (key !== "size" && key !== "condition" && key !== "brand" && key !== "hide_brand")
+        return !["size", "condition", "brand", "hide_brand", "store_name"].includes(key);
     });
 
-    if (!without_s_c_b_h.length && !s_c_b_h.length) {
+    if (!without_s_c_b_h_s.length && !s_c_b_h_s.length) {
         return;
     }
 
-    if (s_c_b_h.length) {
+    if (s_c_b_h_s.length) {
         FILTERS = await new Promise((resolve) => {
 
             set_filters(prev_arr => {
                 const copy_prev = [...prev_arr];
-                for (const each_query of s_c_b_h) {
+                for (const each_query of s_c_b_h_s) {
                     const matched_query_index = prev_arr.findIndex(e => {
                         const existing = Object.entries(e)[0];
                         const _new = Object.entries(each_query)[0];
@@ -194,12 +215,12 @@ export const add_query_filters = async (query_filters, set_filters) => {
         })
     }
 
-    if (without_s_c_b_h.length) {
+    if (without_s_c_b_h_s.length) {
         FILTERS = await new Promise((resolve) => {
             set_filters(prev_arr => {
                 const copy_prev = [...prev_arr];
-                for (const each_query of without_s_c_b_h) {
-                    const matched_query_index = copy_prev.findIndex(e => Object.keys(e).includes(Object.keys(each_query)[0]));
+                for (const each_query of without_s_c_b_h_s) {
+                    const matched_query_index = prev_arr.findIndex(e => Object.keys(e)[0] === Object.keys(each_query)[0]);
                     if (matched_query_index !== -1) {
                         copy_prev.splice(matched_query_index, 1, each_query);
                     } else {
@@ -213,6 +234,30 @@ export const add_query_filters = async (query_filters, set_filters) => {
     }
 
     return FILTERS;
+}
+
+
+// Store name mapping function
+export const STORE_NAME_MAP = {
+    Barefoot: "Fashion Sneakers",
+    Kickskraze: "Sports Sneakers",
+    "Casual-footwear": "Casual Footwear",
+    "Formal-footwear": "Formal Shoes",
+    "Footwear-accessories": "Shoe Accessories",
+};
+
+// Mapping function for display
+export const store_name_filter_display_fn = (store_name) => STORE_NAME_MAP[store_name] || store_name;
+
+// Reverse mapping:
+export const STORE_NAME_REVERSE_MAP = Object.fromEntries(Object.entries(STORE_NAME_MAP).map(([key, value]) => [value, key]));
+
+const sequentialStoreNames = ["Barefoot", "Kickskraze", "heels", "sandals", "flats", "Casual-footwear", "Formal-footwear", "Footwear-accessories",];
+
+export const sort_store_names = (store_names) => {
+    return store_names
+        .filter(name => sequentialStoreNames.includes(name))
+        .sort((a, b) => sequentialStoreNames.indexOf(a) - sequentialStoreNames.indexOf(b));
 }
 
 // Database function [BACK-END]

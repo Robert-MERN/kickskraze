@@ -1,93 +1,90 @@
 import { Queue, Worker } from "bullmq";
 import Redis from "ioredis";
 import fs from "fs-extra";
-import { pipeline } from "stream/promises";
 import * as fastCsv from "fast-csv";
-import Products from "@/models/product_model"; // Import your Mongoose model
-import { select_thumbnail_from_media } from "@/utils/functions/produc_fn";
+import Products from "@/models/product_model";
+import { select_thumbnail_from_media, generateSKU, generateGTIN, generateMPN } from "@/utils/functions/produc_fn";
 import path from "path";
+import { getFacebookCategory, getGoogleCategory } from "@/utils/product_info_list";
 
-// ✅ Ensure Redis is properly configured
-const redisConnection = new Redis({
-    host: "127.0.0.1", // or your Redis host
-    port: 6379,
-    maxRetriesPerRequest: null, // ✅ Required for BullMQ
+const redisConnection = new Redis({ host: "127.0.0.1", port: 6379, db: 0, maxRetriesPerRequest: null });
+
+export const csvQueue = new Queue("csvQueue", { connection: redisConnection });
+export const newsletterQueue = new Queue("newsletterQueue", { connection: redisConnection });
+
+new Worker("csvQueue", async (job) => job.name === "updateCSV" && generateCSV(), { connection: redisConnection });
+new Worker("newsletterQueue", async (job) => job.name === "sendNewsletter" && console.log("Sending Newsletter…"), { connection: redisConnection });
+
+/* ───────────────── ❤ HELPERS ───────────────── */
+
+const genderMap = { unisex: "unisex", men: "male", women: "female", kids: "unisex", "kids-boys": "male", "kids-girls": "female" };
+const storeNameFormat = s => s.replace(/[\s-]+/g, "_").toLowerCase();
+const baseCondition = c => ["premium +", "brand new"].includes((c || "").toLowerCase()) ? "new" : "used";
+const desc = p => p.shoes_desc || p.product_desc || "100% authentic original product — not replica, fake or first copy.";
+const thumb = p => select_thumbnail_from_media(p.media);
+
+/* 🔥 Shared field builder (base + variant both use this) */
+const buildCommon = (p, price, stock, size, color, variantId = null) => ({
+    id: variantId ? `${p._id}_${variantId}` : String(p._id),
+    item_group_id: String(p._id),
+    sku: generateSKU(p, variantId),
+    gtin: generateGTIN(p, variantId),
+    mpn: generateMPN(p, variantId),
+    title: p.title,
+    description: desc(p),
+    availability: stock > 0 ? "in stock" : "out of stock",
+    condition: baseCondition(p.condition),
+    price: `${price.toFixed(2)} PKR`,
+    link: `https://kicks-kraze.com/product?product_id=${p._id}`,
+    image_link: thumb(p),
+    brand: p.brand || "KIC",
+    google_product_category: getGoogleCategory(p.store_name, p.type),
+    fb_product_category: getFacebookCategory(p.store_name, p.category, p.type),
+    quantity_to_sell_on_facebook: stock,
+    gender: genderMap[p.category] || "unisex",
+    age_group: p.category === "kids" ? "kids" : "all ages",
+    color: Array.isArray(color) ? color.join(", ") : color || "",
+    size: Array.isArray(size) ? size.join(", ") : size || "",
 });
 
-// ✅ Properly create the queue
-export const csvQueue = new Queue("csvQueue", { connection: redisConnection });
+/* 🔥 Converts product → 1 row (no variants) or multiple rows (variants) */
+const buildProductRows = p =>
+    (p.has_variants && Array.isArray(p.variants) && p.variants.length)
+        ? p.variants.map(v => buildCommon(p, v.price || p.price, v.stock || 0, v.options?.size ?? p.size, v.options?.color ?? p.color, v.variant_id))
+        : [buildCommon(p, p.price, p.stock, p.size, p.color)];
 
-// ✅ Create a worker
-new Worker(
-    "csvQueue",
-    async () => {
-        console.log("Generating CSV...");
-        await generateCSV();
-    },
-    { connection: redisConnection }
-);
-
-const fb_product_category = {
-    unisex: "clothing & accessories > shoes & footwear",
-    men: "clothing & accessories > shoes & footwear > men's shoes",
-    women: "clothing & accessories > shoes & footwear > women's shoes",
-    kids: "clothing & accessories > shoes & footwear > kids' shoes",
+/* 🔥 Universal CSV writer */
+const writeCSV = async (filePath, products) => {
+    const ws = fs.createWriteStream(filePath);
+    const csv = fastCsv.format({ headers: true });
+    csv.pipe(ws);
+    products.forEach(p => buildProductRows(p).forEach(r => csv.write(r)));
+    csv.end();
+    return new Promise(res => ws.on("finish", res));
 };
 
-const gender = {
-    men: "male",
-    women: "female",
-    unisex: "unisex",
-    kids: "unisex",
-};
+/* ───────────────── CSV MAIN ───────────────── */
 
 async function generateCSV() {
     try {
-        const products = await Products.find({ isDeleted: false }).sort({ createdAt: -1 }); // Fetch all products
+        const products = await Products.find({ isDeleted: false }).sort({ createdAt: -1 });
+        const dir = path.join(process.cwd(), "public/catalog_products");
+        fs.ensureDirSync(dir);
 
-        // Define directory and file path
-        const dirPath = path.join(process.cwd(), "public/catalog_products");
-        const filePath = path.join(dirPath, "products.csv");
+        // 1️⃣ Global CSV
+        await writeCSV(path.join(dir, "products.csv"), products);
 
-        // Ensure directory exists
-        fs.ensureDirSync(dirPath);
+        // 2️⃣ One file per store
+        const stores = [...new Set(products.map(p => p.store_name))];
+        for (const store of stores) {
+            const items = products.filter(p => p.store_name === store);
+            if (items.length)
+                await writeCSV(path.join(dir, `${storeNameFormat(store)}_products.csv`), items);
+        }
 
-        const ws = fs.createWriteStream(filePath);
-        const csvStream = fastCsv.format({ headers: true });
+        console.log("✔ CSV regenerated successfully (global + per-store)");
 
-        csvStream.pipe(ws);
-        products.forEach((item) => {
-            const product = {
-                id: item._id,
-                title: item.title,
-                description: item.shoes_desc || "All products are guaranteed to be 100% authentic and genuine and not a fake, first copy, or replica.",
-                availability: item.stock ? "in stock" : "out of stock",
-                condition: item.condition === "premium +" ? "new" : "used",
-                price: `${item.price.toFixed(2)} PKR`,
-                link: `https://kicks-kraze.com/product?product_id=${item._id}`,
-                image_link: select_thumbnail_from_media(item.media),
-                brand: item.brand,
-                google_product_category: "Apparel & Accessories > Shoes",
-                fb_product_category: fb_product_category[item.category] || "",
-                quantity_to_sell_on_facebook: item.stock,
-                gender: gender[item.category] || "unisex",
-                age_group: item.category === "kids" ? "kids" : "all ages",
-            };
-            csvStream.write(product);
-        });
-        csvStream.end();
-
-        return new Promise((resolve, reject) => {
-            ws.on("finish", () => {
-                console.log("CSV updated successfully at:", filePath);
-                resolve();
-            });
-            ws.on("error", (err) => {
-                console.error("Error writing CSV:", err);
-                reject(err);
-            });
-        });
-    } catch (error) {
-        console.error("Error in generateCSV:", error);
-    }
+    } catch (e) { console.error("❌ CSV ERROR →", e); }
 }
+
+export { generateCSV };
