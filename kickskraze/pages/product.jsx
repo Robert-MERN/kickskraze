@@ -4,17 +4,25 @@ import Navbar from '@/components/utilities/Navbar'
 import Head from 'next/head'
 import Product_page from '@/components/Product_page'
 import axios from 'axios'
+import Products from '@/models/product_model'
+import connect_mongo from '@/utils/functions/connect_mongo'
+import { select_thumbnail_from_media } from '@/utils/functions/produc_fn'
 
-const product = ({ fullUrl, logoUrl }) => {
+const product = ({ fullUrl, ogImage }) => {
     return (
         <>
             <Head>
                 <title>Kickskraze | Product</title>
                 <meta property="og:title" content="Kickskraze | Product" />
-                <meta property="og:description" content="Product Page" />
-                <meta property="og:image" content={logoUrl} />
+                <meta property="og:description" content="Shop authentic footwear at Kickskraze" />
+                <meta property="og:image" content={ogImage} />
                 <meta property="og:url" content={fullUrl} />
                 <meta property="og:type" content="product" />
+
+                {/* For WhatsApp / iMessage */}
+                <meta name="twitter:image" content={ogImage} />
+                <meta name="twitter:card" content="summary_large_image" />
+
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
@@ -32,13 +40,20 @@ const product = ({ fullUrl, logoUrl }) => {
 export default product
 
 
-export async function getServerSideProps({ req }) {
-    const protocol = req.headers["x-forwarded-proto"] || "http"; // Detect HTTP or HTTPS
-    const host = req.headers.host; // Get the domain (localhost:3000 or production domain)
-    const fullUrl = `${protocol}://${host}${req.url}`; // Fully dynamic URL
-    const logoUrl = `${protocol}://${host}/images/og_logo.png`; // Fully dynamic URL
+export async function getServerSideProps({ req, query }) {
+    const protocol = req.headers["x-forwarded-proto"] || "http";
+    const host = req.headers.host;
+    const fullUrl = `${protocol}://${host}${req.url}`;
+
+    // 🔥 FETCH PRODUCT IMAGE FOR OG TAGS
+    await connect_mongo();
+    const product = await Products.findById(query.product_id).lean();
+
+    // Fallback placeholder if no product found or no media
+    const ogImage = select_thumbnail_from_media(product.media)
+        || `${protocol}://${host}/images/og_logo.png`;
 
     return {
-        props: { fullUrl, logoUrl },
+        props: { fullUrl, ogImage },
     };
 }

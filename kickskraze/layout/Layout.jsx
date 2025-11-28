@@ -25,7 +25,7 @@ import View_order_drawer from '@/utils/drawers/View_order_drawer';
 import Search_drawer_admin from '@/utils/drawers/Search_drawer_admin';
 import Share_link_modal from '@/utils/modals/Share_link_modal';
 import Edit_user_profile_modal from '@/utils/modals/Edit_user_profile_modal';
-import Delete_user_modal from '@/utils/modals/delete_user_modal';
+import Delete_user_modal from '@/utils/modals/Delete_user_modal';
 import Edit_user_profile_drawer from '@/utils/drawers/Edit_user_profile_drawer';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
