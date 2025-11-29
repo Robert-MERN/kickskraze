@@ -40,13 +40,8 @@ export default function App({ Component, pageProps }) {
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-             
-            // Initialize first pixel
-         
-            fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1});
-            fbq('track', 'PageView');
-            
-            // Initialize second pixel
+           
+            // Initialize Barefoot pixel
             fbq('init', ${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_BAREFOOT});
             fbq('track', 'PageView');`
             : ``,
@@ -54,9 +49,6 @@ export default function App({ Component, pageProps }) {
       />
       {(!router.pathname.includes("/admin") && !router.pathname.includes("/login") && !router.pathname.includes("/404")) &&
         <noscript>
-          <img height="1" width="1" style={{ display: "none" }}
-            src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_1}&ev=PageView&noscript=1`}
-          />
           <img height="1" width="1" style={{ display: "none" }}
             src={`https://www.facebook.com/tr?id=${process.env.NEXT_PUBLIC_FACEBOOK_META_PIXEL_ID_BAREFOOT}&ev=PageView&noscript=1`}
           />
