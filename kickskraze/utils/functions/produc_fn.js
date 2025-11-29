@@ -335,7 +335,6 @@ export const convert_purchase_to_meta = (purchase) => {
 
 
 // SKU Builder (safe)
-const unique = crypto.randomUUID().split("-")[0].toUpperCase(); // 6 chars
 export const generateSKU = (product, variant = null) => {
     let brand = (product.brand || "KIC").replace(/\s+/g, "").toUpperCase();
 
