@@ -337,19 +337,21 @@ export const convert_purchase_to_meta = (purchase) => {
 // SKU Builder (safe)
 const unique = crypto.randomUUID().split("-")[0].toUpperCase(); // 6 chars
 export const generateSKU = (product, variant = null) => {
-    const brand = (product.brand || "KIC").slice(0, 3).toUpperCase();
+    let brand = (product.brand || "KIC").replace(/\s+/g, "").toUpperCase();
 
-    // Time-based key → YYYY + DayOfYear + milliseconds
+    if (brand.length >= 3) brand = brand.slice(0, 3);
+    else if (brand.length === 2) brand += crypto.randomUUID().slice(0, 1).toUpperCase();
+    else if (brand.length === 1) brand += crypto.randomUUID().slice(0, 2).toUpperCase();
+    else brand = "KIC";
+
     const d = new Date();
     const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
     const timeKey = `${d.getFullYear().toString().slice(-2)}${dayOfYear}${d.getMilliseconds()}`;
 
-    // Base product — NO variant
-    if (!variant) {
-        return `${brand}-${timeKey}-${unique}`;
-    }
+    const unique = crypto.randomUUID().split("-")[0].toUpperCase(); // ⭐ Replaced perfectly
 
-    // Create 3–8 character variant fingerprint (e.g. 42BLK, GRY41)
+    if (!variant) return `${brand}-${timeKey}-${unique}`;
+
     const opt = Object.values(variant.options || {})
         .join("")
         .replace(/\s+/g, "")
@@ -358,6 +360,7 @@ export const generateSKU = (product, variant = null) => {
 
     return `${brand}-${timeKey}-${opt}-${unique}`;
 };
+
 
 
 // Safe GTIN / MPN Generator
