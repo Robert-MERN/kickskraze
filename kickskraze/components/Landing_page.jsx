@@ -124,7 +124,7 @@ const Landing_page = ({ axios }) => {
             <div className='w-full h-auto md:h-[60px] bg-[#F8F8F8] grid grid-cols-2 md:flex text-[10px]  gap-x-4 gap-y-2 md:gap-0 xl:text-[19px] font-bold text-stone-800  py-[12px] md:py-[15px] mt-[15px] px-[10px] md:px-0' >
                 <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 border-stone-400 w-full md:justify-center items-center px-1 pb-2 md:p-0' >
                     <PublishedWithChangesIcon className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >EASY EXCHANGE AVAILABLE</p>
+                    <p className='' >EASY EXCHANGE</p>
                 </div>
                 <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 w-full border-stone-400 md:justify-center items-center px-1 pb-2 md:p-0' >
                     <MdOutlineVerifiedUser className='text-[16px] xl:text-[26px] text-stone-800' />
@@ -136,7 +136,7 @@ const Landing_page = ({ axios }) => {
                 </div>
                 <div className='flex gap-2 xl:gap-3  w-full border-stone-400 md:justify-center items-center px-1 md:p-0' >
                     <BsCash className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >CASH ON DELIVERY AVAILABLE</p>
+                    <p className='' >CASH ON DELIVERY</p>
                 </div>
 
             </div>

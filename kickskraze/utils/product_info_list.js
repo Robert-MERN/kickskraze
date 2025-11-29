@@ -260,7 +260,7 @@ export const brand_list = [
         "brand": "Hinson",
         "_id": nanoid(8)
     },
-      {
+    {
         "brand": "HM Jewels",
         "_id": nanoid(8)
     },
@@ -619,7 +619,8 @@ export const google_product_category = {
     "Kickskraze": "Apparel & Accessories > Shoes",
     "Casual-footwear": "Apparel & Accessories > Shoes",
     "Formal-footwear": "Apparel & Accessories > Shoes",
-    "Sandals": "Apparel & Accessories > Shoes",
+    "SM-sandals": "Apparel & Accessories > Shoes",
+    "Areeba-sandals": "Apparel & Accessories > Shoes",
 }
 
 export const getGoogleCategory = (storeName, type) => {
@@ -817,7 +818,39 @@ const facebook_product_category = {
         "kids-boys": "clothing & accessories > shoes & footwear > kids' shoes > boys' baby shoes",
         "kids-girls": "clothing & accessories > shoes & footwear > kids' shoes > girls' baby shoes",
     },
-    "Sandals": {
+    "SM-sandals": {
+        "unisex": {
+            "sandals": "clothing & accessories > shoes & footwear",
+            "flats": "clothing & accessories > shoes & footwear",
+            "heels": "clothing & accessories > shoes & footwear"
+        },
+        "men": {
+            "sandals": "clothing & accessories > shoes & footwear > men's shoes > sandals",
+            "flats": "clothing & accessories > shoes & footwear > men's shoes > sandals",
+            "heels": "clothing & accessories > shoes & footwear > men's shoes > sandals"
+        },
+        "women": {
+            "sandals": "clothing & accessories > shoes & footwear > women's shoes > sandals",
+            "flats": "clothing & accessories > shoes & footwear > women's shoes > flats",
+            "heels": "clothing & accessories > shoes & footwear > women's shoes > heels"
+        },
+        "kids": {
+            "sandals": "clothing & accessories > shoes & footwear > kids' shoes",
+            "flats": "clothing & accessories > shoes & footwear > kids' shoes",
+            "heels": "clothing & accessories > shoes & footwear > kids' shoes"
+        },
+        "kids-boys": {
+            "sandals": "clothing & accessories > shoes & footwear > kids' shoes > boys' baby shoes",
+            "flats": "clothing & accessories > shoes & footwear > kids' shoes > boys' baby shoes",
+            "heels": "clothing & accessories > shoes & footwear > kids' shoes > boys' baby shoes"
+        },
+        "kids-girls": {
+            "sandals": "clothing & accessories > shoes & footwear > kids' shoes > girls' baby shoes",
+            "flats": "clothing & accessories > shoes & footwear > kids' shoes > girls' baby shoes",
+            "heels": "clothing & accessories > shoes & footwear > kids' shoes > girls' baby shoes"
+        }
+    },
+    "Areeba-sandals": {
         "unisex": {
             "sandals": "clothing & accessories > shoes & footwear",
             "flats": "clothing & accessories > shoes & footwear",
