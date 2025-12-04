@@ -49,7 +49,8 @@ const Analytics = ({ axios, user: USER }) => {
     } = useStateContext();
 
     const [analytics, set_analytics] = useState(null);
-    const [is_loading, set_is_loading] = useState(false);
+    const [is_loading, set_is_loading] = useState(true);
+    const [user_is_loading, set_user_is_loading] = useState(false);
     const [revenue_time_period, set_revenue_time_period] = useState("daily");
     const [net_revenue_time_period, set_net_revenue_time_period] = useState("daily");
     const [sales_time_period, set_sales_time_period] = useState("daily");
@@ -65,7 +66,7 @@ const Analytics = ({ axios, user: USER }) => {
     // Fetching user with USER.id to know the current values of user.
     useEffect(() => {
         if (USER) {
-            get_user_api(axios, USER.id, set_user, set_is_loading);
+            get_user_api(axios, USER.id, set_user, set_user_is_loading);
         }
     }, [USER]);
 
@@ -78,11 +79,11 @@ const Analytics = ({ axios, user: USER }) => {
     const hasFetched = useRef(false);
 
     useEffect(() => {
-        if (hasFetched.current) return;
+        if (!user && hasFetched.current) return;
         hasFetched.current = true;
 
         get_orders_analytics_api(axios, set_analytics, set_is_loading);
-    }, []);
+    }, [user]);
 
 
 
@@ -98,7 +99,7 @@ const Analytics = ({ axios, user: USER }) => {
 
     return (
         <div className='w-full h-full' >
-            {is_loading ?
+            {user_is_loading || is_loading ?
                 <div className='w-full flex flex-col justify-center items-center h-[65vh]'>
                     <CircularProgress variant={"indeterminate"} color="inherit" size={30} className='text-gray-400' />
                     <p className='text-[18px] text-gray-500 font-semibold mt-6' >Loading Analytics...</p>
