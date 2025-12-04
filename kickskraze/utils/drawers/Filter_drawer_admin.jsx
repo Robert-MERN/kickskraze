@@ -112,17 +112,16 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
     // <-----------End Here ----------->
 
     useEffect(() => {
-        if (!router.isReady || !storeName || !drawer_state.filter_drawer_admin) return;
+        if (!router.isReady || !storeName) return;
 
         // Clear old filters when store changes
         set_filter_options({});
         set_filters([]);
-        set_clone_filters([]);
         set_is_loading(true);
 
         // Fetch new filter options for selected store
         get_filter_values_api(axios, set_filter_options, set_filter_options_loading, `store_name=${storeName}`);
-    }, [storeName, drawer_state.filter_drawer_admin]);
+    }, [storeName]);
 
 
 

@@ -27,17 +27,37 @@ const View_order_modal = ({
     const { get_all_orders_api, set_orders, set_dispatched_orders, get_order_api, order_id, set_order_id, update_order_api, delete_order_api, set_API_loading, set_snackbar_alert } = useStateContext();
 
 
-    const pathname = useRouter().pathname;
+    const router = useRouter();
+
+    // Setting store name
+    const [store_name, set_store_name] = useState("");
+    useEffect(() => {
+        const path = router.pathname.split("?")[0].slice(1).split("/");
+        if (path.length === 3 && ["orders", "dispatched-orders"].includes(path[1])) {
+            const normalizedPathStoreName = path[2].charAt(0).toUpperCase() + path[2].slice(1);
+            if (normalizedPathStoreName === "Jewellry") {
+                set_store_name("Jewelry");
+            } else {
+                set_store_name(normalizedPathStoreName);
+            }
+        } else {
+            set_store_name("");
+        }
+
+    }, [router.pathname]);
+
+    const pathname = router.pathname
     const pages = {
-        "/admin/orders": {
-            query: "status=booked",
+        [`/admin/orders/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`]: {
+            query: `status=booked&store_name=${store_name}`,
             fn: set_orders,
         },
-        "/admin/dispatched-orders": {
-            query: "status_not=booked",
+        [`/admin/dispatched-orders/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`]: {
+            query: `status_not=booked&store_name=${store_name}`,
             fn: set_dispatched_orders,
         },
     };
+
 
 
     useEffect(() => {
