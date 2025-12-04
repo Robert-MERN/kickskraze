@@ -24,28 +24,44 @@ const desc = p => p.shoes_desc || p.product_desc || "100% authentic original pro
 const thumb = p => select_thumbnail_from_media(p.media);
 
 /* 🔥 Shared field builder (base + variant both use this) */
-const buildCommon = (p, price, stock, size, color, variantId = null) => ({
-    id: variantId ? `${p._id}_${variantId}` : String(p._id),
-    item_group_id: String(p._id),
-    sku: generateSKU(p, variantId),
-    gtin: generateGTIN(p, variantId),
-    mpn: generateMPN(p, variantId),
-    title: p.title,
-    description: desc(p),
-    availability: stock > 0 ? "in stock" : "out of stock",
-    condition: baseCondition(p.condition),
-    price: `${price.toFixed(2)} PKR`,
-    link: `https://kicks-kraze.com/product?product_id=${p._id}`,
-    image_link: thumb(p),
-    brand: p.brand || "KIC",
-    google_product_category: getGoogleCategory(p.store_name, p.type),
-    fb_product_category: getFacebookCategory(p.store_name, p.category, p.type),
-    quantity_to_sell_on_facebook: stock,
-    gender: genderMap[p.category] || "unisex",
-    age_group: p.category === "kids" ? "kids" : "all ages",
-    color: Array.isArray(color) ? color.join(", ") : color || "",
-    size: Array.isArray(size) ? size.join(", ") : size || "",
-});
+const buildCommon = (p, price, stock, size, color, variant = null) => {
+
+    // 1) Base-level SKU (already saved in DB)
+    let sku = p.sku;
+
+    // 2) Variant SKU if product has variants
+    if (variant) {
+        sku = variant.sku || generateSKU(p, variant); // generate only if missing
+    }
+
+    // 3) If base SKU missing (rare) → fix automatically
+    if (!variant && !sku) sku = generateSKU(p);
+
+    return {
+        id: variant ? `${p._id}_${variant.variant_id}` : String(p._id),
+        item_group_id: String(p._id),
+        sku, // <——  FINAL SKU FIELD — now stable & never regenerates
+        gtin: generateGTIN(p, variant),
+        mpn: generateMPN(p, variant),
+
+        title: p.title,
+        description: desc(p),
+        availability: stock > 0 ? "in stock" : "out of stock",
+        condition: baseCondition(p.condition),
+        price: `${price.toFixed(2)} PKR`,
+        link: `https://kicks-kraze.com/product?product_id=${p._id}`,
+        image_link: thumb(p),
+        brand: p.brand || "KIC",
+        google_product_category: getGoogleCategory(p.store_name, p.type),
+        fb_product_category: getFacebookCategory(p.store_name, p.category, p.type),
+        quantity_to_sell_on_facebook: stock,
+        gender: genderMap[p.category] || "unisex",
+        age_group: p.category === "kids" ? "kids" : "all ages",
+        color: Array.isArray(color) ? color.join(", ") : color || "",
+        size: Array.isArray(size) ? size.join(", ") : size || "",
+    };
+};
+
 
 /* 🔥 Converts product → 1 row (no variants) or multiple rows (variants) */
 const buildProductRows = p =>

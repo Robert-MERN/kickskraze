@@ -7,7 +7,7 @@ import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 
 
 
-const Orders = ({ axios }) => {
+const Orders = ({ axios, storeName }) => {
 
     const router = useRouter();
 
@@ -254,7 +254,7 @@ const Orders = ({ axios }) => {
     ];
 
     useEffect(() => {
-        get_all_orders_api(axios, "status=booked", set_orders, set_is_loading);
+        get_all_orders_api(axios, `status=booked&store_name=${storeName}`, set_orders, set_is_loading);
     }, []);
 
     const [show_report, set_show_report] = useState(false);

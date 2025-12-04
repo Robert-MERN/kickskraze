@@ -68,10 +68,12 @@ export const apparel_type_list = [
     { title: "Casual (e.g. T-shirts, Jeans, Sweatshirts)", type: "casual" },
     { title: "Formal (e.g. Suits, Dress-shirts, Office-wear)", type: "formal" },
     { title: "Sportswear (e.g. Gym-wear, Tracksuits)", type: "sportswear" },
-    { title: "Traditional (e.g. Shalwar-kameez, Saree, Kurta)", type: "traditional" },
+    { title: "Traditional (e.g. Shalwar-kameez, Saree, Kurti)", type: "traditional" },
     { title: "Sleepwear (e.g. Pajamas, Night-suits)", type: "sleepwear" },
     { title: "Undergarments (e.g. Sando, Bra, Underwear)", type: "undergarments" },
     { title: "Outerwear (e.g. Jackets, Rain-Suits, Vests)", type: "outerwear" },
+    { title: "Modesty (e.g. Abaya, Burka)", type: "abaya" },
+    { title: "Modesty (e.g. Hijab, Scarf, Khimar, Shawls)", type: "headscarf" },
 ]
 
 export const footwear_accessories_type_list = [
@@ -599,6 +601,8 @@ export const google_product_category = {
         formal: "Apparel & Accessories > Clothing > Suits",
         casual: "Apparel & Accessories > Clothing > Outfit Sets",
         outerwear: "Apparel & Accessories > Clothing > Outerwear",
+        abaya: "Apparel & Accessories > Clothing > Dresses",
+        headscarf: "Apparel & Accessories > Clothing Accessories > Scarves & Shawls",
     },
     "Jewelry": {
         necklaces: "Apparel & Accessories > Jewelry > Necklaces",
@@ -644,7 +648,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > activewear",
             "formal": "clothing & accessories > clothing > outfits & sets",
             "casual": "clothing & accessories > clothing > tops",
-            "outerwear": "clothing & accessories > clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         },
         "women": {
             "undergarments": "clothing & accessories > clothing > women's clothing > lingerie & sleepwear > lingerie",
@@ -653,7 +659,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > women's clothing > activewear",
             "formal": "clothing & accessories > clothing > women's clothing > suits & blazers",
             "casual": "clothing & accessories > clothing > women's clothing > tops",
-            "outerwear": "clothing & accessories > clothing > women's clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > women's clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         },
         "men": {
             "undergarments": "clothing & accessories > clothing > men's clothing > underwear",
@@ -662,7 +670,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > men's clothing > activewear",
             "formal": "clothing & accessories > clothing > men's clothing > suits",
             "casual": "clothing & accessories > clothing > men's clothing > tops",
-            "outerwear": "clothing & accessories > clothing > men's clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > men's clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         },
         "kids": {
             "undergarments": "clothing & accessories > clothing > kids' clothing > underwear",
@@ -671,7 +681,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > kids' clothing > activewear",
             "formal": "clothing & accessories > clothing > kids' clothing > outfits & sets",
             "casual": "clothing & accessories > clothing > kids' clothing > tops",
-            "outerwear": "clothing & accessories > clothing > kids' clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > kids' clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         },
         "kids-boys": {
             "undergarments": "clothing & accessories > clothing > kids' clothing > boys' clothing > underwear",
@@ -680,7 +692,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > kids' clothing > boys' clothing > activewear",
             "formal": "clothing & accessories > clothing > kids' clothing > boys' clothing > outfits & sets",
             "casual": "clothing & accessories > clothing > kids' clothing > boys' clothing > tops",
-            "outerwear": "clothing & accessories > clothing > kids' clothing > boys' clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > kids' clothing > boys' clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         },
         "kids-girls": {
             "undergarments": "clothing & accessories > clothing > kids' clothing > girls' clothing > underwear",
@@ -689,7 +703,9 @@ const facebook_product_category = {
             "sportswear": "clothing & accessories > clothing > kids' clothing > girls' clothing > activewear",
             "formal": "clothing & accessories > clothing > kids' clothing > girls' clothing > outfits & sets",
             "casual": "clothing & accessories > clothing > kids' clothing > girls' clothing > tops",
-            "outerwear": "clothing & accessories > clothing > kids' clothing > girls' clothing > coats & jackets"
+            "outerwear": "clothing & accessories > clothing > kids' clothing > girls' clothing > coats & jackets",
+            "abaya": "clothing & accessories > clothing > dresses",
+            "headscarf": "clothing & accessories > clothing > accessories > scarves",
         }
     },
     "Jewelry": {

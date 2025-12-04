@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     console.log("Successfuly conneted with DB");
 
     // Extract query parameters
-    const { size, condition, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, store_name, limit, page } = req.query;
+    const { size, condition, type, color, brand, hide_brand, price_gte, price_lte, sort_by, featured, category, search, main_store, store_name, limit, page } = req.query;
 
     // Initialize a query object
     const query = { isDeleted: false };
@@ -38,6 +38,17 @@ export default async function handler(req, res) {
     // Handle 'condition' filter
     if (condition) {
       query.condition = { $in: Array.isArray(condition) ? condition : [condition] };
+    }
+
+    // Handle 'type' filter
+    if (type) {
+      query.type = { $in: Array.isArray(type) ? type : [type] };
+    }
+
+
+    // Handle 'color' filter
+    if (color) {
+      query.color = { $in: Array.isArray(color) ? color : [color] };
     }
 
     // Handle 'brand' filter
@@ -72,6 +83,19 @@ export default async function handler(req, res) {
       }
     }
 
+    // ---------------- MAIN COLLECTION FILTER (default page load) ----------------
+    if (main_store && !store_name) {
+      const storeGroups = {
+        footwear: ["Barefoot", "Kickskraze", "SM-sandals", "Areeba-sandals", "Formal-footwear", "Casual-footwear"],
+        "footwear-accessories": ["Footwear-accessories"],
+        apparel: ["Apparel"],
+        jewelry: ["Jewelry"]
+      };
+
+      query.store_name = { $in: storeGroups[main_store.toLowerCase()] || [] };
+    }
+
+    // ---------------- STORE FILTER WITH LOGIC (user selected store_name) ----------------
     if (store_name) {
       const names = Array.isArray(store_name) ? store_name : [store_name];
 
@@ -88,23 +112,22 @@ export default async function handler(req, res) {
           continue;
         }
 
-        // women-sandals → both stores
-        if (cap === "Women-sandals") {
+        // women-sandals → affects both stores
+        if (lower === "women-sandals") {
           stores.push("Areeba-sandals", "SM-sandals");
           continue;
         }
 
         // sandal stores
-        if (["Areeba-sandals", "SM-sandals"].includes(cap)) {
+        if (["areeba-sandals", "sm-sandals"].includes(lower)) {
           stores.push(cap);
           continue;
         }
 
-        // normal store_name
+        // normal stores
         stores.push(cap);
       }
 
-      // Final Query → OR LOGIC
       query.$or = [];
 
       if (types.length > 0) {
@@ -115,6 +138,7 @@ export default async function handler(req, res) {
         query.$or.push({ store_name: { $in: stores } });
       }
     }
+
 
 
 

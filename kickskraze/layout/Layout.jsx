@@ -1,4 +1,4 @@
-import Collection_drawer from '@/utils/drawers/Collection_drawer'
+import Sports_sneakers_collection_drawer from '@/utils/drawers/collection_drawers/footwear_subdrawers/Sports_sneakers_collection_drawer'
 import Menu_drawer from '@/utils/drawers/Menu_drawer'
 import React, { useEffect, useState } from 'react'
 import Snackbar from '@mui/material/Snackbar';
@@ -27,6 +27,12 @@ import Share_link_modal from '@/utils/modals/Share_link_modal';
 import Edit_user_profile_modal from '@/utils/modals/Edit_user_profile_modal';
 import Delete_user_modal from '@/utils/modals/Delete_user_modal';
 import Edit_user_profile_drawer from '@/utils/drawers/Edit_user_profile_drawer';
+import Footwear_collection_drawer from '@/utils/drawers/collection_drawers/Footwear_collection_drawer';
+import Footwear_accessories_collection_drawer from '@/utils/drawers/collection_drawers/Footwear_accessories_collection_drawer';
+import Apparel_collection_drawer from '@/utils/drawers/collection_drawers/Apparel_collection_drawer';
+import Jewellry_collection_drawer from '@/utils/drawers/collection_drawers/Jewellry_collection_drawer';
+import Fashion_sneakers_collection_drawer from '@/utils/drawers/collection_drawers/footwear_subdrawers/Fashion_sneakers_collection_drawer';
+import Women_sandals_collection_drawer from '@/utils/drawers/collection_drawers/footwear_subdrawers/Women_sandals_collection_drawer';
 
 const Alert = React.forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -128,7 +134,36 @@ const Layout = ({ children }) => {
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
             />
-            <Collection_drawer
+            {/* Footwear Drawers */}
+            <Footwear_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Sports_sneakers_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Fashion_sneakers_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Women_sandals_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+
+            {/* End */}
+
+
+            <Jewellry_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Apparel_collection_drawer
+                drawer_state={drawer_state}
+                toggle_drawer={toggle_drawer}
+            />
+            <Footwear_accessories_collection_drawer
                 drawer_state={drawer_state}
                 toggle_drawer={toggle_drawer}
             />

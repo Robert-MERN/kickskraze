@@ -267,6 +267,9 @@ export const calculate_product_stock = (product) => {
 };
 
 
+
+
+
 // Determine meta category based on store_name and type
 export const resolve_meta_category = (product) => {
     const store = product.store_name;
@@ -333,34 +336,41 @@ export const convert_purchase_to_meta = (purchase) => {
 
 
 
-
 // SKU Builder (safe)
 export const generateSKU = (product, variant = null) => {
-    let brand = (product.brand || "KIC").replace(/\s+/g, "").toUpperCase();
+    const storeCode = {
+        "Barefoot": "BAF",
+        "Kickskraze": "KKZ",
+        "Casual-footwear": "CSL",
+        "Formal-footwear": "FRM",
+        "SM-sandals": "SMS",
+        "Areeba-sandals": "ARS",
+        "Footwear-accessories": "FWA",
+        "Apparel": "APP",
+        "Jewelry": "JEW",
+    }[product.store_name] || "GEN";
 
-    if (brand.length >= 3) brand = brand.slice(0, 3);
-    else if (brand.length === 2) brand += crypto.randomUUID().slice(0, 1).toUpperCase();
-    else if (brand.length === 1) brand += crypto.randomUUID().slice(0, 2).toUpperCase();
-    else brand = "KIC";
+    const brand = (product.brand || "KIC")
+        .replace(/[^A-Za-z]/g, "")
+        .slice(0, 3).toUpperCase() || "KIC";
 
-    const d = new Date();
-    const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
-    const timeKey = `${d.getFullYear().toString().slice(-2)}${dayOfYear}${d.getMilliseconds()}`;
+    const size = variant?.options?.size || product.size || "";
+    const color = variant?.options?.color || product.color || "";
 
-    const unique = crypto.randomUUID().split("-")[0].toUpperCase(); // ⭐ Replaced perfectly
+    // normalize
+    const S = (Array.isArray(size) ? size[0] : size).toString().toUpperCase().replace(/\s+/, "") || "";
+    const C = (Array.isArray(color) ? color[0] : color).toString().toUpperCase().replace(/\s+/, "") || "";
 
-    if (!variant) return `${brand}-${timeKey}-${unique}`;
+    const hash = crypto.randomUUID().slice(0, 4).toUpperCase(); // 4 chars
 
-    const opt = Object.values(variant.options || {})
-        .join("")
-        .replace(/\s+/g, "")
-        .slice(0, 8)
-        .toUpperCase();
-
-    return `${brand}-${timeKey}-${opt}-${unique}`;
+    return [
+        storeCode,          // ✓ Always present
+        brand,              // ✓ Only if exists else KIC fallback
+        S || null,          // ✓ only inserted if exists
+        C || null,          // ✓ only inserted if exists
+        hash                // ✓ unique forever
+    ].filter(Boolean).join("-");
 };
-
-
 
 // Safe GTIN / MPN Generator
 export const generateGTIN = (product, variant = null) => {
@@ -376,3 +386,6 @@ export const generateMPN = (product, variant = null) => {
 
     return `MPN-${product._id}-${variant.variant_id}`;
 };
+
+
+

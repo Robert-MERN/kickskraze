@@ -53,23 +53,32 @@ const Footer = () => {
                             </li>
                         </Link>
 
-                        <Link href="/collection?category=men">
+                        <Link href="/collection/footwear">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                                Men
+                                Footwear
                             </li>
                         </Link>
 
-                        <Link href="/collection?category=women">
+                        <Link href="/collection/footwear-accessories">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                                Women
+                                Footwear Accessories
                             </li>
                         </Link>
 
-                        <Link href="/collection?category=kids">
+                        <Link href="/collection/jewellry">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                                Kids
+                                Jewellry
                             </li>
                         </Link>
+
+
+
+                        <Link href="/collection/apparel">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Apparel
+                            </li>
+                        </Link>
+
                     </ul>
                 </div>
 
@@ -82,13 +91,13 @@ const Footer = () => {
                             </li>
                         </Link>
 
-                        <Link href="contact">
+                        <Link href="/contact">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Contact
                             </li>
                         </Link>
 
-                        <Link href="size-chart">
+                        <Link href="/size-chart">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Size Chart
                             </li>

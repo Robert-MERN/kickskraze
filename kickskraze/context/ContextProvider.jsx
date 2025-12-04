@@ -18,6 +18,8 @@ export const ContextProvider = ({ children }) => {
     // User state
     const [user, set_user] = useState(null);
 
+    const [storeName, setStoreName] = useState("");
+
     // Notification logic
     const [snackbar_alert, set_snackbar_alert] = useState({
         open: false,
@@ -49,6 +51,13 @@ export const ContextProvider = ({ children }) => {
     const default_drawer_state = {
         menu_drawer: false,
         collection_drawer: false,
+        footwear_drawer: false,
+        footwear_accessories_drawer: false,
+        apparel_drawer: false,
+        jewelry_drawer: false,
+        fashion_sneakers_drawer: false,
+        sports_sneakers_drawer: false,
+        women_sandals_drawer: false,
         search_drawer: false,
         sort_drawer: false,
         sort_drawer_admin: false,
@@ -63,11 +72,7 @@ export const ContextProvider = ({ children }) => {
     const [drawer_state, set_drawer_state] = useState(default_drawer_state);
 
     const toggle_drawer = (drawer) => {
-        if (drawer.includes("collection_drawer")) {
-            set_drawer_state(prev => ({ ...default_drawer_state, [drawer]: !prev[drawer], menu_drawer: true }));
-        } else {
-            set_drawer_state(prev => ({ ...prev, [drawer]: !prev[drawer] }));
-        }
+        set_drawer_state(prev => ({ ...prev, [drawer]: !prev[drawer] }));
     };
 
 
@@ -280,6 +285,8 @@ export const ContextProvider = ({ children }) => {
     const [fetched_products_for_landing, set_fetched_products_for_landing] = useState([]);
     const [products_for_landing_loading, set_products_for_landing_loading] = useState(true);
 
+    const [filter_options_loading, set_filter_options_loading] = useState(true);
+
     const [stored_path, set_stored_path] = useState("");
 
     const [show_more_payload, set_show_more_payload] = useState({
@@ -293,9 +300,14 @@ export const ContextProvider = ({ children }) => {
     // Admin Page [Cloned from user collection page]
     const [filters_admin, set_filters_admin] = useState([]);
     const [filter_options_admin, set_filter_options_admin] = useState({});
+
     const [fetched_products_for_collection_admin, set_fetched_products_for_collection_admin] = useState([]);
     const [products_for_collection_admin_loading, set_products_for_collection_admin_loading] = useState(true);
+
+    const [filter_options_loading_admin, set_filter_options_loading_admin] = useState(true);
+
     const [stored_path_admin, set_stored_path_admin] = useState("");
+
     const [show_more_payload_admin, set_show_more_payload_admin] = useState({
         limit: 52,
         page: 1,
@@ -420,19 +432,25 @@ export const ContextProvider = ({ children }) => {
 
 
     // Get All Products API
-    const get_all_products_api = async (axios, filters, set_state, set_show_more, set_is_loading, show_more) => {
-        // start loading
+    const get_all_products_api = async (axios, filters, set_state, set_show_more, set_is_loading, show_more, store_name) => {
         set_is_loading(true);
-        try {
-            let res;
-            if (show_more) {
-                res = await axios.get(`/api/get_all_products?${filters}&${show_more}`);
-                set_state((prev) => ([...prev, ...res.data.products]));
-            } else {
-                res = await axios.get(`/api/get_all_products?${filters}`);
-                set_state(res.data.products || []);
-            };
 
+        try {
+            const queryParts = [];
+
+            if (filters) queryParts.push(filters);
+            if (show_more) queryParts.push(show_more);
+            if (store_name) queryParts.push(store_name);
+
+            const queryString = queryParts.join("&");
+
+            const res = await axios.get(`/api/get_all_products?${queryString}`);
+
+            if (show_more) {
+                set_state(prev => [...prev, ...(res.data.products || [])]);
+            } else {
+                set_state(res.data.products || []);
+            }
 
             set_show_more(prev => ({
                 ...prev,
@@ -440,27 +458,27 @@ export const ContextProvider = ({ children }) => {
                 count: res?.data?.meta?.filteredCount,
                 page: res?.data?.meta?.currentPage,
             }));
+
         } catch (err) {
             console.error(err);
             set_snackbar_alert({
                 open: true,
-                message: err.response.data.message,
+                message: err?.response?.data?.message,
                 severity: "error",
-            })
-
+            });
         } finally {
-            // finish loading
             set_is_loading(false);
         }
-    }
+    };
+
 
 
     // Get Filter Values
-    const get_filter_values_api = async (axios, set_state, set_is_loading) => {
+    const get_filter_values_api = async (axios, set_state, set_is_loading, query) => {
         // start loading
         set_is_loading(true);
         try {
-            const res = await axios.get("/api/get_filter_values");
+            const res = await axios.get(`/api/get_filter_values?${query}`);
             set_state(res.data);
         } catch (err) {
             set_snackbar_alert({
@@ -929,6 +947,8 @@ export const ContextProvider = ({ children }) => {
 
                 user, set_user,
 
+                storeName, setStoreName,
+
                 snackbar_alert, set_snackbar_alert, close_snackbar,
 
                 toggle_modal, modals_state,
@@ -955,11 +975,14 @@ export const ContextProvider = ({ children }) => {
                 fetched_products_for_collection, set_fetched_products_for_collection,
                 fetched_products_for_landing, set_fetched_products_for_landing,
                 products_for_collection_loading, set_products_for_collection_loading,
+                filter_options_loading, set_filter_options_loading,
                 products_for_landing_loading, set_products_for_landing_loading,
 
                 filters_admin, set_filters_admin, filter_options_admin, set_filter_options_admin,
                 fetched_products_for_collection_admin, set_fetched_products_for_collection_admin,
-                products_for_collection_admin_loading, set_products_for_collection_admin_loading, stored_path_admin, set_stored_path_admin,
+                products_for_collection_admin_loading, set_products_for_collection_admin_loading,
+                filter_options_loading_admin, set_filter_options_loading_admin,
+                stored_path_admin, set_stored_path_admin,
                 show_more_payload_admin, set_show_more_payload_admin,
 
                 API_loading, set_API_loading,

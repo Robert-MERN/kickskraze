@@ -1,5 +1,5 @@
 import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
-import Orders from '@/components/admin_pages/Orders'
+import All_products from '@/components/admin_pages/All_products'
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
 import axios from 'axios'
@@ -12,7 +12,6 @@ import useStateContext from '@/context/ContextProvider'
 
 
 export default function Home({ fullUrl, logoUrl, user }) {
-
     const { set_user } = useStateContext();
     // setting user in context
     useEffect(() => {
@@ -24,24 +23,23 @@ export default function Home({ fullUrl, logoUrl, user }) {
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin | Orders</title>
-                <meta property="og:title" content="Kickskraze | Admin | Orders" />
-                <meta property="og:description" content="Admin / Orders Page" />
+                <title>Kickskraze | Admin | All Products | Apparel</title>
+                <meta property="og:title" content="Kickskraze | Admin | All Products | Apparel" />
+                <meta property="og:description" content="Admin | All Products Page | Apparel" />
                 <meta property="og:image" content={logoUrl} />
                 <meta property="og:url" content={fullUrl} />
-                <meta property="og:type" content="admin - orders" />
+                <meta property="og:type" content="admin - all products - apparel" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<Orders axios={axios} />} />
+                    <Admin_page_layout admin_children={<All_products axios={axios} storeName="Apparel" />} />
                 </div>
             </div>
         </>
     )
 }
-
 
 
 

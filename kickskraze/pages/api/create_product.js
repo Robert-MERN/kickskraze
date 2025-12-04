@@ -2,7 +2,7 @@ import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
-import { parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/produc_fn';
+import { generateSKU, parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/produc_fn';
 
 
 /**
@@ -43,6 +43,28 @@ export default async function handler(req, res) {
                 other.variants = parseVariantsField(other.variants);
                 other.options = parseOptionsField(other.options);
             }
+
+
+            // 🔥 Create SKU(s)
+            if (other.has_variants && Array.isArray(other.variants)) {
+
+                // Base SKU for grouping (not required but helpful)
+                other.base_sku = generateSKU(other);
+
+                // Add SKU to each variant
+                other.variants = other.variants.map(v => ({
+                    ...v,
+                    sku: generateSKU(other, v)  // variant-unique
+                }));
+
+            } else {
+                // Single product (no variants)
+                other.sku = generateSKU(other);
+            }
+
+
+
+
 
             const products = new Products({ media, ...other });
             await products.save()

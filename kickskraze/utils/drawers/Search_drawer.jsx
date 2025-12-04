@@ -9,55 +9,172 @@ import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
 import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import { MetaPixel } from '@/lib/fpixel';
+import useStateContext from '@/context/ContextProvider';
 
 
 
 const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axios }) => {
 
+  const { filters } = useStateContext();
+
   const router = useRouter();
 
-  const trending_options = [
-    {
-      option: "men",
-      link: "/collection?category=men",
-    },
-    {
-      option: "women",
-      link: "/collection?category=women",
-    },
-    {
-      option: "kids",
-      link: "/collection?category=kids",
-    },
-    {
-      option: "converse",
-      link: "/collection?brand=Converse",
-    },
-    {
-      option: "nike",
-      link: "/collection?brand=Nike",
-    },
-    {
-      option: "asics",
-      link: "/collection?brand=ASICS",
-    },
-    {
-      option: "adidas",
-      link: "/collection?brand=Adidas",
-    },
-    {
-      option: "new balance",
-      link: "/collection?brand=New Balance",
-    },
-    {
-      option: "saucony",
-      link: "/collection?brand=Saucony",
-    },
-    {
-      option: "fila",
-      link: "/collection?brand=Fila",
-    },
-  ];
+  const trending_options = {
+    "Footwear": [
+      {
+        option: "converse",
+        link: "/collection/footwear?brand=Converse",
+      },
+      {
+        option: "vans",
+        link: "/collection/footwear?brand=Nike",
+      },
+      {
+        option: "heels",
+        link: "/collection/footwear?type=heels",
+      },
+      {
+        option: "flats",
+        link: "/collection/footwear?type=flats",
+      },
+      {
+        option: "sandals",
+        link: "/collection/footwear?type=sandals",
+      },
+      {
+        option: "women sandals",
+        link: "/collection/footwear?type=heels,flats,sandals",
+      },
+      {
+        option: "men",
+        link: "/collection/footwear?category=men",
+      },
+      {
+        option: "women",
+        link: "/collection/footwear?category=women",
+      },
+      {
+        option: "kids",
+        link: "/collection/footwear?category=kids",
+      },
+    ],
+    "Jewelry": [
+      {
+        option: "bracelets",
+        link: "/collection/jewellry?type=bracelets",
+      },
+      {
+        option: "cuffs",
+        link: "/collection/jewellry?type=bracelets",
+      },
+      {
+        option: "pendants",
+        link: "/collection/jewellry?type=pendants",
+      },
+      {
+        option: "chains",
+        link: "/collection/jewellry?type=pendants",
+      },
+      {
+        option: "lockets",
+        link: "/collection/jewellry?type=pendants",
+      },
+      {
+        option: "rings",
+        link: "/collection/jewellry?type=rings",
+      },
+      {
+        option: "men rings",
+        link: "/collection/jewellry?type=rings&category=men",
+      },
+      {
+        option: "earrings",
+        link: "/collection/jewellry?type=earrings",
+      },
+    ],
+    "Apparel": [
+      {
+        option: "t-shirts",
+        link: "/collection/apparel?type=casual",
+      },
+      {
+        option: "jeans",
+        link: "/collection/apparel?type=casual",
+      },
+      {
+        option: "suits",
+        link: "/collection/apparel?type=formal&category=men",
+      },
+      {
+        option: "dress shirts",
+        link: "/collection/apparel?type=formal&category=men",
+      },
+      {
+        option: "tracksuits",
+        link: "/collection/apparel?type=sportswear",
+      },
+      {
+        option: "night suits",
+        link: "/collection/apparel?type=sleepwear",
+      },
+      {
+        option: "pajamas",
+        link: "/collection/apparel?type=sleepwear",
+      },
+      {
+        option: "jackets",
+        link: "/collection/apparel?type=outerwear",
+      },
+      {
+        option: "Sweatshirts",
+        link: "/collection/apparel?type=casual",
+      },
+      {
+        option: "underwear",
+        link: "/collection/apparel?type=undergarments&category=men",
+      },
+      {
+        option: "sando",
+        link: "/collection/apparel?type=undergarments&category=men",
+      },
+      {
+        option: "women traditional",
+        link: "/collection/apparel?type=traditional&category=women",
+      },
+      {
+        option: "kurti",
+        link: "/collection/apparel?type=traditional&category=women",
+      },
+      {
+        option: "shalwar kameez",
+        link: "/collection/apparel?type=traditional&category=men",
+      },
+
+    ],
+    "Footwear-accessories": [
+      {
+        option: "polish",
+        link: "/collection/footwear-accessories?type=polish",
+      },
+      {
+        option: "shoe laces",
+        link: "/collection/footwear-accessories?type=shoelaces",
+      },
+      {
+        option: "socks",
+        link: "/collection/footwear-accessories?type=socks",
+      },
+      {
+        option: "insole",
+        link: "/collection/footwear-accessories?type=insole",
+      },
+      {
+        option: "shiner",
+        link: "/collection/footwear-accessories?type=shiner",
+      },
+
+    ],
+  }
 
 
   // Search Product Logic
@@ -68,6 +185,24 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
   const [is_loading, set_is_loading] = useState("default");
   const [is_trending_loading, set_is_trending_loading] = useState(false);
   const [fake_is_loading, set_fake_is_loading] = useState(false);
+  const [store_name, set_store_name] = useState("");
+
+
+  // Setting store name
+  useEffect(() => {
+    const path = router.pathname.split("?")[0].slice(1).split("/");
+    if (path.length === 2 && path[0] === "collection") {
+      const normalizedPathStoreName = path[1].charAt(0).toUpperCase() + path[1].slice(1);
+      if (normalizedPathStoreName === "Jewellry") {
+        set_store_name("Jewelry");
+      } else {
+        set_store_name(normalizedPathStoreName);
+      }
+    } else {
+      set_store_name("");
+    }
+
+  }, [router.pathname]);
 
 
   // Fetching Search products
@@ -101,7 +236,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
 
     const fetchResults = async () => {
       try {
-        await get_all_products_api(axios, `search=${debouncedTerm}`, set_results, set_show_more_payload, set_fake_is_loading);
+        await get_all_products_api(axios, `search=${debouncedTerm}&main_store=${store_name}`, set_results, set_show_more_payload, set_fake_is_loading);
         MetaPixel.trackEvent("Search", { search_string: debouncedTerm });
       } catch (err) {
         console.error(err);
@@ -109,17 +244,23 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
         set_is_loading("ended");
       }
     };
-
-    if (drawer_state.search_drawer && debouncedTerm !== null) {
+    if (drawer_state.search_drawer && debouncedTerm !== null && store_name) {
       fetchResults();
     }
-  }, [debouncedTerm, drawer_state.search_drawer]);
+  }, [drawer_state.search_drawer, debouncedTerm, store_name]);
+
+
 
   useEffect(() => {
     if (is_loading === "ended" && !searchTerm) {
       set_is_loading("default");
     };
   }, [is_loading, searchTerm]);
+
+
+
+
+
 
 
 
@@ -132,7 +273,7 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
         if (!trending_results.length) {
           set_is_trending_loading(true)
           try {
-            await get_all_products_api(axios, "featured=true", set_trending_results, set_show_more_payload, set_fake_is_loading);
+            await get_all_products_api(axios, `featured=true&main_store=${store_name}`, set_trending_results, set_show_more_payload, set_fake_is_loading);
           } catch (err) {
             console.error(err);
           } finally {
@@ -145,12 +286,41 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
         setDebouncedTerm("");
       }
     }
-    fetch();
-  }, [drawer_state.search_drawer]);
+    if (store_name) {
+      fetch();
+    }
+  }, [drawer_state.search_drawer, store_name]);
+
+
+
+  const updateUrlFromFilters = (filters) => {
+    const query = {};
+    filters.forEach(obj => {
+      const key = Object.keys(obj)[0];
+      const value = String(obj[key]); // convert number to string
+
+      if (!query[key]) {
+        // create a new Set to avoid duplicates
+        query[key] = new Set([value]);
+      } else {
+        query[key].add(value);
+      }
+    });
+
+    // Convert Set → comma string
+    Object.keys(query).forEach(key => {
+      query[key] = Array.from(query[key]).join(",");
+    });
+
+    router.push({
+      pathname: `/collection/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`,
+      query
+    }, undefined, { shallow: true });
+  };
 
   const view_more_btn = () => {
     toggle_drawer("search_drawer")
-    router.push(`/collection?search=${debouncedTerm}`)
+    updateUrlFromFilters([{ search: debouncedTerm }, ...filters]);
   }
 
   return (
@@ -271,14 +441,18 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                                 Rs. {product.price.toLocaleString("en-US")}
                               </span>
                               {" "}
-                              {product.compare_price &&
+                              {Boolean(product.compare_price) &&
                                 <span className='text-[13px] line-through text-red-600'>
                                   Rs. {product.price.toLocaleString("en-US")}
                                 </span>
                               }
                             </p>
-                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                            {!product.has_variants && Boolean(product.size) && (
+                              <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                            )}
+                            {product.condition !== "brand new" && (
+                              <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                            )}
                           </div>
                         </div>
                       </Link>
@@ -301,24 +475,29 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
           </>
           :
           <>
-            <div className='w-full py-[12px] px-[20px] border-b border-stone-200' >
-              <p className='text-[17px] font-bold select-none' >TRENDING NOW</p>
-            </div>
 
-            <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[110px] overflow-y-auto ${style.scroll_bar}`}>
-              {trending_options.map((each, index) => (
-                <Link
-                  onClick={() => toggle_drawer("search_drawer")}
-                  href={each.link}
-                  key={index}
-                >
-                  <div className='px-[10px] py-[8px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-2 text-[14px] font-semibold transition-all' >
-                    <SearchIcon className="text-[20px]" />
-                    <p className='capitalize'>{each.option}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            {(Boolean(store_name) && Boolean(trending_options[store_name])) && (
+              <>
+                <div className='w-full py-[12px] px-[20px] border-b border-stone-200' >
+                  <p className='text-[17px] font-bold select-none' >TRENDING NOW</p>
+                </div>
+
+                <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[110px] overflow-y-auto ${style.scroll_bar}`}>
+                  {trending_options[store_name].map((each, index) => (
+                    <Link
+                      onClick={() => toggle_drawer("search_drawer")}
+                      href={each.link}
+                      key={index}
+                    >
+                      <div className='px-[10px] py-[8px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-2 text-[14px] font-semibold transition-all' >
+                        <SearchIcon className="text-[20px]" />
+                        <p className='capitalize'>{each.option}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
 
 
             {is_trending_loading ?
@@ -414,13 +593,13 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
                               Rs. {product.price.toLocaleString("en-US")}
                             </span>
                             {" "}
-                            {product.compare_price &&
+                            {Boolean(product.compare_price) &&
                               <span className='text-[13px] line-through text-red-600'>
                                 Rs. {product.price.toLocaleString("en-US")}
                               </span>
                             }
                           </p>
-                          {!product.has_variants &&
+                          {!product.has_variants && Boolean(product.size) &&
                             <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                           }
                           {product.condition !== "brand new" &&

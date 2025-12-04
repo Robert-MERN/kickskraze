@@ -18,7 +18,7 @@ export default async function handler(req, res) {
         console.log("Successfully connected with DB");
 
         let query = { isDeleted: false };
-        const { status, status_not } = req.query;
+        const { status, status_not, store_name } = req.query;
 
         if (status_not) {
             query.status = { $ne: status_not };
@@ -26,6 +26,22 @@ export default async function handler(req, res) {
 
         if (status) {
             query.status = status;
+        }
+
+        const all_stores = {
+            "footwear": ["Barefoot", "Kickskraze", "SM-sandals", "Areeba-sandals", "Formal-footwear", "Casual-footwear", "Footwear-accessories"],
+            "apparel": ["Apparel"],
+            "jewelry": ["Jewelry"],
+        };
+        // store filter match
+        let normalized_store_name;
+        if (store_name) {
+            normalized_store_name = store_name.toLowerCase();
+            if (all_stores[normalized_store_name]) {
+                query.store_name = { $in: all_stores[normalized_store_name] };
+            } else if (Object.values(all_stores).some(arr => arr.includes(normalized_store_name))) {
+                query.store_name = normalized_store_name.charAt(0).toUpperCase() + normalized_store_name.slice(1);
+            }
         }
 
         const orders = await Orders.find(query).sort({ createdAt: -1 });

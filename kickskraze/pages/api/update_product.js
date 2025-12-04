@@ -49,6 +49,44 @@ export default async function handler(req, res) {
         }
 
 
+        
+        // ⬇ SKU LOGIC FOR UPDTATE PRODUCT
+        //--------------------------------------------------
+        // Compare identity (SKU except last hash part)
+        const sameSKU = (oldSku, newSku) => oldSku?.split("-").slice(0, -1).join("-") === newSku.split("-").slice(0, -1).join("-");
+        const oldProduct = await Products.findById(product_id).lean();
+
+        // 🟢 BASE SKU
+        if (!other.has_variants) {
+
+            const newSku = generateSKU(other);
+            const finalSku = !oldProduct?.sku || !sameSKU(oldProduct.sku, newSku)
+                ? newSku        // identity changed → regenerate
+                : oldProduct.sku; // identity same → keep previous SKU
+
+            other.sku = finalSku;
+        }
+
+        // 🔥 VARIANT LEVEL SKU
+        if (other.has_variants && Array.isArray(other.variants)) {
+
+            const oldMap = new Map();
+            oldProduct?.variants?.forEach(v => oldMap.set(v.variant_id, v.sku));
+
+            other.variants = other.variants.map(v => {
+                const newSku = generateSKU(other, v);
+                const oldSku = oldMap.get(v.variant_id);
+
+                v.sku = (!oldSku || !sameSKU(oldSku, newSku))
+                    ? newSku      // new or changed → regenerate
+                    : oldSku;     // keep same if identity unchanged
+
+                return v;
+            });
+        }
+        //--------------------------------------------------
+
+
         // updating product
         await Products.findByIdAndUpdate(product_id, { media, ...other });
 

@@ -3,19 +3,19 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import Link from 'next/link';
 import { IoClose } from "react-icons/io5";
-import Image from 'next/image';
 import { IoMdAdd } from "react-icons/io";
 import { FaMinus } from "react-icons/fa6";
-import Checkbox from '@mui/material/Checkbox';
-import product_1 from "@/public/images/product_1.jpg"
 import { MdVerifiedUser } from "react-icons/md";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import useStateContext from '@/context/ContextProvider';
 import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 import { MetaPixel } from '@/lib/fpixel';
+import { useRouter } from 'next/router';
+
 
 
 const Cart_page = () => {
+
     const {
         cart,
         sum_of_cart,
@@ -23,6 +23,8 @@ const Cart_page = () => {
         add_item_to_cart,
         substract_item_from_cart
     } = useStateContext()
+
+    const router = useRouter();
 
 
     const [cart_input_data, set_cart_input_data] = useState({
@@ -298,11 +300,13 @@ const Cart_page = () => {
 
 
                                 {/* Continue Shopping Button */}
-                                <Link href="/collection" >
-                                    <button className='w-full py-[12px] flex justify-center items-center hover:text-white hover:bg-stone-950 font-bold text-[14px] md:text-[15px] bg-white text-stone-950 border border-stone-500  transition-all duration-300 mt-[12px]'>
-                                        CONTINUE SHOPPING
-                                    </button>
-                                </Link>
+
+                                <button
+                                    onClick={() => router.back()}
+                                    className='w-full py-[12px] flex justify-center items-center hover:text-white hover:bg-stone-950 font-bold text-[14px] md:text-[15px] bg-white text-stone-950 border border-stone-500  transition-all duration-300 mt-[12px]'>
+                                    CONTINUE SHOPPING
+                                </button>
+
                             </div>
 
 
@@ -317,11 +321,11 @@ const Cart_page = () => {
                     </h1>
 
                     <div className='my-[30px] w-full flex justify-center items-center'>
-                        <Link href="/collection" >
-                            <button className='font-bold text-black hover:text-white active:opacity-50 transition-all py-[12px] px-[16px] md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
-                                CONTINUE SHOPPING
-                            </button>
-                        </Link>
+                        <button
+                            onClick={() => router.back()}
+                            className='font-bold text-black hover:text-white active:opacity-50 transition-all py-[12px] px-[16px] md:w-[300px] hover:bg-black bg-white border border-stone-400 duration-300' >
+                            CONTINUE SHOPPING
+                        </button>
                     </div>
                 </div>
 

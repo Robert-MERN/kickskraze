@@ -39,9 +39,14 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
     },
 }));
 
-const Analytics = ({ axios }) => {
+const Analytics = ({ axios, user: USER }) => {
 
-    const { get_orders_analytics_api } = useStateContext();
+    const {
+        get_orders_analytics_api,
+        get_user_api,
+        user,
+        set_user,
+    } = useStateContext();
 
     const [analytics, set_analytics] = useState(null);
     const [is_loading, set_is_loading] = useState(false);
@@ -56,8 +61,21 @@ const Analytics = ({ axios }) => {
     const [inventory_time_period, set_inventory_time_period] = useState("currentYear");
 
 
-    const hasFetched = useRef(false);
 
+    // Fetching user with USER.id to know the current values of user.
+    useEffect(() => {
+        if (USER) {
+            get_user_api(axios, USER.id, set_user, set_is_loading);
+        }
+    }, [USER]);
+
+    useEffect(() => {
+        if (user && ["Apparel", "Jewelry"].includes(user.store_name)) {
+            set_store_name(user.store_name);
+        }
+    }, [user]);
+
+    const hasFetched = useRef(false);
 
     useEffect(() => {
         if (hasFetched.current) return;
@@ -65,6 +83,8 @@ const Analytics = ({ axios }) => {
 
         get_orders_analytics_api(axios, set_analytics, set_is_loading);
     }, []);
+
+
 
 
 
@@ -102,6 +122,12 @@ const Analytics = ({ axios }) => {
                                     <MenuItem value={"Total"}>All Stores</MenuItem>
                                     <MenuItem value={"Barefoot"}>Barefoot Store</MenuItem>
                                     <MenuItem value={"Kickskraze"}>Kickskraze Store</MenuItem>
+                                    <MenuItem value={"SM-sandals"}>SM Sandals Store</MenuItem>
+                                    <MenuItem value={"Areeba-sandals"}>Areeba Sandals Store</MenuItem>
+                                    <MenuItem value={"Casual-footwear"}>Casual Footwear Store</MenuItem>
+                                    <MenuItem value={"Formal-footwear"}>Formal Footwear Store</MenuItem>
+                                    <MenuItem value={"Jewelry"}>Jewelry Store</MenuItem>
+                                    <MenuItem value={"Apparel"}>Apparel Store</MenuItem>
                                 </Select>
                             </FormControl>
                         </div>
@@ -296,10 +322,10 @@ const Analytics = ({ axios }) => {
                                     className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
-                            
-                            
-                            
-                             {/* Net Revenue Bar Chart */}
+
+
+
+                            {/* Net Revenue Bar Chart */}
                             <div className="w-full mt-16 lg:mt-24">
 
                                 <div className='w-full flex justify-between items-center mb-8' >
@@ -437,84 +463,84 @@ const Analytics = ({ axios }) => {
                                     className='w-full h-[350px] lg:h-[500px]'
                                 />
                             </div>
-                            
-                            
-                            
-                            
-                          {/* Inventory Information */}
-                          <div className='w-full mt-16 lg:mt-24 mb-10' >
-            
-                            <div className='w-full flex justify-between items-center mb-8' >
-                                <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Inventory</h1>
-                                <FormControl className='w-[140px] md:w-[160px]' variant="outlined">
-                                    <Select
-                                        value={inventory_time_period}
-                                        onChange={(e) => set_inventory_time_period(e.target.value)}
-                                        size='small'
-                                        input={
-                                            <OutlinedInput
-                                                startAdornment={<CalendarMonthIcon style={{ marginRight: 8 }} />} // Icon at start
-                                            />
-                                        }
-                                    >
-                                        <MenuItem value="currentYear">This Year</MenuItem>
-                                        <MenuItem value="allYears">All Years</MenuItem>
-                                        
-                                    </Select>
-                                </FormControl>
-                            </div>
-                            
-                            {/* Inventory Cards */}
-                            <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
-                            
-                                <div className="h-[240px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
-                                    <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[260px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
-                                    <img src="/images/ic-glass-sales.svg" className='w-[48px] h-[48px]' alt="" />
 
-                                    <p className='mt-3 font-medium'>Total Inventory</p>
-                                    
-                                         {/* In Stock */}
-                                         <div className="mt-2 flex items-center gap-2 font-medium">
-                                           <span>In Stock</span>
-                                           <BootstrapTooltip
-                                               placement="bottom"
-                                               arrow
-                                               title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")}
-                                           >
-                                              <span className="text-[19px] md:text-[28px] font-bold cursor-default">
-                                                 <CountUp
-                                                    start={0}
-                                                    end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
-                                                    duration={2}
-                                                    formattingFn={(value) => value.toLocaleString("en-US")}
-                                                 />
-                                             </span>
-                                           </BootstrapTooltip>
-                                         </div>
-                                        
-                                          {/* Out Of Stock */}
-                                         <div className="flex items-center gap-2 font-medium">
-                                           <span>Out Of Stock</span>
-                                           <BootstrapTooltip
-                                               placement="bottom"
-                                               arrow
-                                               title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")}
-                                           >
-                                              <span className="text-[19px] md:text-[28px] font-bold cursor-default">
-                                                 <CountUp
-                                                    start={0}
-                                                    end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
-                                                    duration={2}
-                                                    formattingFn={(value) => value.toLocaleString("en-US")}
-                                                 />
-                                             </span>
-                                           </BootstrapTooltip>
-                                         </div>
-                                    
+
+
+
+                            {/* Inventory Information */}
+                            <div className='w-full mt-16 lg:mt-24 mb-10' >
+
+                                <div className='w-full flex justify-between items-center mb-8' >
+                                    <h1 className='text-[20px] md:text-[30px] xl:text-[32px] font-bold text-gray-600'>Inventory</h1>
+                                    <FormControl className='w-[140px] md:w-[160px]' variant="outlined">
+                                        <Select
+                                            value={inventory_time_period}
+                                            onChange={(e) => set_inventory_time_period(e.target.value)}
+                                            size='small'
+                                            input={
+                                                <OutlinedInput
+                                                    startAdornment={<CalendarMonthIcon style={{ marginRight: 8 }} />} // Icon at start
+                                                />
+                                            }
+                                        >
+                                            <MenuItem value="currentYear">This Year</MenuItem>
+                                            <MenuItem value="allYears">All Years</MenuItem>
+
+                                        </Select>
+                                    </FormControl>
                                 </div>
-                            
-                            </div>
-                            
+
+                                {/* Inventory Cards */}
+                                <div className='w-full grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-4 gap-x-8 gap-y-5 justify-between transition-all' >
+
+                                    <div className="h-[240px] w-full rounded-2xl bg-white bg-gradient-to-r from-[rgba(255,245,204,0.48)] to-[rgba(255,214,102,0.48)] text-[#7A4100] relative z-0 overflow-hidden p-[24px]">
+                                        <span className="flex-shrink-0 [mask-image:url('/images/shape-square.svg')] [mask-size:contain] [mask-position:center] [mask-repeat:no-repeat] absolute top-0 left-[-20px] bg-[rgb(255,171,0)] w-[260px] h-[240px] z-[-1] inline-flex text-[#FFAB00] opacity-[0.24]"></span>
+                                        <img src="/images/ic-glass-sales.svg" className='w-[48px] h-[48px]' alt="" />
+
+                                        <p className='mt-3 font-medium'>Total Inventory</p>
+
+                                        {/* In Stock */}
+                                        <div className="mt-2 flex items-center gap-2 font-medium">
+                                            <span>In Stock</span>
+                                            <BootstrapTooltip
+                                                placement="bottom"
+                                                arrow
+                                                title={analytics[store_name].inventoryReport[inventory_time_period].inStock.toLocaleString("en-US")}
+                                            >
+                                                <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+                                                    <CountUp
+                                                        start={0}
+                                                        end={analytics[store_name].inventoryReport[inventory_time_period].inStock}
+                                                        duration={2}
+                                                        formattingFn={(value) => value.toLocaleString("en-US")}
+                                                    />
+                                                </span>
+                                            </BootstrapTooltip>
+                                        </div>
+
+                                        {/* Out Of Stock */}
+                                        <div className="flex items-center gap-2 font-medium">
+                                            <span>Out Of Stock</span>
+                                            <BootstrapTooltip
+                                                placement="bottom"
+                                                arrow
+                                                title={analytics[store_name].inventoryReport[inventory_time_period].outOfStock.toLocaleString("en-US")}
+                                            >
+                                                <span className="text-[19px] md:text-[28px] font-bold cursor-default">
+                                                    <CountUp
+                                                        start={0}
+                                                        end={analytics[store_name].inventoryReport[inventory_time_period].outOfStock}
+                                                        duration={2}
+                                                        formattingFn={(value) => value.toLocaleString("en-US")}
+                                                    />
+                                                </span>
+                                            </BootstrapTooltip>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
                             </div>
 
 

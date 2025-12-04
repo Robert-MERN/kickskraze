@@ -20,11 +20,11 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    store_name: { type: String },
     password_update_count: {
         type: Number,
         default: 1
     },
-    store_name: { type: String },
 }, { timestamps: true });
 
 

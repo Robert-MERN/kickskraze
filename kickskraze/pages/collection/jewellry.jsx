@@ -10,18 +10,18 @@ const collection = ({ logoUrl, fullUrl }) => {
     return (
         <>
             <Head>
-                <title>Kickskraze | Collection</title>
-                <meta property="og:title" content="Kickskraze | Collection" />
-                <meta property="og:description" content="Collection Page" />
+                <title>Kickskraze | Collection | Jewellry</title>
+                <meta property="og:title" content="Kickskraze | Collection | Jewellry" />
+                <meta property="og:description" content="Jewellry Collection Page" />
                 <meta property="og:image" content={logoUrl} />
                 <meta property="og:url" content={fullUrl} />
-                <meta property="og:type" content="collection" />
+                <meta property="og:type" content="jewellry collection" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Navbar axios={axios} />
                 <div className='w-full min-h-[calc(100vh-70px)] 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] lg:px-[40px]' >
-                    <Collection_page axios={axios} />
+                    <Collection_page storeName="Jewelry" axios={axios} />
                 </div>
                 <App_footer />
                 <Footer />

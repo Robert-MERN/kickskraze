@@ -14,7 +14,7 @@ export default async function handler(req, res) {
 
         const { search, store_name } = req.query;
 
-        let query = {isDeleted: false};
+        let query = { isDeleted: false };
 
         // If there's a search term, match by title or _id
         if (search) {
@@ -31,16 +31,18 @@ export default async function handler(req, res) {
 
 
         const all_stores = {
-            "Footwear": ["Barefoot", "Kickskraze", "Casual-footwear", "Formal-footwear", "Areeba-sandals", "SM-sandals", "Footwear-accessories"],
-            "Apparel": ["Apparel"],
-            "Jewelry": ["Jewelry"],
-        }
+            "footwear": ["Barefoot", "Kickskraze", "SM-sandals", "Areeba-sandals", "Formal-footwear", "Casual-footwear", "Footwear-accessories"],
+            "apparel": ["Apparel"],
+            "jewelry": ["Jewelry"],
+        };
+        // store filter match
+        let normalized_store_name;
         if (store_name) {
-            if (all_stores[store_name]) {
-                query.store_name = { $in: all_stores[store_name] };
-            } else if (Object.values(all_stores).some(stores => stores.includes(store_name))) {
-                // Handling cases like (e.g.) store_name=Barefoot instead of store_name=Footwear
-                query.store_name = store_name;
+            normalized_store_name = store_name.toLowerCase();
+            if (all_stores[normalized_store_name]) {
+                query.store_name = { $in: all_stores[normalized_store_name] };
+            } else if (Object.values(all_stores).some(arr => arr.includes(normalized_store_name))) {
+                query.store_name = normalized_store_name.charAt(0).toUpperCase() + normalized_store_name.slice(1);
             }
         }
 

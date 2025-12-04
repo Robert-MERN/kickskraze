@@ -7,56 +7,199 @@ import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import { Popper, Skeleton } from "@mui/material";
 import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '../functions/produc_fn';
+import useStateContext from '@/context/ContextProvider';
 
 const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, debouncedTerm, searchTerm, results, trending_results,
-    is_loading, is_trending_loading, show_more_payload, router }) => {
+    is_loading, is_trending_loading, show_more_payload, router, store_name }) => {
 
-    const trending_options = [
-        {
-            option: "men",
-            link: "/collection?category=men",
-        },
-        {
-            option: "women",
-            link: "/collection?category=women",
-        },
-        {
-            option: "kids",
-            link: "/collection?category=kids",
-        },
-        {
-            option: "converse",
-            link: "/collection?brand=Converse",
-        },
-        {
-            option: "nike",
-            link: "/collection?brand=Nike",
-        },
-        {
-            option: "asics",
-            link: "/collection?brand=ASICS",
-        },
-        {
-            option: "adidas",
-            link: "/collection?brand=Adidas",
-        },
-        {
-            option: "new balance",
-            link: "/collection?brand=New Balance",
-        },
-        {
-            option: "saucony",
-            link: "/collection?brand=Saucony",
-        },
-        {
-            option: "fila",
-            link: "/collection?brand=Fila",
-        },
-    ];
+    const { filters } = useStateContext()
+
+    const trending_options = {
+        "Footwear": [
+            {
+                option: "converse",
+                link: "/collection/footwear?brand=Converse",
+            },
+            {
+                option: "vans",
+                link: "/collection/footwear?brand=Nike",
+            },
+            {
+                option: "heels",
+                link: "/collection/footwear?type=heels",
+            },
+            {
+                option: "flats",
+                link: "/collection/footwear?type=flats",
+            },
+            {
+                option: "sandals",
+                link: "/collection/footwear?type=sandals",
+            },
+            {
+                option: "women sandals",
+                link: "/collection/footwear?type=heels,flats,sandals",
+            },
+            {
+                option: "men",
+                link: "/collection/footwear?category=men",
+            },
+            {
+                option: "women",
+                link: "/collection/footwear?category=women",
+            },
+            {
+                option: "kids",
+                link: "/collection/footwear?category=kids",
+            },
+        ],
+        "Jewelry": [
+            {
+                option: "bracelets",
+                link: "/collection/jewellry?type=bracelets",
+            },
+            {
+                option: "cuffs",
+                link: "/collection/jewellry?type=bracelets",
+            },
+            {
+                option: "pendants",
+                link: "/collection/jewellry?type=pendants",
+            },
+            {
+                option: "chains",
+                link: "/collection/jewellry?type=pendants",
+            },
+            {
+                option: "lockets",
+                link: "/collection/jewellry?type=pendants",
+            },
+            {
+                option: "rings",
+                link: "/collection/jewellry?type=rings",
+            },
+            {
+                option: "men rings",
+                link: "/collection/jewellry?type=rings&category=men",
+            },
+            {
+                option: "earrings",
+                link: "/collection/jewellry?type=earrings",
+            },
+        ],
+        "Apparel": [
+            {
+                option: "t-shirts",
+                link: "/collection/apparel?type=casual",
+            },
+            {
+                option: "jeans",
+                link: "/collection/apparel?type=casual",
+            },
+            {
+                option: "suits",
+                link: "/collection/apparel?type=formal&category=men",
+            },
+            {
+                option: "dress shirts",
+                link: "/collection/apparel?type=formal&category=men",
+            },
+            {
+                option: "tracksuits",
+                link: "/collection/apparel?type=sportswear",
+            },
+            {
+                option: "night suits",
+                link: "/collection/apparel?type=sleepwear",
+            },
+            {
+                option: "pajamas",
+                link: "/collection/apparel?type=sleepwear",
+            },
+            {
+                option: "jackets",
+                link: "/collection/apparel?type=outerwear",
+            },
+            {
+                option: "Sweatshirts",
+                link: "/collection/apparel?type=casual",
+            },
+            {
+                option: "underwear",
+                link: "/collection/apparel?type=undergarments&category=men",
+            },
+            {
+                option: "sando",
+                link: "/collection/apparel?type=undergarments&category=men",
+            },
+            {
+                option: "women traditional",
+                link: "/collection/apparel?type=traditional&category=women",
+            },
+            {
+                option: "kurti",
+                link: "/collection/apparel?type=traditional&category=women",
+            },
+            {
+                option: "shalwar kameez",
+                link: "/collection/apparel?type=traditional&category=men",
+            },
+
+        ],
+        "Footwear-accessories": [
+            {
+                option: "polish",
+                link: "/collection/footwear-accessories?type=polish",
+            },
+            {
+                option: "shoe laces",
+                link: "/collection/footwear-accessories?type=shoelaces",
+            },
+            {
+                option: "socks",
+                link: "/collection/footwear-accessories?type=socks",
+            },
+            {
+                option: "insole",
+                link: "/collection/footwear-accessories?type=insole",
+            },
+            {
+                option: "shiner",
+                link: "/collection/footwear-accessories?type=shiner",
+            },
+
+        ],
+    }
+
+
+    const updateUrlFromFilters = (filters) => {
+        const query = {};
+        filters.forEach(obj => {
+            const key = Object.keys(obj)[0];
+            const value = String(obj[key]); // convert number to string
+
+            if (!query[key]) {
+                // create a new Set to avoid duplicates
+                query[key] = new Set([value]);
+            } else {
+                query[key].add(value);
+            }
+        });
+
+        // Convert Set → comma string
+        Object.keys(query).forEach(key => {
+            query[key] = Array.from(query[key]).join(",");
+        });
+
+        router.push({
+            pathname: `/collection/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`,
+            query
+        }, undefined, { shallow: true });
+    };
 
     const view_more_btn = () => {
         setAnchorEl(null);
-        router.push(`/collection?search=${debouncedTerm}`)
+        updateUrlFromFilters([{ search: debouncedTerm }, ...filters]);
     }
 
     return (
@@ -188,13 +331,13 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                                         Rs. {product.price.toLocaleString("en-US")}
                                                                     </span>
                                                                     {" "}
-                                                                    {product.compare_price &&
+                                                                    {Boolean(product.compare_price) &&
                                                                         <span className='text-[13px] line-through text-red-600'>
                                                                             Rs. {product.compare_price.toLocaleString("en-US")}
                                                                         </span>
                                                                     }
                                                                 </p>
-                                                                {!product.has_variants &&
+                                                                {!product.has_variants && Boolean(product.size) &&
                                                                     <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                                                                 }
                                                                 {product.condition !== "brand new" &&
@@ -224,25 +367,28 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
 
                             :
                             <>
+                                {(Boolean(store_name) && Boolean(trending_options[store_name])) && (
+                                    <>
+                                        <div className='flex justify-between w-full items-center py-[12px] px-[20px] border-b border-stone-200' >
+                                            <p className='text-[15px] font-bold select-none' >TRENDING NOW</p>
+                                            <button onClick={onClose} className='active:opacity-75' >
+                                                <IoClose className='text-stone-700 scale-[1.30]' />
+                                            </button>
 
-                                <div className='flex justify-between w-full items-center py-[12px] px-[20px] border-b border-stone-200' >
-                                    <p className='text-[15px] font-bold select-none' >TRENDING NOW</p>
-                                    <button onClick={onClose} className='active:opacity-75' >
-                                        <IoClose className='text-stone-700 scale-[1.30]' />
-                                    </button>
+                                        </div>
 
-                                </div>
-
-                                <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[120px] overflow-y-auto ${style.scroll_bar}`}>
-                                    {trending_options.map((each, index) => (
-                                        <Link onClick={onClose} href={each.link} key={index}>
-                                            <div className='px-[8px] py-[6px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-1 text-[15px] font-medium transition-all' >
-                                                <SearchIcon className="text-[20px]" />
-                                                <p className='capitalize'>{each.option}</p>
-                                            </div>
-                                        </Link>
-                                    ))}
-                                </div>
+                                        <div className={`flex gap-3 flex-wrap w-full items-center py-[12px] px-[20px] h-[120px] overflow-y-auto ${style.scroll_bar}`}>
+                                            {trending_options[store_name].map((each, index) => (
+                                                <Link onClick={onClose} href={each.link} key={index}>
+                                                    <div className='px-[8px] py-[6px] bg-gray-100 active:bg-gray-300 text-gray-500  rounded-md flex items-center gap-1 text-[15px] font-medium transition-all' >
+                                                        <SearchIcon className="text-[20px]" />
+                                                        <p className='capitalize'>{each.option}</p>
+                                                    </div>
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
 
                                 {is_trending_loading ?
                                     <div className='w-full py-[12px] px-[20px] border-b border-stone-200 mb-2' >
@@ -347,8 +493,12 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                                                                     </span>
                                                                 }
                                                             </p>
-                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                            {!product.has_variants && Boolean(product.size) &&
+                                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                            }
+                                                            {product.condition !== "brand new" &&
+                                                                <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                            }
                                                         </div>
                                                     </div>
                                                 </Link>

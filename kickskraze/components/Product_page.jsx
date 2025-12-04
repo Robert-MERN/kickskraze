@@ -617,14 +617,23 @@ const Product_page = ({ axios }) => {
                                         </div>
                                     }
 
+                                    {Boolean(product.brand) &&
+                                        <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Brand:</strong> {product.brand}</p>
+                                        </div>
+                                    }
 
-                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Brand:</strong> {product.brand}</p>
-                                    </div>
+                                    {Boolean(product.type) &&
+                                        <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Type:</strong> {product.type}</p>
+                                        </div>
+                                    }
 
-                                    <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
-                                        <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Category:</strong> {product.category}</p>
-                                    </div>
+                                    {Boolean(product.category) &&
+                                        < div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
+                                            <p className='text-[15px] xl:text-[17px] font-medium capitalize text-ellipsis line-clamp-1 overflow-hidden'><strong>Category:</strong> {product.category}</p>
+                                        </div>
+                                    }
 
                                     {product.is_thrifted &&
                                         <div className='py-[14px] xl:py-[16px] border-b border-stone-200 text-stone-700' >
@@ -838,152 +847,153 @@ const Product_page = ({ axios }) => {
                         </div>
 
                         {/* Related Products */}
-                        {is_RP_loading ?
-                            <Fade>
-                                <div className='mt-[100px] lg:mt-[140px]'>
-                                    <h1 className='text-[20px] text-stone-800 w-full text-center mb-[20px] flex justify-center' >
-                                        <Skeleton
-                                            animation="wave"
-                                            variant='text'
-                                            className='bg-stone-100 w-[200px] md:w-[300px]'
-                                        />
-                                    </h1>
-                                    <div className='grid grid-rows-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'>
-                                        {[...Array(6)].map((_, i) => (
-                                            <Fade key={i}>
-                                                <div className={`p-4 
+                        {
+                            is_RP_loading ?
+                                <Fade>
+                                    <div className='mt-[100px] lg:mt-[140px]'>
+                                        <h1 className='text-[20px] text-stone-800 w-full text-center mb-[20px] flex justify-center' >
+                                            <Skeleton
+                                                animation="wave"
+                                                variant='text'
+                                                className='bg-stone-100 w-[200px] md:w-[300px]'
+                                            />
+                                        </h1>
+                                        <div className='grid grid-rows-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'>
+                                            {[...Array(6)].map((_, i) => (
+                                                <Fade key={i}>
+                                                    <div className={`p-4 
                                         ${i === 1 ? 'hidden sm:block' : ''} 
                                         ${i === 2 ? 'hidden md:block' : ''} 
                                         ${i === 3 ? 'hidden xl:block' : ''} 
                                         ${i === 4 ? 'hidden 2xl:block' : ''} 
                                         ${i === 5 ? 'hidden 2xl:block' : ''}`
-                                                }>
-                                                    <Skeleton
-                                                        variant='rounded'
-                                                        animation="wave"
-                                                        className='bg-stone-100 w-full h-[230px] md:h-[250px] '
-                                                    />
-                                                    <Skeleton
-                                                        variant='text'
-                                                        animation="wave"
-                                                        className='bg-stone-100 w-[140px] md:w-[160px]'
-                                                    />
-                                                    <div className='mt-4 flex flex-col gap-1' >
+                                                    }>
                                                         <Skeleton
                                                             variant='rounded'
                                                             animation="wave"
-                                                            className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                            className='bg-stone-100 w-full h-[230px] md:h-[250px] '
                                                         />
                                                         <Skeleton
-                                                            variant='rounded'
+                                                            variant='text'
                                                             animation="wave"
-                                                            className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
+                                                            className='bg-stone-100 w-[140px] md:w-[160px]'
                                                         />
-                                                        <Skeleton
-                                                            variant='rounded'
-                                                            animation="wave"
-                                                            className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </Fade>
-                                        ))}
-                                    </div>
-                                </div>
-                            </Fade>
-                            : Boolean(related_products.filter(e => e._id !== product._id).length) ?
-                                <Fade>
-                                    <div className='mt-[100px] lg:mt-[140px]'>
-                                        <h1 className='text-[20px] text-stone-800 w-full text-center mb-[20px] flex justify-center' >
-                                            RELATED PRODUCTS
-                                        </h1>
-                                        <Carousel
-                                            arrows
-                                            autoPlaySpeed={3000}
-                                            containerClass="container-with-dots"
-                                            draggable
-                                            infinite
-                                            keyBoardControl
-                                            minimumTouchDrag={80}
-                                            pauseOnHover
-                                            responsive={{
-                                                superLargeDesktop: {
-                                                    breakpoint: { max: 4000, min: 1536 }, // 2xl
-                                                    items: 6,
-                                                },
-                                                desktop: {
-                                                    breakpoint: { max: 1536, min: 1280 }, // xl
-                                                    items: 4,
-                                                },
-                                                laptop: {
-                                                    breakpoint: { max: 1280, min: 1024 }, // lg
-                                                    items: 3,
-                                                },
-                                                tablet: {
-                                                    breakpoint: { max: 1024, min: 640 }, // md
-                                                    items: 3,
-                                                },
-                                                mobile: {
-                                                    breakpoint: { max: 640, min: 0 }, // sm
-                                                    items: 2,
-                                                },
-                                            }}
-                                            shouldResetAutoplay
-                                            slidesToSlide={1}
-                                            swipeable
-                                        >
-
-                                            {related_products.filter(e => e._id !== product._id).slice(0, 18).map((product) => (
-                                                <Fade key={product._id}>
-                                                    <Link href={`/product?product_id=${product._id}`} >
-                                                        <div
-                                                            className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}
-                                                        >
-                                                            <div className='relative'>
-
-                                                                <div className={`"shadow-sm`}>
-                                                                    <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-[220px] h-[230px] md:h-[250px] object-cover object-center`} />
-                                                                </div>
-
-                                                                {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
-                                                                    < p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
-                                                                        -{calculate_discount_precentage(product.price, product.compare_price)}%
-                                                                    </p>
-                                                                }
-                                                            </div>
-
-
-                                                            <div className='flex flex-col gap-1'>
-                                                                <p className='text-[14px] md:text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                                <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                                    <span className='text-[13px] md:text-[15px] font-bold text-black'>
-                                                                        Rs. {product.price.toLocaleString("en-US")}
-                                                                    </span>
-                                                                    {" "}
-                                                                    {Boolean(product.compare_price) &&
-                                                                        <span className='text-[12px] md:text-[13px] line-through text-red-600'>
-                                                                            Rs. {product.compare_price.toLocaleString("en-US")}
-                                                                        </span>
-                                                                    }
-                                                                </p>
-                                                                {!product.has_variants &&
-                                                                    <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                                }
-                                                                {product.condition !== "brand new" &&
-                                                                    <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                                }
-                                                            </div>
+                                                        <div className='mt-4 flex flex-col gap-1' >
+                                                            <Skeleton
+                                                                variant='rounded'
+                                                                animation="wave"
+                                                                className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                            />
+                                                            <Skeleton
+                                                                variant='rounded'
+                                                                animation="wave"
+                                                                className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
+                                                            />
+                                                            <Skeleton
+                                                                variant='rounded'
+                                                                animation="wave"
+                                                                className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
+                                                            />
                                                         </div>
-                                                    </Link>
+                                                    </div>
                                                 </Fade>
-
                                             ))}
-
-                                        </Carousel>
+                                        </div>
                                     </div>
                                 </Fade>
-                                :
-                                <></>
+                                : Boolean(related_products.filter(e => e._id !== product._id).length) ?
+                                    <Fade>
+                                        <div className='mt-[100px] lg:mt-[140px]'>
+                                            <h1 className='text-[20px] text-stone-800 w-full text-center mb-[20px] flex justify-center' >
+                                                RELATED PRODUCTS
+                                            </h1>
+                                            <Carousel
+                                                arrows
+                                                autoPlaySpeed={3000}
+                                                containerClass="container-with-dots"
+                                                draggable
+                                                infinite
+                                                keyBoardControl
+                                                minimumTouchDrag={80}
+                                                pauseOnHover
+                                                responsive={{
+                                                    superLargeDesktop: {
+                                                        breakpoint: { max: 4000, min: 1536 }, // 2xl
+                                                        items: 6,
+                                                    },
+                                                    desktop: {
+                                                        breakpoint: { max: 1536, min: 1280 }, // xl
+                                                        items: 4,
+                                                    },
+                                                    laptop: {
+                                                        breakpoint: { max: 1280, min: 1024 }, // lg
+                                                        items: 3,
+                                                    },
+                                                    tablet: {
+                                                        breakpoint: { max: 1024, min: 640 }, // md
+                                                        items: 3,
+                                                    },
+                                                    mobile: {
+                                                        breakpoint: { max: 640, min: 0 }, // sm
+                                                        items: 2,
+                                                    },
+                                                }}
+                                                shouldResetAutoplay
+                                                slidesToSlide={1}
+                                                swipeable
+                                            >
+
+                                                {related_products.filter(e => e._id !== product._id).slice(0, 18).map((product) => (
+                                                    <Fade key={product._id}>
+                                                        <Link href={`/product?product_id=${product._id}`} >
+                                                            <div
+                                                                className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer w-fit`}
+                                                            >
+                                                                <div className='relative'>
+
+                                                                    <div className={`"shadow-sm`}>
+                                                                        <img alt="" src={select_thumbnail_from_media(product.media)} className={`w-[220px] h-[230px] md:h-[250px] object-cover object-center`} />
+                                                                    </div>
+
+                                                                    {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
+                                                                        < p className='w-[35px] h-[35px] text-center text-[12px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-8px] right-[2px] z-[10]' >
+                                                                            -{calculate_discount_precentage(product.price, product.compare_price)}%
+                                                                        </p>
+                                                                    }
+                                                                </div>
+
+
+                                                                <div className='flex flex-col gap-1'>
+                                                                    <p className='text-[14px] md:text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
+                                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
+                                                                        <span className='text-[13px] md:text-[15px] font-bold text-black'>
+                                                                            Rs. {product.price.toLocaleString("en-US")}
+                                                                        </span>
+                                                                        {" "}
+                                                                        {Boolean(product.compare_price) &&
+                                                                            <span className='text-[12px] md:text-[13px] line-through text-red-600'>
+                                                                                Rs. {product.compare_price.toLocaleString("en-US")}
+                                                                            </span>
+                                                                        }
+                                                                    </p>
+                                                                    {!product.has_variants && Boolean(product.size) &&
+                                                                        <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
+                                                                    }
+                                                                    {product.condition !== "brand new" &&
+                                                                        <p className='text-[13px] md:text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </Link>
+                                                    </Fade>
+
+                                                ))}
+
+                                            </Carousel>
+                                        </div>
+                                    </Fade>
+                                    :
+                                    <></>
                         }
 
                     </>

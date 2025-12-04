@@ -23,18 +23,18 @@ export default function Home({ fullUrl, logoUrl, user }) {
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin | All Products</title>
-                <meta property="og:title" content="Kickskraze | Admin | All Products" />
-                <meta property="og:description" content="Admin / All Products Page" />
+                <title>Kickskraze | Admin | All Products | Footwear</title>
+                <meta property="og:title" content="Kickskraze | Admin | All Products | Footwear" />
+                <meta property="og:description" content="Admin | All Products Page | Footwear" />
                 <meta property="og:image" content={logoUrl} />
                 <meta property="og:url" content={fullUrl} />
-                <meta property="og:type" content="admin - all products" />
+                <meta property="og:type" content="admin - all products - footwear" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<All_products axios={axios} />} />
+                    <Admin_page_layout admin_children={<All_products axios={axios} storeName="Footwear" />} />
                 </div>
             </div>
         </>

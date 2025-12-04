@@ -3,6 +3,7 @@ import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import { IoClose } from "react-icons/io5";
 import useStateContext from '@/context/ContextProvider';
 import { convert_to_query_string, filter_method, find_filter } from '@/utils/functions/filter_function';
+import { useRouter } from 'next/router';
 
 const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
@@ -16,7 +17,9 @@ const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         set_products_for_collection_loading: set_is_loading,
         show_more_payload,
         set_show_more_payload
-    } = useStateContext()
+    } = useStateContext();
+
+    const router = useRouter();
 
     // Sorting options
     const sort_options = [
@@ -47,9 +50,35 @@ const Sort_drawer = ({ drawer_state, toggle_drawer, axios }) => {
 
     ]
 
+    const updateUrlFromFilters = (filters) => {
+        const query = {};
+        filters.forEach(obj => {
+            const key = Object.keys(obj)[0];
+            const value = String(obj[key]); // convert number to string
+
+            if (!query[key]) {
+                // create a new Set to avoid duplicates
+                query[key] = new Set([value]);
+            } else {
+                query[key].add(value);
+            }
+        });
+
+        // Convert Set → comma string
+        Object.keys(query).forEach(key => {
+            query[key] = Array.from(query[key]).join(",");
+        });
+
+        router.push({
+            pathname: router.asPath.split('?')[0],
+            query
+        }, undefined, { shallow: true });
+    };
+
+
     const select_option = async (obj) => {
         const FILTERS = await filter_method(obj, set_filters);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
         close();
     }
 

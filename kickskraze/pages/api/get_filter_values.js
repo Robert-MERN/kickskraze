@@ -2,64 +2,56 @@ import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 
 /**
- * 
  * @param {import('next').NextApiRequest} req 
  * @param {import('next').NextApiResponse} res 
  */
-
 export default async function handler(req, res) {
-
-    console.log("Connecting with DB")
     try {
-
-        // connecting with monogDB
         await connect_mongo();
-        console.log("Successfuly conneted with DB");
+        const { store_name } = req.query;
 
+        let query = { isDeleted: false };
 
-        // Getting filter value with pipeline
-        const filter_values = await Products.aggregate([
-            {
-                $match: { isDeleted: false }
-            },
+        const all_stores = {
+            "footwear": ["Barefoot", "Kickskraze", "SM-sandals", "Areeba-sandals", "Formal-footwear", "Casual-footwear"],
+            "footwear-accessories": ["Footwear-accessories"],
+            "apparel": ["Apparel"],
+            "jewelry": ["Jewelry"],
+        };
+        let normalized_store_name;
+        // store filter match
+        if (store_name) {
+            normalized_store_name = store_name.toLowerCase();
+            if (all_stores[normalized_store_name]) {
+                query.store_name = { $in: all_stores[normalized_store_name] };
+            } else if (Object.values(all_stores).some(arr => arr.includes(normalized_store_name))) {
+                query.store_name = normalized_store_name.charAt(0).toUpperCase() + normalized_store_name.slice(1);
+            }
+        }
 
-            // Normalize size field → always convert to array
+        // ---------------- Aggregation ----------------
+        const filters = await Products.aggregate([
+            { $match: query },
+
             {
                 $addFields: {
-                    size: {
-                        $cond: [
-                            { $isArray: "$size" },
-                            "$size",
-                            ["$size"] // convert single value → array
-                        ]
-                    }
+                    size: { $cond: [{ $isArray: "$size" }, "$size", ["$size"]] },
+                    color: { $cond: [{ $isArray: "$color" }, "$color", ["$color"]] }
                 }
             },
 
-            // Normalize color field
-            {
-                $addFields: {
-                    color: {
-                        $cond: [
-                            { $isArray: "$color" },
-                            "$color",
-                            ["$color"]
-                        ]
-                    }
-                }
-            },
-
-            // Unwind them so no nested arrays happen
-            { $unwind: "$size" },
-            { $unwind: "$color" },
+            { $unwind: { path: "$size", preserveNullAndEmptyArrays: true } },
+            { $unwind: { path: "$color", preserveNullAndEmptyArrays: true } },
 
             {
                 $group: {
                     _id: null,
                     sizes: { $addToSet: "$size" },
                     colors: { $addToSet: "$color" },
+                    types: { $addToSet: "$type" },
                     brands: { $addToSet: "$brand" },
                     conditions: { $addToSet: "$condition" },
+                    categories: { $addToSet: "$category" },
                     store_names: {
                         $addToSet: {
                             $cond: [
@@ -75,128 +67,110 @@ export default async function handler(req, res) {
 
             {
                 $project: {
+                    _id: 0,
                     sizes: 1,
                     colors: 1,
+                    types: 1,
                     brands: 1,
                     conditions: 1,
+                    categories: 1,
                     store_names: 1,
-                    price_gte: { $literal: 0 },
-                    price_lte: 1,
-                    sort_by: "created-descending",
-                    _id: 0
-                }
-            },
-
-            {
-                $addFields: {
-                    sizes: { $sortArray: { input: "$sizes", sortBy: 1 } },
-                    colors: { $sortArray: { input: "$colors", sortBy: 1 } },
-                    brands: { $sortArray: { input: "$brands", sortBy: 1 } }
+                    price_lte: 1
                 }
             }
         ]);
 
+        if (!filters.length) return res.status(200).json({});
 
-        // sending success response to client
-        return res.status(200).json(filter_values[0]);
+        let data = filters[0];
 
-    } catch (err) {
+        // GLOBAL SORTING --------------------------
+        const sortedColors = data.colors?.filter(Boolean).sort((a, b) => a.localeCompare(b)) ?? [];
+        const sortedBrands = data.brands?.filter(Boolean).sort((a, b) => a.localeCompare(b)) ?? [];
 
-        // if server catches any error
-        return res.status(501).json({ success: false, message: err.message });
+        // ---------- JEWELRY ----------
+        if (normalized_store_name === "jewelry") {
+            return res.status(200).json({
+                types: data.types?.filter(Boolean).sort((a, b) => a.localeCompare(b)) ?? [],
+                colors: sortedColors,
+                price_gte: 0,
+                price_lte: data.price_lte
+            });
+        }
+
+        // ------- FOOTWEAR ACCESSORIES --------
+        if (normalized_store_name === "footwear-accessories") {
+            return res.status(200).json({
+                types: data.types?.filter(Boolean).sort((a, b) => a.localeCompare(b)) ?? [],
+                colors: sortedColors,
+                price_gte: 0,
+                price_lte: data.price_lte
+            });
+        }
+
+        // ------------ APPAREL ------------
+        if (normalized_store_name === "apparel") {
+            // CUSTOM SIZE SORT ORDER
+            const alphaOrder = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
+            const sortedSizes = data.sizes
+                ?.filter(v => alphaOrder.includes(v))
+                .sort((a, b) => alphaOrder.indexOf(a) - alphaOrder.indexOf(b)) ?? [];
+
+            // CUSTOM CATEGORY SORT ORDER
+            const categoryOrder = ["men", "women", "unisex", "kids-boys", "kids-girls", "kids"];
+            const sortedCategories = data.categories
+                ?.filter(Boolean)
+                .sort((a, b) => categoryOrder.indexOf(a.toLowerCase()) - categoryOrder.indexOf(b.toLowerCase())) ?? [];
+
+            return res.status(200).json({
+                sizes: sortedSizes,
+                types: data.types?.filter(Boolean).sort((a, b) => a.localeCompare(b)) ?? [],
+                categories: sortedCategories,
+                colors: sortedColors,
+                price_gte: 0,
+                price_lte: data.price_lte
+            });
+        }
+
+        // ------------ FOOTWEAR (SORT FIXED) ------------
+        const numericSortedSizes = data.sizes
+            ?.map(s => Number(s))    // convert to number
+            .filter(n => !isNaN(n))   // keep numeric only
+            .sort((a, b) => a - b);   // sort ASC
+
+        // CUSTOM CONDITION SORT ORDER
+        const conditionOrder = ["very good", "excellent", "premium", "premium +", "brand new"];
+
+        const sortedConditions = data.conditions
+            ?.filter(Boolean)
+            .sort((a, b) => conditionOrder.indexOf(a.toLowerCase()) - conditionOrder.indexOf(b.toLowerCase())) ?? [];
+
+        // ❗ EXCLUDED STORES
+        const excludedStores = ["Apparel", "Jewelry", "Footwear-accessories"];
+
+        const filteredStoreNames = data.store_names
+            ?.filter(Boolean)                      // remove null/blank
+            .filter(name => !excludedStores.includes(name)) ?? []; // remove unwanted ones
+
+        // CUSTOM CATEGORY SORT ORDER
+        const categoryOrder = ["men", "women", "unisex", "kids-boys", "kids-girls", "kids"];
+        const sortedCategories = data.categories
+            ?.filter(Boolean)
+            .sort((a, b) => categoryOrder.indexOf(a.toLowerCase()) - categoryOrder.indexOf(b.toLowerCase())) ?? [];
+
+
+        return res.status(200).json({
+            sizes: numericSortedSizes ?? [],
+            colors: sortedColors,
+            brands: sortedBrands,
+            conditions: sortedConditions,
+            store_names: filteredStoreNames,
+            categories: sortedCategories,
+            price_gte: 0,
+            price_lte: data.price_lte
+        });
+
+    } catch (error) {
+        return res.status(501).json({ success: false, message: error.message });
     }
-
 }
-
-
-
-
-
-
-
-
-
-// import Products from '@/models/product_model';
-// import connect_mongo from '@/utils/functions/connect_mongo';
-
-// /**
-//  * 
-//  * @param {import('next').NextApiRequest} req 
-//  * @param {import('next').NextApiResponse} res 
-//  */
-
-// export default async function handler(req, res) {
-//   console.log("Connecting with DB");
-//   try {
-//     await connect_mongo();
-//     console.log("Successfully connected with DB");
-
-//     const { store_name } = req.query;
-
-//     // Build the base match query
-//     const matchQuery = { isDeleted: false };
-//     if (store_name) {
-//       matchQuery.store_name = store_name.charAt(0).toUpperCase() + store_name.slice(1);
-//     }
-
-//     // Aggregate pipeline
-//     const result = await Products.aggregate([
-//       { $match: matchQuery },
-//       {
-//         $group: {
-//           _id: null,
-//           sizes: { $addToSet: "$size" },
-//           brands: { $addToSet: "$brand" },
-//           conditions: { $addToSet: "$condition" },
-//           price_lte: { $max: "$price" },
-//         },
-//       },
-//       {
-//         $project: {
-//           sizes: 1,
-//           brands: 1,
-//           conditions: 1,
-//           price_gte: { $literal: 0 },
-//           price_lte: 1,
-//           sort_by: "created-descending",
-//           _id: 0,
-//         },
-//       },
-//     ]);
-
-//     if (!result.length) {
-//       return res.status(200).json({});
-//     }
-
-//     const filters = result[0];
-
-//     // ---- Sorting logic ----
-//     if (store_name === "Apparel") {
-//       // Sort alphabetically by order (S > M > L > XL > XXL)
-//       const sizeOrder = ["XS", "S", "M", "L", "XL", "XXL", "3XL"];
-//       filters.sizes = (filters.sizes || [])
-//         .flat() // Handle array-of-arrays
-//         .filter(Boolean)
-//         .sort((a, b) => sizeOrder.indexOf(a) - sizeOrder.indexOf(b))
-//         .filter(s => sizeOrder.includes(s));
-//     } else {
-//       // Sort numerically for Barefoot, Kickskraze, Jewelry
-//       filters.sizes = (filters.sizes || [])
-//         .flat()
-//         .filter(s => !isNaN(s))
-//         .sort((a, b) => a - b);
-//     }
-
-//     // Remove empty or invalid fields
-//     for (const key of ["brands", "conditions", "sizes"]) {
-//       if (!filters[key] || !filters[key].length || filters[key].every(v => !v)) {
-//         delete filters[key];
-//       }
-//     }
-
-//     return res.status(200).json(filters);
-//   } catch (err) {
-//     console.error(err);
-//     return res.status(501).json({ success: false, message: err.message });
-//   }
-// }

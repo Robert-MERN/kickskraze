@@ -31,7 +31,7 @@ import { useRouter } from 'next/router';
 import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
 
 // Sort Popover for Windows Screens
-const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axios, get_all_products_api, convert_to_query_string, set_products, set_show_more_payload, set_is_loading }) => {
+const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, updateUrlFromFilters }) => {
 
     const open = Boolean(anchorEl);
     const id = open ? "sort_popover" : undefined;
@@ -39,9 +39,10 @@ const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axi
 
     const select_option = async (obj) => {
         const FILTERS = await filter_method(obj, set_filters);
-        get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+        updateUrlFromFilters(FILTERS);
         close();
     }
+
 
     return (
         <Popover
@@ -77,7 +78,7 @@ const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, axi
 
 
 
-const All_products = ({ axios }) => {
+const All_products = ({ axios, storeName }) => {
 
     const {
         get_all_products_api,
@@ -87,24 +88,32 @@ const All_products = ({ axios }) => {
         set_filters_admin: set_filters,
         filter_options_admin: filter_options,
         set_filter_options_admin: set_filter_options,
-        fetched_products_for_collection: products,
-        set_fetched_products_for_collection: set_products,
+        fetched_products_for_collection_admin: products,
+        set_fetched_products_for_collection_admin: set_products,
         products_for_collection_admin_loading: is_loading,
         set_products_for_collection_admin_loading: set_is_loading,
+        filter_options_loading_admin: filter_options_loading,
+        set_filter_options_loading_admin: set_filter_options_loading,
         stored_path_admin: stored_path,
         set_stored_path_admin: set_stored_path,
         show_more_payload_admin: show_more_payload,
         set_show_more_payload_admin: set_show_more_payload,
-
+        setStoreName: SET_STORE_NAME,
+        storeName: STORE_NAME,
     } = useStateContext();
 
 
 
     const router = useRouter();
 
+    useEffect(() => {
+        if (storeName) {
+            SET_STORE_NAME(storeName)
+        }
+    }, [storeName]);
+
 
     const [show_more_loading, set_show_more_loading] = useState(false);
-    const [filter_options_loading, set_filter_options_loading] = useState(false);
 
 
 
@@ -117,19 +126,27 @@ const All_products = ({ axios }) => {
 
 
     useEffect(() => {
-        if (!Object.entries(filter_options).length) {
-            get_filter_values_api(axios, set_filter_options, set_filter_options_loading);
-        }
-    }, []);
+        if (!router.isReady || !storeName) return;
+
+        // Clear old filters when store changes
+        set_filter_options({});
+        set_filters([]);
+        set_clone_filters([]);
+        set_is_loading(true);
+
+        // Fetch new filter options for selected store
+        get_filter_values_api(axios, set_filter_options, set_filter_options_loading, `store_name=${storeName}`);
+    }, [storeName]);
 
     const [clone_filters, set_clone_filters] = useState([]); // Tihs is has nothing to with showing data but to prevent multiple fetchings.
     useEffect(() => {
-        if (Object.keys(filter_options).length && !filters.length) {
-            // Initalizing and Reseting Filters
-            remove_all_items_from_filters_realtime_update(filter_options, set_filters);
-            remove_all_items_from_filters_realtime_update(filter_options, set_clone_filters);
-        }
-    }, [filter_options]);
+        if (!Object.keys(filter_options).length) return;
+
+        // Always rebuild filters whenever filter_options change
+        remove_all_items_from_filters_realtime_update(filter_options, set_filters);
+        remove_all_items_from_filters_realtime_update(filter_options, set_clone_filters);
+
+    }, [filter_options, STORE_NAME]);
 
 
 
@@ -160,19 +177,40 @@ const All_products = ({ axios }) => {
 
         const fetch = async () => {
             if (router.asPath !== stored_path) {
-
                 let FILTERS = filters;
                 const query_filters = configure_query_filters(router.query);
                 if (query_filters.length) {
                     FILTERS = await add_query_filters(query_filters, set_clone_filters);
                 }
                 if ((filters.length === 3 || (filters.length >= 3 && Object.keys(router.query).length)) && filters.every(e => Object.values(e)[0] !== undefined && Object.values(e)[0] !== null)) {
-                    get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading);
+                    get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_is_loading, null, convert_to_query_string([{ main_store: storeName }]));
                 }
             }
         }
         fetch();
     }, [router.isReady, filters]);
+
+
+    useEffect(() => {
+        if (!router.isReady || !Object.keys(filter_options).length) return;
+
+        let query_filters = configure_query_filters(router.query, filter_options);
+
+        // ⛔ Fixes YOUR exact problem:
+        const sort = find_filter(query_filters, "sort_by")?.sort_by;
+        if (!sort || sort === "undefined") {
+            query_filters = query_filters.filter(f => !f.sort_by); // remove bad one
+            query_filters.push({ sort_by: "created-descending" }); // add fresh one
+        }
+
+        if (!find_filter(query_filters, "price_gte"))
+            query_filters.push({ price_gte: 0 });
+
+        if (!find_filter(query_filters, "price_lte"))
+            query_filters.push({ price_lte: filter_options.price_lte });
+
+        add_query_filters(query_filters, set_filters);
+    }, [router.isReady, router.query, filter_options]);
 
 
 
@@ -199,7 +237,7 @@ const All_products = ({ axios }) => {
         });
 
         router.push({
-            pathname: router.pathname,
+            pathname: router.asPath.split('?')[0],
             query
         }, undefined, { shallow: true });
     };
@@ -341,7 +379,7 @@ const All_products = ({ axios }) => {
                     FILTERS = await add_query_filters(query_filters, set_clone_filters);
                 }
 
-                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
+                get_all_products_api(axios, convert_to_query_string(FILTERS), set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }, { main_store: storeName }]));
 
             }
         }
@@ -385,6 +423,14 @@ const All_products = ({ axios }) => {
 
 
 
+    const isValidFilter = (filter) => {
+        if (filter && Array.isArray(filter) && filter.length) return true;
+        return false;
+    }
+
+
+    const noFiltersAvailable = ((!Boolean(Object.keys(filter_options).length) || !Boolean(filters.length)) && !filter_options_loading)
+
     return (
         <div className='w-full'>
             <div className='w-full flex gap-4' >
@@ -392,7 +438,7 @@ const All_products = ({ axios }) => {
                 {/* Filter Section */}
                 <div className={`lg:flex-[1.3] xl:flex-[1.2] 2xl:flex-[1.1] py-[10px] hidden lg:block`}>
                     <div className={`w-full h-[calc(100vh-105px)] md:h-[calc(100vh-120px)] overflow-y-auto sticky top-[70px] overflow-x-hidden px-[15px] ${styles.scroll_bar} transition-all duration-500`} >
-                        {(filter_options_loading || !Boolean(Object.keys(filter_options).length)) || !Boolean(filters.length) ?
+                        {filter_options_loading ? (
                             <div className='flex flex-col h-full justify-between pb-[30px]'>
                                 <div>
                                     <Skeleton
@@ -477,7 +523,13 @@ const All_products = ({ axios }) => {
                                     className='bg-stone-100 w-full h-[40px] mt-[45px]'
                                 />
                             </div>
-                            :
+                        ) : noFiltersAvailable ? (
+                            <div className="w-full h-[70vh] flex justify-center items-center">
+                                <p className="text-stone-500 text-lg font-semibold text-center">
+                                    No filters
+                                </p>
+                            </div>
+                        ) : (
                             <>
                                 {/* Filter Realtime Updates */}
                                 {Boolean(filters_realtime_update(filter_options, filters).length) &&
@@ -510,123 +562,228 @@ const All_products = ({ axios }) => {
                                 }
 
 
-                                {/* size */}
-                                <Fade>
 
-                                    <div className='pb-[15px] border-b border-stone-300'>
-                                        <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
-                                        <div className={`flex flex-wrap justify-start gap-2 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
-                                            {filter_options.sizes.map((each, index) => (
+                                {/* size */}
+                                {isValidFilter(filter_options.sizes) &&
+                                    <Fade>
+
+                                        <div className='pb-[15px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Size</h1>
+                                            <div className={`flex flex-wrap justify-start gap-2 max-h-[150px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.sizes.map((each, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => apply_filter({ size: String(each) })}
+                                                        className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 transition-all text-ellipsis line-clamp-1 overflow-hidden ${filters.some(e => String(e.size) === String(each)) ? "bg-gray-200" : ""}`}
+                                                    >
+                                                        {each}
+                                                    </button>
+                                                ))
+                                                }
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "size") &&
                                                 <button
-                                                    key={index}
-                                                    onClick={() => apply_filter({ size: each })}
-                                                    className={`w-[45px] h-[30px] border border-stone-300 text-center text-[14px] text-stone-900 active:bg-gray-300 transition-all text-ellipsis line-clamp-1 overflow-hidden ${filters.some(e => String(e.size) === String(each)) ? "bg-gray-200" : ""}`}
-                                                >
-                                                    {each}
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "size")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
                                                 </button>
-                                            ))
                                             }
                                         </div>
-                                        {filters.some(e => Object.keys(e)[0] === "size") &&
-                                            <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "size")
-                                                }
-                                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
-                                                Clear all
-                                            </button>
-                                        }
-                                    </div>
-                                </Fade>
+                                    </Fade>
+                                }
 
 
                                 {/* Condition */}
-                                <Fade>
-                                    <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
-                                        <h1 className='text-[17px] text-stone-900 mb-3'>Condition</h1>
-                                        <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
-                                            {filter_options.conditions.map((each, index) => (
+                                {isValidFilter(filter_options.conditions) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Condition</h1>
+                                            <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.conditions.map((each, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => apply_filter({ condition: each })}
+                                                        className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.condition === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "condition") &&
                                                 <button
-                                                    key={index}
-                                                    onClick={() => apply_filter({ condition: each })}
-                                                    className='flex items-center w-full'
-                                                >
-                                                    <Checkbox
-                                                        checked={filters.some(e => e.condition === each)}
-                                                        size='small'
-                                                    />
-                                                    <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "condition")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
                                                 </button>
-                                            ))}
+                                            }
                                         </div>
-                                        {filters.some(e => Object.keys(e)[0] === "condition") &&
-                                            <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "condition")
-                                                }
-                                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
-                                                Clear all
-                                            </button>
-                                        }
-                                    </div>
-                                </Fade>
+                                    </Fade>
+                                }
 
-                                {/* Shoes Types */}
-                                <Fade>
-                                    <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
-                                        <h1 className='text-[17px] text-stone-900 mb-3'>Shoe Type</h1>
-                                        <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
-                                            {(sort_store_names(filter_options.store_names)).map((each, index) => (
+
+                                {/* Type */}
+                                {isValidFilter(filter_options.types) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3 capitalize'>{storeName} Type</h1>
+                                            <div className={`max-h-[200px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.types.map((each, index) => (
+                                                    <button
+                                                        onClick={() => apply_filter({ type: each })}
+                                                        key={index + each} className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.type === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "type") &&
                                                 <button
-                                                    key={index}
-                                                    onClick={() => apply_filter({ store_name: each })}
-                                                    className='flex items-center w-full'
-                                                >
-                                                    <Checkbox
-                                                        checked={filters.some(e => e.store_name === each)}
-                                                        size='small'
-                                                    />
-                                                    <p className='text-[15px] text-stone-900 capitalize'>{store_name_filter_display_fn(each)}</p>
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "type")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
                                                 </button>
-                                            ))}
+                                            }
                                         </div>
-                                        {filters.some(e => Object.keys(e)[0] === "store_name") &&
-                                            <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "store_name")
-                                                }
-                                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
-                                                Clear all
-                                            </button>
-                                        }
-                                    </div>
-                                </Fade>
+                                    </Fade>
+                                }
+
+
+                                {/* Store Name */}
+                                {isValidFilter(filter_options.store_names) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Shoe Type</h1>
+                                            <div className={`max-h-[155px] px-[10px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {(sort_store_names(filter_options.store_names)).map((each, index) => (
+                                                    <button
+                                                        key={index}
+                                                        onClick={() => apply_filter({ store_name: each })}
+                                                        className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.store_name === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{store_name_filter_display_fn(each)}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "store_name") &&
+                                                <button
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "store_name")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
+                                                </button>
+                                            }
+                                        </div>
+                                    </Fade>
+                                }
+
+                                {/* Category */}
+                                {isValidFilter(filter_options.categories) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Category</h1>
+                                            <div className={`max-h-[200px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.categories.map((each, index) => (
+                                                    <button
+                                                        onClick={() => apply_filter({ category: each })}
+                                                        key={index + each} className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.category === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "category") &&
+                                                <button
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "category")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
+                                                </button>
+                                            }
+                                        </div>
+                                    </Fade>
+                                }
+
+                                {/* Color */}
+                                {isValidFilter(filter_options.colors) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Color</h1>
+                                            <div className={`max-h-[200px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.colors.map((each, index) => (
+                                                    <button
+                                                        onClick={() => apply_filter({ color: each })}
+                                                        key={index + each} className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.color === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "color") &&
+                                                <button
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "color")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
+                                                </button>
+                                            }
+                                        </div>
+                                    </Fade>
+                                }
 
                                 {/* Brand */}
-                                <Fade>
-                                    <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
-                                        <h1 className='text-[17px] text-stone-900 mb-3'>Brand</h1>
-                                        <div className={`max-h-[200px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
-                                            {filter_options.brands.map((each, index) => (
+                                {isValidFilter(filter_options.brands) &&
+                                    <Fade>
+                                        <div className='mt-[30px] pb-[10px] border-b border-stone-300'>
+                                            <h1 className='text-[17px] text-stone-900 mb-3'>Brand</h1>
+                                            <div className={`max-h-[200px] overflow-y-auto overflow-x-hidden ${styles.scroll_bar}`} >
+                                                {filter_options.brands.map((each, index) => (
+                                                    <button
+                                                        onClick={() => apply_filter({ brand: each })}
+                                                        key={index + each} className='flex items-center w-full text-left'
+                                                    >
+                                                        <Checkbox
+                                                            checked={filters.some(e => e.brand === each)}
+                                                            size='small'
+                                                        />
+                                                        <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {filters.some(e => Object.keys(e)[0] === "brand") &&
                                                 <button
-                                                    onClick={() => apply_filter({ brand: each })}
-                                                    key={index + each} className='flex items-center w-full'
-                                                >
-                                                    <Checkbox
-                                                        checked={filters.some(e => e.brand === each)}
-                                                        size='small'
-                                                    />
-                                                    <p className='text-[15px] text-stone-900 capitalize'>{each}</p>
+                                                    onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "brand")
+                                                    }
+                                                    className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
+                                                    Clear all
                                                 </button>
-                                            ))}
+                                            }
                                         </div>
-                                        {filters.some(e => Object.keys(e)[0] === "brand") &&
-                                            <button
-                                                onClick={() => remove_group_items_from_filters_realtime_update_fn(set_filters, "brand")
-                                                }
-                                                className='text-[14px] text-stone-600 my-3 underline underline-offset-4 px-[10px]'>
-                                                Clear all
-                                            </button>
-                                        }
-                                    </div>
-                                </Fade>
+                                    </Fade>
+                                }
+
 
                                 {/* Price */}
                                 <Fade>
@@ -692,7 +849,15 @@ const All_products = ({ axios }) => {
                                 <Fade>
                                     <div className='mt-[20px] mb-[50px] w-full'>
                                         <button
-                                            onClick={() => get_all_products_api(axios, convert_to_query_string(filters), set_products, set_show_more_payload, set_is_loading)}
+                                            onClick={() => get_all_products_api(
+                                                axios,
+                                                convert_to_query_string(filters),
+                                                set_products,
+                                                set_show_more_payload,
+                                                set_is_loading,
+                                                null,
+                                                convert_to_query_string([{ main_store: storeName }])
+                                            )}
                                             className='bg-black font-bold text-white hover:opacity-75 active:opacity-50 transition-all py-[15px] w-full' >
                                             Apply
                                         </button>
@@ -700,7 +865,7 @@ const All_products = ({ axios }) => {
                                 </Fade>
                                 {/* end */}
                             </>
-                        }
+                        )}
                     </div>
                 </div>
 
@@ -806,9 +971,9 @@ const All_products = ({ axios }) => {
                     </div>
 
                     {/* Products */}
-                    <div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`${!is_loading && !Boolean(products.length) ? "flex" : "grid gap-x-2 gap-y-4"} transition-all`}>
-                        {is_loading ?
-                            [...Array(16)].map((_, i) => (
+                    {filter_options_loading ? (
+                        <div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`${!is_loading && !Boolean(products.length) ? "flex" : "grid gap-x-2 gap-y-4"} transition-all`}>
+                            {[...Array(16)].map((_, i) => (
                                 <Fade key={i}>
                                     <div className={`p-2 md:p-4 flex gap-2 ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}>
                                         <Skeleton
@@ -848,21 +1013,73 @@ const All_products = ({ axios }) => {
                                         </div>
                                     </div>
                                 </Fade>
-                            ))
-                            : Boolean(products.length) ?
-                                products.map((product) => (
-                                    <Fade key={product._id}>
-                                        <Link href={`/admin/update-product?product_id=${product._id}`} >
-                                            <div
-                                                className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
-                                            >
-                                                <div className='relative'>
-                                                    <div className={`overflow-hidden shadow-sm relative`}>
-                                                        <img
-                                                            alt=""
-                                                            src={select_thumbnail_from_media(product.media)}
-                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
-                                                            className={`
+                            ))}
+                        </div>
+                    ) : noFiltersAvailable ? (
+                        <div className="w-full h-[50vh] flex justify-center items-center">
+                            <p className="text-stone-500 text-lg font-semibold text-center">
+                                Store is not active yet — products will arrive soon.
+                            </p>
+                        </div>
+
+                    ) : (
+                        <div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`${!is_loading && !Boolean(products.length) ? "flex" : "grid gap-x-2 gap-y-4"} transition-all`}>
+                            {is_loading ?
+                                [...Array(16)].map((_, i) => (
+                                    <Fade key={i}>
+                                        <div className={`p-2 md:p-4 flex gap-2 ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}>
+                                            <Skeleton
+                                                variant='rounded'
+                                                animation="wave"
+                                                className={`
+                                                ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
+                                                ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}
+                                                ${grid === 3 ? "w-full h-[320px] xl:h-[420px]" : ""}
+                                                ${grid === 4 ? "w-full h-[300px]" : ""}
+                                                bg-stone-100
+                                            `}
+                                            />
+                                            <div>
+                                                <Skeleton
+                                                    variant='text'
+                                                    animation="wave"
+                                                    className='bg-stone-100 w-[140px] md:w-[160px]'
+                                                />
+                                                <div className='mt-4 flex flex-col gap-1' >
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
+                                                    />
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
+                                                    />
+                                                    <Skeleton
+                                                        variant='rounded'
+                                                        animation="wave"
+                                                        className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Fade>
+                                ))
+                                : Boolean(products.length) ?
+                                    products.map((product) => (
+                                        <Fade key={product._id}>
+                                            <Link href={`/admin/update-product?product_id=${product._id}`} >
+                                                <div
+                                                    className={`p-2 md:p-4 flex gap-2 cursor-pointer ${grid === 1 ? "flex-col sm:flex-row" : "flex-col"}`}
+                                                >
+                                                    <div className='relative'>
+                                                        <div className={`overflow-hidden shadow-sm relative`}>
+                                                            <img
+                                                                alt=""
+                                                                src={select_thumbnail_from_media(product.media)}
+                                                                onError={(e) => e.target.src = "/images/logo_error.png"}
+                                                                className={`
 
                                                         ${grid === 1 ? "w-full sm:w-[250px] md:w-[300px] 2xl:w-[350px] h-[450px] sm:h-[500px] md:h-[320px] xl:h-[380px]" : ""}
                                                         ${grid === 2 ? "w-full h-[200px] md:h-[400px] xl:h-[640px]" : ""}
@@ -871,54 +1088,57 @@ const All_products = ({ axios }) => {
                                                             
                                                             overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500`} />
 
-                                                        {calculate_product_stock(product) === 0 &&
-                                                            <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
-                                                                SOLD OUT
-                                                            </span>
+                                                            {calculate_product_stock(product) === 0 &&
+                                                                <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
+                                                                    SOLD OUT
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                        {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
+                                                            <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
+                                                                {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
+                                                            </p>
                                                         }
+
                                                     </div>
-                                                    {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
-                                                        <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
-                                                            {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
-                                                        </p>
-                                                    }
-
-                                                </div>
 
 
-                                                <div className='flex flex-col gap-1'>
-                                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                        <span className='text-[15px] font-bold text-black'>
-                                                            Rs. {product.price.toLocaleString("en-US")}
-                                                        </span>
-                                                        {" "}
-                                                        {Boolean(product.compare_price) &&
-                                                            <span className='text-[13px] line-through text-red-600'>
-                                                                Rs. {product.compare_price.toLocaleString("en-US")}
+                                                    <div className='flex flex-col gap-1'>
+                                                        <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
+                                                        <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
+                                                            <span className='text-[15px] font-bold text-black'>
+                                                                Rs. {product.price.toLocaleString("en-US")}
                                                             </span>
+                                                            {" "}
+                                                            {Boolean(product.compare_price) &&
+                                                                <span className='text-[13px] line-through text-red-600'>
+                                                                    Rs. {product.compare_price.toLocaleString("en-US")}
+                                                                </span>
+                                                            }
+                                                        </p>
+                                                        {(!product.has_variants && Boolean(product.size)) &&
+                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                                                         }
-                                                    </p>
-                                                    {!product.has_variants &&
-                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                    }
-                                                    {product.condition !== "brand new" &&
-                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                    }
-                                                    <p className='text-[14px] text-black line-clamp-2 overflow-hidden text-ellipsis' >Date: {date_formatter(product.createdAt)}</p>
+                                                        {product.condition !== "brand new" &&
+                                                            <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
+                                                        }
+                                                        <p className='text-[14px] text-black line-clamp-2 overflow-hidden text-ellipsis' >Date: {date_formatter(product.createdAt)}</p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </Link>
+                                            </Link>
+                                        </Fade>
+                                    ))
+                                    :
+                                    <Fade>
+                                        <div className='w-full h-[50vh] flex justify-center items-center' >
+                                            <p className='text-center select-none text-stone-600 text-[15px] md:text-[17px] lg:text-[20px] font-bold px-[30px] w-full'>No product was found. Try to remove filters or reload this page</p>
+                                        </div>
                                     </Fade>
-                                ))
-                                :
-                                <Fade>
-                                    <div className='w-full h-[50vh] flex justify-center items-center' >
-                                        <p className='text-center select-none text-stone-600 text-[15px] md:text-[17px] lg:text-[20px] font-bold px-[30px] w-full'>No product was found. Try to remove filters or reload this page</p>
-                                    </div>
-                                </Fade>
-                        }
-                    </div>
+                            }
+                        </div>
+                    )}
+
+
 
                     {(show_more_payload.hasMore && !is_loading) &&
                         <Fade>

@@ -330,7 +330,7 @@ const Landing_page = ({ axios }) => {
                                                             </span>
                                                         }
                                                     </p>
-                                                    {!product.has_variants &&
+                                                    {!product.has_variants && Boolean(product.size) &&
                                                         <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
                                                     }
                                                     {product.condition !== "brand new" &&

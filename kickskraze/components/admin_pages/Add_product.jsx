@@ -27,7 +27,20 @@ const Add_product = ({ axios, user: USER }) => {
 
 
 
-    const { create_product_api, product_details, set_product_details, default_product_details, set_API_loading, user, set_user, get_user_api, set_snackbar_alert } = useStateContext()
+    const {
+        create_product_api,
+        product_details,
+        set_product_details,
+        default_product_details,
+        set_API_loading,
+        user,
+        set_user,
+        get_user_api,
+        set_snackbar_alert,
+        get_filter_values_api,
+        filter_options,
+        set_filter_options,
+    } = useStateContext()
 
     const style_textfield = {
         '& .MuiOutlinedInput-root': {
@@ -64,8 +77,6 @@ const Add_product = ({ axios, user: USER }) => {
             color: 'rgb(214 211 209)', // Focused label color
         },
     };
-
-
 
 
 
@@ -544,6 +555,44 @@ const Add_product = ({ axios, user: USER }) => {
     }
 
 
+    // Brand List Builder
+    const [fetched_brand_list, set_fetched_brand_list] = useState([])
+
+    const build_brand_list = (newBrandsFromDB, oldBrandList) => {
+
+        // Normalize → convert ["Nike","Adidas"] from DB into objects
+        const formattedNewBrands = newBrandsFromDB.map(b => ({
+            brand: b,
+            _id: nanoid(8)
+        }))
+
+        // Combine old + new, but remove duplicates using Map
+        const merged = [
+            ...oldBrandList,
+            ...formattedNewBrands
+        ];
+
+        const uniqueBrandList = [
+            ...new Map(merged.map(item => [item.brand.toLowerCase(), item])).values()
+        ];
+
+        set_fetched_brand_list(uniqueBrandList);
+    }
+
+    useEffect(() => {
+        if (user && !Object.entries(filter_options).length) {
+            get_filter_values_api(axios, set_filter_options, set_API_loading);
+        }
+    }, [user]);
+
+    useEffect(() => {
+        if (Object.keys(filter_options).length) {
+            build_brand_list(filter_options.brands, brand_list);
+        } else {
+            build_brand_list([], brand_list);
+        }
+    }, [filter_options]);
+
 
     // Adding Product Function / Submit Function
     const [error_shake, set_error_shake] = useState(false);
@@ -896,7 +945,7 @@ const Add_product = ({ axios, user: USER }) => {
 
 
                 {/* <h1 className='text-[17px] font-medium mt-5'>Size </h1> */}
-                {(product_details.store_name !== "Footwear-accessories" || product_details.type === "socks") &&
+                {(product_details.store_name !== "Footwear-accessories" || ["socks", "insole"].includes(product_details.type)) &&
                     <div className='flex flex-col gap-3'>
 
                         <div className='flex flex-wrap gap-2' >
@@ -1063,6 +1112,7 @@ const Add_product = ({ axios, user: USER }) => {
                     </div>
                 }
 
+
                 {/* <h1 className='text-[17px] font-medium mt-5'>Variants</h1> */}
                 {Boolean(product_details.variants.length > 0) &&
                     <div className="overflow-x-auto mb-6">
@@ -1113,16 +1163,13 @@ const Add_product = ({ axios, user: USER }) => {
                 }
 
 
-
-
-
                 {/* <h1 className='text-[17px] font-medium mt-5'>Brands</h1> */}
                 <Autocomplete
                     id="section-list"
                     className="w-full"
                     size='medium'
                     freeSolo
-                    options={brand_list}
+                    options={fetched_brand_list}
                     getOptionLabel={(option) => option.brand || option} // Display title in the input
                     value={product_details.brand || null}
                     inputValue={product_details.brand || ""}

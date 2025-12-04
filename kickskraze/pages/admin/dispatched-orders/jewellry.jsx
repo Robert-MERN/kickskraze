@@ -1,5 +1,5 @@
 import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
-import App_settings from '@/components/admin_pages/App_settings'
+import Dispatched_orders from '@/components/admin_pages/Dispatched_orders';
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
 import axios from 'axios'
@@ -20,21 +20,22 @@ export default function Home({ fullUrl, logoUrl, user }) {
             set_user(user);
         }
     }, [user]);
+
     return (
         <>
             <Head>
-                <title>Kickskraze | Admin | App Settings</title>
-                <meta property="og:title" content="Kickskraze | Admin | App Settings" />
-                <meta property="og:description" content="Admin / App Settings Page" />
+                <title>Kickskraze | Admin | Dispatched Orders | Jewellry</title>
+                <meta property="og:title" content="Kickskraze | Admin | Dispatched Orders | Jewellry" />
+                <meta property="og:description" content="Admin | Dispatched Orders Page | Jewellry" />
                 <meta property="og:image" content={logoUrl} />
                 <meta property="og:url" content={fullUrl} />
-                <meta property="og:type" content="admin - app settings" />
+                <meta property="og:type" content="admin - dispatched orders - jewellry" />
                 <link rel="icon" href="/images/icon.png" />
             </Head>
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<App_settings axios={axios} />} />
+                    <Admin_page_layout admin_children={<Dispatched_orders axios={axios} storeName="Jewelry" />} />
                 </div>
             </div>
         </>

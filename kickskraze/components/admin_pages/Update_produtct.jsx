@@ -22,13 +22,57 @@ import { GiClothes } from "react-icons/gi";
 
 
 
+
 const Create_product = ({ axios, user: USER }) => {
 
 
 
-    const { update_product_api, product_id, set_product_id, update_product_details, set_update_product_details, default_update_product_details, set_API_loading, API_loading, toggle_modal, get_all_products_title_api, get_product_api, products_title, set_products_title, user, set_user, get_user_api, set_snackbar_alert } = useStateContext();
+    const {
+        update_product_api,
+        product_id, set_product_id,
+        update_product_details,
+        set_update_product_details,
+        default_update_product_details,
+        set_API_loading,
+        API_loading,
+        toggle_modal,
+        get_all_products_title_api,
+        get_product_api,
+        products_title,
+        set_products_title,
+        user,
+        set_user,
+        get_user_api,
+        set_snackbar_alert,
+        get_filter_values_api,
+        filter_options,
+        set_filter_options,
+    } = useStateContext();
 
     const router = useRouter();
+
+    const [fetched_brand_list, set_fetched_brand_list] = useState([])
+
+    const build_brand_list = (newBrandsFromDB, oldBrandList) => {
+
+        // Normalize → convert ["Nike","Adidas"] from DB into objects
+        const formattedNewBrands = newBrandsFromDB.map(b => ({
+            brand: b,
+            _id: nanoid(8)
+        }))
+
+        // Combine old + new, but remove duplicates using Map
+        const merged = [
+            ...oldBrandList,
+            ...formattedNewBrands
+        ];
+
+        const uniqueBrandList = [
+            ...new Map(merged.map(item => [item.brand.toLowerCase(), item])).values()
+        ];
+
+        set_fetched_brand_list(uniqueBrandList);
+    }
 
     // Fetching user with USER.id to know the current values of user.
     useEffect(() => {
@@ -64,6 +108,11 @@ const Create_product = ({ axios, user: USER }) => {
 
     useEffect(() => {
         if (user) {
+
+            if (!Object.entries(filter_options).length) {
+                get_filter_values_api(axios, set_filter_options, set_is_loading_local);
+            }
+
             const delayDebounce = setTimeout(() => {
                 if (searchTerm.trim()) {
                     // Search when user types something
@@ -72,16 +121,20 @@ const Create_product = ({ axios, user: USER }) => {
                     // Default: load latest 100 products
                     get_all_products_title_api(axios, set_products_title, set_is_loading_local, `store_name=${encodeURIComponent(user.store_name)}`);
                 }
+
             }, 600);
 
             return () => clearTimeout(delayDebounce);
         }
     }, [searchTerm, user]);
 
-
-
-
-
+    useEffect(() => {
+        if (Object.keys(filter_options).length) {
+            build_brand_list(filter_options.brands, brand_list);
+        } else {
+            build_brand_list([], brand_list);
+        }
+    }, [filter_options]);
 
 
     const style_textfield = {
@@ -253,7 +306,7 @@ const Create_product = ({ axios, user: USER }) => {
                 }
                 break;
             case 'type':
-                if ((user?.store_name !== "Footwear" || !/Footwear-accessories|Areeba-sandals|SM-sandals/.test(update_product_details.store_name)) && !value) {
+                if ((user?.store_name !== "Footwear" || (/Footwear-accessories|Areeba-sandals|SM-sandals/.test(update_product_details.store_name)) && !value)) {
                     error = 'Please select the product type';
                 }
                 break;
@@ -759,7 +812,6 @@ const Create_product = ({ axios, user: USER }) => {
         }
     };
 
-
     // Date Formatter
     const date_formatter = (date) => {
         // Create a Date object
@@ -782,8 +834,6 @@ const Create_product = ({ axios, user: USER }) => {
 
         return `${formattedDate}  [${formattedTime}]`;
     };
-
-
 
 
     return (
@@ -1096,7 +1146,7 @@ const Create_product = ({ axios, user: USER }) => {
 
 
                         {/* <h1 className='text-[17px] font-medium mt-5'>Size </h1> */}
-                        {(update_product_details.store_name !== "Footwear-accessories" || update_product_details.type === "socks") &&
+                        {(update_product_details.store_name !== "Footwear-accessories" || ["socks", "insole"].includes(update_product_details.type)) &&
                             <div className='flex flex-col gap-3'>
 
                                 <div className='flex flex-wrap gap-2' >
@@ -1319,7 +1369,7 @@ const Create_product = ({ axios, user: USER }) => {
                             className="w-full"
                             size='medium'
                             freeSolo
-                            options={brand_list}
+                            options={fetched_brand_list}
                             getOptionLabel={(option) => option.brand || option} // Display title in the input
                             value={update_product_details.brand || null}
                             inputValue={update_product_details.brand || ""}

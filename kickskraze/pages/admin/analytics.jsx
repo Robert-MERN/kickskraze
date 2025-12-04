@@ -33,7 +33,7 @@ export default function Home({ fullUrl, logoUrl, user }) {
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<Analytics axios={axios} />} />
+                    <Admin_page_layout admin_children={<Analytics axios={axios} user={user} />} />
                 </div>
             </div>
         </>
