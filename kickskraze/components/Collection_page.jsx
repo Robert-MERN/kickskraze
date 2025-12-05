@@ -123,22 +123,26 @@ const Collection_page = ({ axios, storeName }) => {
 
 
 
+    const [clone_filters, set_clone_filters] = useState([]); // Tihs is has nothing to with showing data but to prevent multiple fetchings.
 
     useEffect(() => {
         if (!router.isReady || !storeName) return;
 
+
         // Clear old filters when store changes
-        set_filter_options({});
-        set_filters([]);
-        set_clone_filters([]);
-        set_is_loading(true);
+        if (stored_path !== router.asPath) {
+            set_filter_options({});
+            set_filters([]);
+            set_clone_filters([]);
+            set_is_loading(true);
+        }
 
         // Fetch new filter options for selected store
         get_filter_values_api(axios, set_filter_options, set_filter_options_loading, `store_name=${storeName}`);
     }, [storeName]);
 
 
-    const [clone_filters, set_clone_filters] = useState([]); // Tihs is has nothing to with showing data but to prevent multiple fetchings.
+
     useEffect(() => {
         if (Object.keys(filter_options).length && !filters.length) {
             // Initalizing and Reseting Filters
@@ -443,7 +447,7 @@ const Collection_page = ({ axios, storeName }) => {
     const noFiltersAvailable = ((!Boolean(Object.keys(filter_options).length) || !Boolean(filters.length)) && !filter_options_loading);
 
 
-
+    console.log({ is_loading, filters, products });
 
 
     return (
@@ -1164,7 +1168,7 @@ const Collection_page = ({ axios, storeName }) => {
                                     </button>
                                 </div>
                             </Fade>
-                            
+
                             {/* 👇 Invisible scroll trigger */}
                             <div ref={autoTriggerRef} className="h-[1px]"></div>
                         </>

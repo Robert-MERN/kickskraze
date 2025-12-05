@@ -117,9 +117,11 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         if (!router.isReady || !storeName) return;
 
         // Clear old filters when store changes
-        set_filter_options({});
-        set_filters([]);
-        set_is_loading(true);
+        if (stored_path !== router.asPath) {
+            set_filter_options({});
+            set_filters([]);
+            set_is_loading(true);
+        }
 
         // Fetch new filter options for selected store
         get_filter_values_api(axios, set_filter_options, set_filter_options_loading, `store_name=${storeName}`);

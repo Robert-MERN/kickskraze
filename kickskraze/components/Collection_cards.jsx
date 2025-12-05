@@ -152,11 +152,11 @@ const Collection_cards = () => {
                                         {each.collection_title}
                                     </p>
 
-                                    <p className='mt-2 text-[15px] font-bold text-stone-600' >
+                                    <p className='mt-3 text-[15px] font-bold text-stone-500 leading-[18px]' >
                                         {each.collection_description}
                                     </p>
 
-                                    <p className='text-[14px] text-stone-500' >
+                                    <p className='text-[14px] text-stone-500 leading-[18px] mt-1' >
                                         {each.collection_tags}
                                     </p>
 

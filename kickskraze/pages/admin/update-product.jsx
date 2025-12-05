@@ -1,5 +1,5 @@
 import Admin_page_layout from '@/components/admin_pages/layout/Admin_page_layout'
-import Update_produtct from '@/components/admin_pages/Update_produtct'
+import Update_product from '@/components/admin_pages/Update_product'
 import Admin_navbar from '@/components/utilities/Admin_navbar'
 import Head from 'next/head'
 import axios from 'axios'
@@ -35,7 +35,7 @@ export default function Home({ fullUrl, logoUrl, user }) {
             <div className='w-screen flex flex-col items-center'>
                 <Admin_navbar />
                 <div className='w-full mt-[70px]' >
-                    <Admin_page_layout admin_children={<Update_produtct axios={axios} user={user} />} />
+                    <Admin_page_layout admin_children={<Update_product axios={axios} user={user} />} />
                 </div>
             </div>
         </>

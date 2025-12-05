@@ -23,7 +23,7 @@ import { GiClothes } from "react-icons/gi";
 
 
 
-const Create_product = ({ axios, user: USER }) => {
+const Update_product = ({ axios, user: USER }) => {
 
     const loadedTypeRef = useRef(false);
 
@@ -1613,4 +1613,4 @@ const Create_product = ({ axios, user: USER }) => {
     )
 }
 
-export default Create_product
+export default Update_product
