@@ -32,13 +32,8 @@ const Filter_drawer = ({ drawer_state, toggle_drawer, axios }) => {
         set_filter_options,
         get_filter_values_api,
         storeName,
-        get_all_products_api,
-        fetched_products_for_collection: products,
-        set_fetched_products_for_collection: set_products,
-        products_for_collection_loading: is_loading,
         set_products_for_collection_loading: set_is_loading,
-        show_more_payload,
-        set_show_more_payload
+        stored_path,
     } = useStateContext();
 
 

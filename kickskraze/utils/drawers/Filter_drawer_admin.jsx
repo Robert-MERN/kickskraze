@@ -32,12 +32,10 @@ const Filter_drawer_admin = ({ drawer_state, toggle_drawer, axios }) => {
         filters_admin: filters,
         set_filters_admin: set_filters,
         filter_options_admin: filter_options,
-        set_filter_options_admin: set_filter_options,
         storeName,
-        get_all_products_api,
-        set_fetched_products_for_collection: set_products,
+        set_filter_options_admin: set_filter_options,
         set_products_for_collection_admin_loading: set_is_loading,
-        set_show_more_payload_admin: set_show_more_payload,
+        stored_path_admin: stored_path,
     } = useStateContext();
 
 

@@ -447,9 +447,6 @@ const Collection_page = ({ axios, storeName }) => {
     const noFiltersAvailable = ((!Boolean(Object.keys(filter_options).length) || !Boolean(filters.length)) && !filter_options_loading);
 
 
-    console.log({ is_loading, filters, products });
-
-
     return (
         <div className='w-full px-[20px] pt-[15px] md:pt-[30px] '>
             <div className='w-full flex gap-4' >
