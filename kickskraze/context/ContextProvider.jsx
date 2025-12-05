@@ -323,6 +323,8 @@ export const ContextProvider = ({ children }) => {
     const [orders, set_orders] = useState([]);
     const [dispatched_orders, set_dispatched_orders] = useState([]);
 
+
+
     // Product Page Client
     const [stored_product_id, set_stored_product_id] = useState("");
 
@@ -480,7 +482,7 @@ export const ContextProvider = ({ children }) => {
         // start loading
         set_is_loading(true);
         try {
-            const res = await axios.get(`/api/get_filter_values?${query}`);
+            const res = await axios.get(`/api/get_filter_values${query ? "?" + query : ""}`);
             set_state(res.data);
         } catch (err) {
             set_snackbar_alert({

@@ -11,9 +11,20 @@ const Dispatched_orders = ({ axios, storeName }) => {
 
     const router = useRouter();
 
-    const { get_all_orders_api, set_snackbar_alert, dispatched_orders, set_dispatched_orders, set_order_id, toggle_modal, toggle_drawer } = useStateContext();
+    const {
+        get_all_orders_api,
+        set_snackbar_alert,
+        dispatched_orders,
+        set_dispatched_orders,
+        set_order_id,
+        toggle_modal,
+        toggle_drawer,
+    } = useStateContext();
+
+
     const [is_loading, set_is_loading] = useState(true);
     const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 13, });
+
 
     const copy_to_clipboard = async (text, msg) => {
         try {
@@ -253,8 +264,14 @@ const Dispatched_orders = ({ axios, storeName }) => {
     ];
 
     useEffect(() => {
+        
+        if (!storeName) return;
+
+        set_is_loading(true); // always show loading on store change
+
         get_all_orders_api(axios, `status_not=booked&store_name=${storeName}`, set_dispatched_orders, set_is_loading);
-    }, []);
+
+    }, [storeName]);
 
 
     return (

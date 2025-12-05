@@ -22,6 +22,7 @@ export default async function handler(req, res) {
 
             // Removing "recent" field from the object in the media array
             const { media: _media, ...other } = req.body;
+
             const media = _media.length ? _media.map(e => {
                 const { recent, ...other } = e;
                 return { ...other };
@@ -67,6 +68,7 @@ export default async function handler(req, res) {
 
 
             const products = new Products({ media, ...other });
+            console.log(products);
             await products.save()
 
             await csvQueue.add("updateCSV", {}); // Enqueue CSV update

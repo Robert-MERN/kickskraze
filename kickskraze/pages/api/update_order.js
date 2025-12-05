@@ -112,10 +112,22 @@ export default async function handler(req, res) {
         await csvQueue.add("updateCSV", {});
 
         /* ====================== 5) UPDATE ORDER ====================== */
-        const updated = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
-        const hydratedUpdated = await getUsableOrder(updated);
+        /* A) Hydrate the new purchase BEFORE computing store_name */
+        const tempOrderForHydration = { purchase };
+        const hydratedForStore = await getUsableOrder(tempOrderForHydration);
 
-        hydratedUpdated.store_name = select_store_name(hydratedUpdated.purchase); // <-- 💥 main fix
+        /* B) Now compute correct store list */
+        const newStoreName = select_store_name(hydratedForStore.purchase);
+
+        /* C) Inject store_name into req.body so DB saves it */
+        req.body.store_name = newStoreName;
+
+        /* D) Finally update DB */
+        const updated = await Orders.findByIdAndUpdate(order_id, req.body, { new: true });
+
+        /* E) Hydrate updated order for response */
+        const hydratedUpdated = await getUsableOrder(updated);
+        hydratedUpdated.store_name = newStoreName;
 
         /* ====================== 6) EMAIL EVENTS ====================== */
         const keys = Object.keys(req.body);

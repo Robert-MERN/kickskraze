@@ -376,7 +376,13 @@ const Add_product = ({ axios, user: USER }) => {
                 }
                 break;
             case 'type':
-                if ((user?.store_name !== "Footwear" || /Footwear-accessories|Areeba-sandals|SM-sandals/.test(product_details.store_name)) && !value) {
+                if (
+                    (
+                        user?.store_name !== "Footwear" ||
+                        /Footwear-accessories|Areeba-sandals|SM-sandals/.test(product_details.store_name)
+                    )
+                    && !value
+                ) {
                     error = 'Please select the product type';
                 }
                 break;
@@ -621,25 +627,29 @@ const Add_product = ({ axios, user: USER }) => {
     const [fetched_brand_list, set_fetched_brand_list] = useState([])
 
     const build_brand_list = (newBrandsFromDB, oldBrandList) => {
+        // Normalize inputs
+        const safeNewBrands = Array.isArray(newBrandsFromDB) ? newBrandsFromDB : [];
+        const safeOldList = Array.isArray(oldBrandList) ? oldBrandList : [];
 
-        // Normalize → convert ["Nike","Adidas"] from DB into objects
-        const formattedNewBrands = newBrandsFromDB.map(b => ({
+        // Convert ["Nike", "Adidas"] → [{ brand:"Nike", _id:"..." }]
+        const formattedNewBrands = safeNewBrands.map(b => ({
             brand: b,
             _id: nanoid(8)
-        }))
+        }));
 
-        // Combine old + new, but remove duplicates using Map
-        const merged = [
-            ...oldBrandList,
-            ...formattedNewBrands
-        ];
+        // Merge old + new
+        const merged = [...safeOldList, ...formattedNewBrands];
 
+        // Remove duplicates (case-insensitive)
         const uniqueBrandList = [
-            ...new Map(merged.map(item => [item.brand.toLowerCase(), item])).values()
+            ...new Map(
+                merged.map(item => [String(item.brand).toLowerCase(), item])
+            ).values()
         ];
 
         set_fetched_brand_list(uniqueBrandList);
-    }
+    };
+
 
     useEffect(() => {
         if (user && !Object.entries(filter_options).length) {
@@ -707,20 +717,21 @@ const Add_product = ({ axios, user: USER }) => {
                 // Setting is_thrifted field
                 otherData.is_thrifted = otherData.condition === "brand new" ? false : true;
 
+
+
                 // Append other data fields
                 Object.keys(otherData).forEach((key) => {
                     let value = otherData[key];
 
-                    // Convert arrays to JSON
-                    if (Array.isArray(value)) {
-                        if (value.length > 1) {
-                            value = JSON.stringify(value);
-                        } else if (value.length === 1) {
-                            value = value[0];
-                        } else {
-                            value = "";
-                        }
+                    if (key === "options" || key === "variants") {
+                        value = JSON.stringify(value);
                     }
+
+                    // Convert arrays to JSON normally
+                    else if (Array.isArray(value)) {
+                        value = JSON.stringify(value);
+                    }
+
                     formData.append(key, value);
                 });
                 // Append each file to FormData
@@ -741,7 +752,6 @@ const Add_product = ({ axios, user: USER }) => {
                     }
 
                 }
-
 
                 play_success_sound();
                 await create_product_api(axios, formData, set_API_loading, reset_all);

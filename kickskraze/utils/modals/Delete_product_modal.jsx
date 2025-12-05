@@ -2,6 +2,7 @@ import React from 'react'
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
+import useStateContext from '@/context/ContextProvider';
 
 
 
@@ -21,10 +22,14 @@ const Delete_product_modal = ({
 
     const handle_delete_menu = () => {
 
+
+        const { user } = useStateContext();
+
         const reset_all = () => {
             set_product_id("");
             set_update_product_details(default_update_product_details)
         }
+
 
 
 
@@ -34,7 +39,7 @@ const Delete_product_modal = ({
             set_API_loading,
             reset_all,
             () => toggle_modal("delete_product_modal"),
-            ()=> get_all_products_title_api(axios, set_products_title, set_API_loading),
+            () => get_all_products_title_api(axios, set_products_title, set_API_loading, (user?.store_name ? `store_name=${user?.store_name}` : null)),
         );
     };
 

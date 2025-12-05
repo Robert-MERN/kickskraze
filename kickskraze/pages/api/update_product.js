@@ -2,8 +2,8 @@ import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
-import { parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/produc_fn';
-
+import { parseMixedField, parseOptionsField, parseVariantsField, generateSKU } from '@/utils/functions/produc_fn';
+import util from "util";
 /**
  * 
  * @param {import('next').NextApiRequest} req 
@@ -44,12 +44,14 @@ export default async function handler(req, res) {
 
         // Parsing variants and options fields if the product has variants
         if (other.has_variants) {
-            other.variants = parseVariantsField(other.variants);
+
             other.options = parseOptionsField(other.options);
+            other.variants = parseVariantsField(other.variants);
+
+
         }
 
 
-        
         // ⬇ SKU LOGIC FOR UPDTATE PRODUCT
         //--------------------------------------------------
         // Compare identity (SKU except last hash part)

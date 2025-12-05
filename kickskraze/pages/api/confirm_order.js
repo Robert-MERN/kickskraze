@@ -54,7 +54,9 @@ export default async function handler(req, res) {
         }
 
         // 🔥 NEW IMPORTANT UPDATE — store_name becomes dynamic array
-        req.body.store_name = select_store_name(availablePurchase);  // ⬅ THIS FIXES STORE NAME PROBLEM
+        req.body.store_name = select_store_name(
+            availablePurchase.map(item => productMap.get(item._id.toString()))
+        ); // ⬅ THIS FIXES STORE NAME PROBLEM
 
         // 3) Create + save order
         order = new Orders(req.body);

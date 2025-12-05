@@ -54,15 +54,17 @@ export default async function handler(req, res) {
             updatedOrder.store_name = select_store_name(updatedOrder.purchase);
 
             await send_confirm_mail(res, updatedOrder, "delete");
+            await csvQueue.add("updateCSV", {});
+            return res.status(200).json({ success: true, message: "Order cancelled and removed." });
         }
 
         // =============================== SOFT DELETE ONLY ===============================
         else {
             await Orders.findByIdAndUpdate(order_id, { isDeleted: true }, { new: true });
+            await csvQueue.add("updateCSV", {});
+            return res.status(200).json({ success: true, message: "Order has been moved to trashed." });
         }
 
-        await csvQueue.add("updateCSV", {});
-        return res.status(200).json({ success: true, message: "Order has been deleted." });
 
     } catch (err) {
         return res.status(500).json({ success: false, message: err.message });

@@ -164,21 +164,33 @@ export const parseVariantsField = (field) => {
 export const parseOptionsField = (field) => {
     if (!field) return [];
 
-    let parsed;
-
-    try {
-        parsed = JSON.parse(field);
-    } catch {
-        return [];
+    // Already parsed array (when coming from update product)
+    if (Array.isArray(field)) {
+        return field;
     }
 
-    if (!Array.isArray(parsed)) return [];
+    // JSON string case (most common)
+    if (typeof field === "string") {
+        try {
+            const parsed = JSON.parse(field);
 
-    // ensure correct format
-    return parsed.map(opt => ({
-        name: opt.name,
-        values: Array.isArray(opt.values) ? opt.values : [],
-    }));
+            // Ensure valid structure
+            if (Array.isArray(parsed)) {
+                return parsed.map(opt => ({
+                    name: opt.name,
+                    values: Array.isArray(opt.values) ? opt.values : []
+                }));
+            }
+
+            return [];
+        } catch (err) {
+            console.log("OPTIONS PARSE FAILED:", field);
+            return [];
+        }
+    }
+
+    // Unexpected type
+    return [];
 };
 
 

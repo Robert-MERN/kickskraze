@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import Dialog from '@mui/material/Dialog';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton } from '@mui/material';
@@ -17,14 +17,33 @@ const Delete_order_modal = ({
 
     const { get_all_orders_api, set_orders, set_dispatched_orders, order_id, set_order_id, delete_order_api, set_API_loading, } = useStateContext();
 
-    const pathname = useRouter().pathname;
+    const router = useRouter();
+
+    // Setting store name
+    const [store_name, set_store_name] = useState("");
+    useEffect(() => {
+        const path = router.pathname.split("?")[0].slice(1).split("/");
+        if (path.length === 3 && ["orders", "dispatched-orders"].includes(path[1])) {
+            const normalizedPathStoreName = path[2].charAt(0).toUpperCase() + path[2].slice(1);
+            if (normalizedPathStoreName === "Jewellry") {
+                set_store_name("Jewelry");
+            } else {
+                set_store_name(normalizedPathStoreName);
+            }
+        } else {
+            set_store_name("");
+        }
+
+    }, [router.pathname]);
+
+    const pathname = router.pathname;
     const pages = {
-        "/admin/orders": {
-            query: "status=booked",
+        [`/admin/orders/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`]: {
+            query: `status=booked&store_name=${store_name}`,
             fn: set_orders,
         },
-        "/admin/dispatched-orders": {
-            query: "status_not=booked",
+        [`/admin/dispatched-orders/${store_name === "Jewelry" ? "jewellry" : store_name.toLowerCase()}`]: {
+            query: `status_not=booked&store_name=${store_name}`,
             fn: set_dispatched_orders,
         },
     };
@@ -61,9 +80,9 @@ const Delete_order_modal = ({
                     Are you sure do you want to delete this Order?
                 </p>
                 <div className='w-full flex justify-between p-[20px] ' >
-                    
+
                     <button onClick={() => toggle_modal("delete_order_modal")} className='bg-slate-200 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-stone-700 text-[12px] font-medium md:text-[15px] transition-all' >Close</button>
-                    
+
                     <div className='w-full flex justify-end gap-3 md:gap-5 ' >
                         <button onClick={() => handle_delete_order("cancel_order=true")} className='bg-red-600 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Cancel Order</button>
                         <button onClick={() => handle_delete_order()} className='bg-violet-600 hover:opacity-85 active:opacity-60 px-[8px] md:px-[14px] py-[6px] md:py-[8px] rounded text-white text-[12px] font-medium md:text-[15px] transition-all' >Delete Order</button>
