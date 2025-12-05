@@ -19,20 +19,15 @@ const Delete_product_modal = ({
     set_API_loading,
     get_all_products_title_api,
 }) => {
-
+    
+    const { user } = useStateContext();
+    
     const handle_delete_menu = () => {
-
-
-        const { user } = useStateContext();
 
         const reset_all = () => {
             set_product_id("");
             set_update_product_details(default_update_product_details)
         }
-
-
-
-
         delete_product_api(
             axios,
             product_id,
