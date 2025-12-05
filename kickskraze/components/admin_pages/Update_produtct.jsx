@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
@@ -25,6 +25,7 @@ import { GiClothes } from "react-icons/gi";
 
 const Create_product = ({ axios, user: USER }) => {
 
+    const loadedTypeRef = useRef(false);
 
 
     const {
@@ -344,6 +345,9 @@ const Create_product = ({ axios, user: USER }) => {
                 if (user?.store_name === "Footwear" && !value) {
                     error = 'Please select the store name';
                 }
+                if (["Jewelry", "Apparel"].includes(user?.store_name) && !value) {
+                    error = 'Store cannot be empty for this account';
+                }
                 break;
             case 'media':
                 if (!value.length) {
@@ -551,6 +555,19 @@ const Create_product = ({ axios, user: USER }) => {
         set_update_product_details(prev => ({ ...prev, size: "" }))
     };
 
+    const prevStoreRef = useRef(update_product_details.store_name);
+
+    const setStoreSafely = (newStoreName) => {
+        set_update_product_details(prev => {
+            if (["Jewelry", "Apparel"].includes(user?.store_name)) {
+                return { ...prev, store_name: user.store_name };
+            }
+
+            return { ...prev, store_name: (newStoreName ?? "") };
+        });
+    };
+
+
     // Resetting sizes and color on page load, also setting size format and update_product_details
     useEffect(() => {
         if (user && user.store_name !== "Footwear") {
@@ -581,7 +598,7 @@ const Create_product = ({ axios, user: USER }) => {
     }, [user]);
 
 
-    // ================== Populate Size + Color + Type when product fetches ==================
+    // ================== Populate Size + Color when product fetches ==================
     useEffect(() => {
         if (!update_product_details?._id) return;
 
@@ -611,10 +628,6 @@ const Create_product = ({ axios, user: USER }) => {
             }
         }
 
-        // ===== TYPE (Your missing part) =====
-        if (!size_color.size && update_product_details.type && !size_color_array.typeSet) {
-            set_update_product_details(prev => ({ ...prev, type: update_product_details.type }));
-        }
 
     }, [update_product_details?._id]);
 
@@ -622,64 +635,78 @@ const Create_product = ({ axios, user: USER }) => {
 
 
     // Prevent unwanted reset on first fetch — only trigger when user changes store name or type manually
-    const [loadLock, setLoadLock] = useState(false);
-
     useEffect(() => {
-        // Don't run on first fetch
         if (!update_product_details._id) return;
 
-        // First time product loads → store existing values & exit
-        if (!loadLock) {
-            setLoadLock(true);
-            return;
+        const prev = prevStoreRef.current;
+        const curr = update_product_details.store_name;
+
+        if (prev === curr) return;
+
+        if (user?.store_name === "Footwear") {
+
+            const sandalsGroup = ["SM-sandals", "Areeba-sandals"];
+            const prevIsSandals = sandalsGroup.includes(prev);
+            const currIsSandals = sandalsGroup.includes(curr);
+
+            if (!(prevIsSandals && currIsSandals)) {
+                // switching store groups → clear type
+                set_update_product_details(prevState => ({
+                    ...prevState,
+                    type: "",
+                }));
+            }
+
+            if (curr === "Footwear-accessories" || prev === "Footwear-accessories") {
+                // reset size/color
+                set_size_color(default_size_color);
+                set_size_color_array(default_size_color_array);
+                set_update_product_details(prevState => ({ ...prevState, size: "" }));
+            }
+        } else {
+            if (["Jewelry", "Apparel"].includes(user?.store_name) &&
+                curr !== user.store_name) {
+                setStoreSafely(user.store_name);
+            }
         }
 
-        // ============== STORE CHANGE RESET LOGIC ==================
-        if (update_product_details.store_name === "Footwear-accessories") {
-            // Footwear accessories → no sizes required
-            set_update_product_details(prev => ({ ...prev, size: "", type: "" }));
-            set_size_color(default_size_color);
-            set_size_color_array(default_size_color_array);
-        }
+        prevStoreRef.current = curr;
+    }, [update_product_details.store_name, user?.store_name]);
 
-        if (update_product_details.store_name !== "Footwear-accessories") {
-            // Normal footwear → sizes allowed but not colors
-            set_update_product_details(prev => ({ ...prev, color: "", type: "" }));
-            set_size_color(prev => ({ ...prev, color: "" }));
-            set_size_color_array(prev => ({ ...prev, color: [] }));
-        }
-
-    }, [update_product_details.store_name]);
 
 
     // ================= TYPE CHANGE RESET ====================
+
     useEffect(() => {
-        if (!update_product_details._id) return;
-        if (!loadLock) return; // stop initial wipe
+        if (!update_product_details?._id) return;
 
-        // If store is footwear & TYPE ≠ socks → clear sizes
-        if (update_product_details.store_name === "Footwear" &&
-            update_product_details.type !== "socks") {
+        if (update_product_details.type && !loadedTypeRef.current) {
+            loadedTypeRef.current = true;
 
-            set_update_product_details(prev => ({ ...prev, size: "" }));
-            set_size_color(prev => ({ ...prev, size: "" }));
-            set_size_color_array(prev => ({ ...prev, size: [] }));
+            set_update_product_details(prev => ({
+                ...prev,
+                type: update_product_details.type
+            }));
         }
-
-    }, [update_product_details.type]);
+    }, [update_product_details._id]);
 
 
     // <==========   ***************   =============>
 
     // reset buton/api function
     const reset_all = () => {
-        setSearchTerm("")
+        setSearchTerm("");
         set_product_id("");
         set_update_product_details(default_update_product_details);
+
+        // Reset size/color states
         set_size_color(default_size_color);
         set_size_color_array(default_size_color_array);
-        setLoadLock(false);
-    }
+
+        // Reset REFS (very important)
+        loadedTypeRef.current = false;
+        prevStoreRef.current = "";
+    };
 
     // <========================= Updating Product Function / Submit Function ====================>
 

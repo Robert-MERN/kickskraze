@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import AddIcon from '@mui/icons-material/Add';
@@ -414,6 +414,9 @@ const Add_product = ({ axios, user: USER }) => {
                 if (user?.store_name === "Footwear" && !value) {
                     error = 'Please select the store name';
                 }
+                if (["Jewelry", "Apparel"].includes(user?.store_name) && !value) {
+                    error = 'Store cannot be empty for this account';
+                }
                 break;
             case 'media':
                 if (!value.length) {
@@ -451,12 +454,74 @@ const Add_product = ({ axios, user: USER }) => {
         }
     }, [USER]);
 
+    // inside Add_product component, near other hooks:
+    const prevStoreRef = useRef(product_details.store_name);
+
+    // Helper to set store safely: for "Jewelry" & "Apparel" we never allow empty.
+    const setStoreSafely = (newStoreName) => {
+        set_product_details(prev => {
+            // If user must have strict store, ignore empty attempts
+            if (["Jewelry", "Apparel"].includes(user?.store_name)) {
+                // always enforce the user's store_name (never allow clearing)
+                return { ...prev, store_name: user.store_name };
+            }
+
+            // For footwear users allow updates (including empty)
+            return { ...prev, store_name: (newStoreName ?? "") };
+        });
+    };
+
+    useEffect(() => {
+        const prev = prevStoreRef.current;
+        const curr = product_details.store_name;
+
+        // update ref at the end only when prev and curr differ
+        if (prev === curr) return;
+
+        // Only footwear users have multiple store choices requiring this logic
+        if (user?.store_name === "Footwear") {
+            const sandalsGroup = ["SM-sandals", "Areeba-sandals"];
+            const prevIsSandals = sandalsGroup.includes(prev);
+            const currIsSandals = sandalsGroup.includes(curr);
+
+            // RULE:
+            // - If prev and curr are both in sandalsGroup => KEEP type (do nothing)
+            // - Otherwise clear type (switch to different group or to accessory)
+            if (!(prevIsSandals && currIsSandals)) {
+                set_product_details(prevState => ({
+                    ...prevState,
+                    type: "", // clear type when switching across groups
+                }));
+
+                // optionally clear size/color if you want:
+                // if switching to/from accessories you already had logic clearing size/color.
+                // Clear sizes/colors only when necessary:
+                if (curr === "Footwear-accessories" || prev === "Footwear-accessories") {
+                    set_size_color({ size: "", color: "" });
+                    set_size_color_array({ size: [], color: [] });
+                    set_product_details(prevState => ({ ...prevState, size: "" }));
+                }
+            }
+        } else {
+            // Not a footwear user -> enforce strict store (never let it deviate)
+            if (["Jewelry", "Apparel"].includes(user?.store_name) && curr !== user.store_name) {
+                setStoreSafely(user.store_name);
+            }
+        }
+
+        prevStoreRef.current = curr;
+    }, [product_details.store_name, user?.store_name]);
+
     // Resetting sizes and color on page load, also setting size format and product_details
     useEffect(() => {
-        if (user && user.store_name !== "Footwear") {
-            set_product_details(prev => ({ ...prev, store_name: user.store_name }))
-        } else if (user && user.store_name === "Footwear") {
-            set_product_details(prev => ({ ...prev, store_name: "" }))
+        if (!user) return;
+
+        if (user.store_name === "Footwear") {
+            // footwear user: keep store_name editable
+            setStoreSafely(""); // allow user selection
+        } else {
+            // rigid stores (Apparel, Jewelry, etc.): enforce the user's store
+            setStoreSafely(user.store_name);
         }
 
 
@@ -511,39 +576,36 @@ const Add_product = ({ axios, user: USER }) => {
             }
         };
 
-    }, [product_details._id])
+    }, [product_details._id]);
 
-    // When the User with Footwear store changes the product_details.store_name so this hook takes care of size_color
+
     useEffect(() => {
+        if (!user) return;
 
-        if (user?.store_name === "Footwear" &&
-            product_details.store_name === "Footwear-accessories" &&
-            Boolean(product_details.size)
-        ) {
-            set_size_color(default_size_color);
-            set_size_color_array(default_size_color_array);
-            set_product_details(prev => ({ ...prev, size: "", type: "" }))
-        };
+        // Types that DO NOT ALLOW size
+        const noSizeTypes = ["polish", "shiner", "shoelaces", "brush"];
 
-        if (user?.store_name === "Footwear" &&
-            product_details.store_name !== "Footwear-accessories" &&
-            Boolean(product_details.color)
-        ) {
-            set_size_color(prev => ({ ...prev, color: "" }));
-            set_size_color_array(prev => ({ ...prev, color: [] }));
-            set_product_details(prev => ({ ...prev, color: "", type: "" }))
-        }
+        const typeDisallowsSize =
+            noSizeTypes.includes(product_details.type) ||
+            product_details.store_name === "Footwear-accessories" && product_details.type !== "socks";
 
-    }, [user, product_details.store_name]);
-
-    // When the User with Footwear store changes the product_details.type to others from Socks so this hook resets the Size fields & states
-    useEffect(() => {
-        if (user && user.store_name === "Footwear" && product_details.type !== "socks") {
-            set_product_details(prev => ({ ...prev, size: "" }));
-            set_size_color(prev => ({ ...prev, size: "" }));
+        if (typeDisallowsSize) {
+            // Wipe size and size states
+            set_size_color({ size: "", color: size_color.color });
             set_size_color_array(prev => ({ ...prev, size: [] }));
+
+            // Wipe size from product_details
+            set_product_details(prev => ({
+                ...prev,
+                size: "",
+                // CLEAR VARIANTS WHEN SIZE IS DISALLOWED
+                variants: [],
+                options: [],
+                has_variants: false
+            }));
         }
-    }, [user, product_details.type])
+    }, [product_details.type, product_details.store_name]);
+
 
 
 
@@ -592,6 +654,10 @@ const Add_product = ({ axios, user: USER }) => {
             build_brand_list([], brand_list);
         }
     }, [filter_options]);
+
+
+
+
 
 
     // Adding Product Function / Submit Function
@@ -719,14 +785,11 @@ const Add_product = ({ axios, user: USER }) => {
                         value={product_details.store_name || null}
                         inputValue={product_details.store_name || ""}
                         onChange={(event, new_value) => {
-                            // Handle both object (from dropdown) and string (free text) cases
-                            handleChange({ target: { name: "store_name", value: new_value?.store_name || new_value } })
+                            const selected = new_value?.store_name || new_value;
+                            setStoreSafely(selected);
                         }}
                         onInputChange={(event, new_value) => {
-                            if (event) {
-                                // Capitalize the input value before updating the state
-                                handleChange({ target: { name: "store_name", value: new_value } })
-                            }
+                            if (event) setStoreSafely(new_value);
                         }}
                         renderOption={(props, option) => {
                             const { key, ...optionProps } = props;

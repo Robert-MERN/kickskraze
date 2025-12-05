@@ -82,6 +82,7 @@ export const footwear_accessories_type_list = [
     { title: "Shoe Laces", type: "shoelaces" },
     { title: "Insole", type: "insole" },
     { title: "Socks", type: "socks" },
+    { title: "Brush", type: "brush" },
 ]
 
 
