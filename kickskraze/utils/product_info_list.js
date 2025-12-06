@@ -60,6 +60,7 @@ export const jewelry_type_list = [
     { title: "Bracelets (Cuffs)", type: "bracelets" },
     { title: "Earrings", type: "earrings" },
     { title: "Watches", type: "watches" },
+    { title: "Jewelry Set", type: "jewelry-set" },
 ]
 
 
@@ -611,7 +612,8 @@ export const google_product_category = {
         rings: "Apparel & Accessories > Jewelry > Rings",
         bracelets: "Apparel & Accessories > Jewelry > Bracelets",
         earrings: "Apparel & Accessories > Jewelry > Earrings",
-        watches: "Apparel & Accessories > Jewelry > Watches"
+        watches: "Apparel & Accessories > Jewelry > Watches",
+        "jewelry-set": "Apparel & Accessories > Jewelry",
     },
     "Footwear-accessories": {
         polish: "Apparel & Accessories > Shoe Accessories",
@@ -619,6 +621,7 @@ export const google_product_category = {
         shoelaces: "Apparel & Accessories > Shoe Accessories > Shoelaces",
         insole: "Apparel & Accessories > Shoe Accessories",
         socks: "Apparel & Accessories > Clothing > Underwear & Socks",
+        brush: "Apparel & Accessories > Shoe Accessories",
     },
     "Barefoot": "Apparel & Accessories > Shoes",
     "Kickskraze": "Apparel & Accessories > Shoes",
@@ -717,6 +720,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
         men: {
             necklaces: "jewelry & watches > jewelry > necklaces",
@@ -725,6 +729,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > men's watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
         women: {
             necklaces: "jewelry & watches > jewelry > necklaces",
@@ -733,6 +738,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > women's watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
         kids: {
             necklaces: "jewelry & watches > jewelry > necklaces",
@@ -741,6 +747,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
         "kids-boys": {
             necklaces: "jewelry & watches > jewelry > necklaces",
@@ -749,6 +756,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
         "kids-girls": {
             necklaces: "jewelry & watches > jewelry > necklaces",
@@ -757,6 +765,7 @@ const facebook_product_category = {
             bracelets: "jewelry & watches > jewelry > bracelets",
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
+            "jewelry-set": "jewelry & watches > jewelry",
         },
     },
     "Footwear-accessories": {
@@ -766,6 +775,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
         men: {
             polish: "clothing & accessories > shoes & footwear > shoe accessories",
@@ -773,6 +783,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
         women: {
             polish: "clothing & accessories > shoes & footwear > shoe accessories",
@@ -780,6 +791,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
         kids: {
             polish: "clothing & accessories > shoes & footwear > shoe accessories",
@@ -787,6 +799,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
         "kids-boys": {
             polish: "clothing & accessories > shoes & footwear > shoe accessories",
@@ -794,6 +807,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
         "kids-girls": {
             polish: "clothing & accessories > shoes & footwear > shoe accessories",
@@ -801,6 +815,7 @@ const facebook_product_category = {
             shoelaces: "clothing & accessories > shoes & footwear > shoe accessories > shoelaces",
             insole: "clothing & accessories > shoes & footwear > shoe accessories > insoles",
             socks: "clothing & accessories > clothing > underwear & socks",
+            brush: "clothing & accessories > shoes & footwear > shoe accessories",
         },
     },
     "Barefoot": {

@@ -4,8 +4,11 @@ import { IoClose } from "react-icons/io5";
 import { FaAngleRight } from "react-icons/fa6";
 import { RiAccountCircleLine } from "react-icons/ri";
 import { LuUserPlus } from "react-icons/lu";
+import { useRouter } from 'next/router';
 
 const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
+
+    const router = useRouter();
 
     const slider_menu_options = [
         {
@@ -43,7 +46,10 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
 
                 </div>
 
-                <div className='flex justify-between items-center py-[12px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all' >
+                <div
+                    onClick={() => { router.push("/collection"); toggle_drawer("menu_drawer"); }}
+                    className='flex justify-between items-center py-[12px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all'
+                >
                     <p className='text-[17px] font-semibold select-none' >All Collection</p>
                 </div>
 
