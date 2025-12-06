@@ -67,6 +67,10 @@ const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, d
                 link: "/admin/all-products/jewellry?type=pendants",
             },
             {
+                option: "jewellry set",
+                link: "/admin/all-products/jewellry?type=jewelry-set",
+            },
+            {
                 option: "chains",
                 link: "/admin/all-products/jewellry?type=pendants",
             },
@@ -81,6 +85,10 @@ const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, d
             {
                 option: "men rings",
                 link: "/admin/all-products/jewellry?type=rings&category=men",
+            },
+            {
+                option: "anklets",
+                link: "/admin/all-products/jewellry?type=anklets",
             },
             {
                 option: "earrings",

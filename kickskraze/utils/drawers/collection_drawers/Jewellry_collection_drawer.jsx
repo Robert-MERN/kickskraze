@@ -32,6 +32,14 @@ const Jewellry_collection_drawer = ({ drawer_state, toggle_drawer }) => {
             link: "/collection/jewellry?type=necklaces",
         },
         {
+            option: "Anklet",
+            link: "/collection/jewellry?type=anklets",
+        },
+        {
+            option: "Jewellry Set",
+            link: "/collection/jewellry?type=jewelry-set",
+        },
+        {
             option: "Watches",
             link: "/collection/jewellry?type=watches",
         },

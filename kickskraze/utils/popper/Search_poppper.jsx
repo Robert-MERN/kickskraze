@@ -67,6 +67,10 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
                 link: "/collection/jewellry?type=pendants",
             },
             {
+                option: "jewellry set",
+                link: "/collection/jewellry?type=jewelry-set",
+            },
+            {
                 option: "chains",
                 link: "/collection/jewellry?type=pendants",
             },
@@ -81,6 +85,10 @@ const SearchPopper = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, deboun
             {
                 option: "men rings",
                 link: "/collection/jewellry?type=rings&category=men",
+            },
+            {
+                option: "anklets",
+                link: "/collection/jewellry?type=anklets",
             },
             {
                 option: "earrings",

@@ -72,6 +72,10 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
         link: "/collection/jewellry?type=pendants",
       },
       {
+        option: "jewellry set",
+        link: "/collection/jewellry?type=jewelry-set",
+      },
+      {
         option: "chains",
         link: "/collection/jewellry?type=pendants",
       },
@@ -86,6 +90,10 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
       {
         option: "men rings",
         link: "/collection/jewellry?type=rings&category=men",
+      },
+      {
+        option: "anklets",
+        link: "/collection/jewellry?type=anklets",
       },
       {
         option: "earrings",
