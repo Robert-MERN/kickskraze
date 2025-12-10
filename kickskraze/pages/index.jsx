@@ -9,19 +9,23 @@ export default function Home({ logoUrl, fullUrl }) {
   return (
     <>
       <Head>
-        <title>Kickskraze | Home</title>
-        <meta property="og:title" content="Kickskraze | Home" />
-        <meta property="og:description" content="Home Page" />
+        <title>Kickskraze | Step into Style</title>
+        <meta
+          property="og:title"
+          content="Kickskraze | Footwear, Thrift, Jewellery & Fashion"
+        />
+        <meta
+          property="og:description"
+          content="Discover curated new footwear, thrifted shoes, stainless steel jewellery, apparel and accessories — all in one place."
+        />
         <meta property="og:image" content={logoUrl} />
         <meta property="og:url" content={fullUrl} />
-        <meta property="og:type" content="home" />
         <link rel="icon" href="/images/icon.png" />
       </Head>
+
       <div className='w-screen flex flex-col items-center'>
         <Navbar />
-        <div className='w-full 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] lg:px-[40px]' >
-          <Landing_page axios={axios} />
-        </div>
+        <Landing_page axios={axios} />
         <App_footer />
         <Footer />
       </div>

@@ -66,6 +66,7 @@ const Menu_drawer = ({ drawer_state, toggle_drawer }) => {
 
                         </button>
                     ))}
+
                 </div>
 
                 <button onClick={() => toggle_drawer("menu_drawer")} className='flex gap-2 items-center py-[17px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all w-full' >

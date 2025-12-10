@@ -75,6 +75,20 @@ const Footwear_collection_drawer = ({ drawer_state, toggle_drawer }) => {
                     </button>
                 ))}
 
+                <button
+                    className='w-full flex justify-between items-center text-left py-[16px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all'
+                    onClick={() => router.push("/size-chart")}
+                >
+                    <p className='text-[16px] font-semibold select-none tracking-wider' >Size Chart</p>
+                </button>
+
+                <button
+                    className='w-full flex justify-between items-center text-left py-[16px] px-[20px] border-b border-stone-200 cursor-pointer active:bg-gray-100 transition-all'
+                    onClick={() => router.push("/condition-guide")}
+                >
+                    <p className='text-[16px] font-semibold select-none tracking-wider' >Condition Guide</p>
+                </button>
+
             </div>
 
         </Drawer>

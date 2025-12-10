@@ -28,16 +28,16 @@ const Footer = () => {
                 <div className='' >
                     <p className='text-[17px] font-bold pb-2' >Get in Touch</p>
                     <ul className='flex flex-col gap-3'>
-                        <a href="tel:+923102223511">
+                        < a target='_blank' href="https://wa.me/923020215755">
                             <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
                                 <IoChatboxEllipsesSharp className='text-[21px] text-stone-800' />
-                                Call: 0310 2223 511
+                                Call: 0302 0215 755
                             </li>
                         </a>
-                        <a href="mailto:kickskraze@gmail.com">
+                        <a href="mailto:ms.kickskraze@gmail.com">
                             <li className='cursor-pointer flex items-center gap-3 text-[17px] hover:underline w-fit transition-all'>
                                 <IoMailSharp className='text-[21px] text-stone-800' />
-                                kickskraze@gmail.com
+                                ms.kickskraze@gmail.com
                             </li>
                         </a>
                     </ul>
@@ -97,15 +97,21 @@ const Footer = () => {
                             </li>
                         </Link>
 
-                        <Link href="/size-chart">
+                        <Link href="/privacy-policy">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
-                                Size Chart
+                                Privacy Policy
                             </li>
                         </Link>
 
                         <Link href="/condition-guide">
                             <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
                                 Condition Guide
+                            </li>
+                        </Link>
+
+                        <Link href="/size-chart">
+                            <li className='cursor-pointer text-[17px] hover:underline w-fit transition-all'>
+                                Size Chart
                             </li>
                         </Link>
                     </ul>
@@ -142,7 +148,7 @@ const Footer = () => {
                         <Link className='' href="https://www.instagram.com/kickskraze.pk?igsh=Z3dvcDk3eXRlN3Z1&utm_source=qr" target='_blank'>
                             <FaSquareInstagram className='text-[26px] text-stone-800 hover:opacity-75 active:opacity-50 transition-all' />
                         </Link>
-                        <Link className='' href="https://www.facebook.com/share/152nJBR4YZ/?mibextid=wwXIfr">
+                        <Link className='' href="https://www.facebook.com/share/152nJBR4YZ/?mibextid=wwXIfr" target='_blank'>
                             <FaFacebookF className='text-[26px] text-stone-800 hover:opacity-75 active:opacity-50 transition-all' />
                         </Link>
                     </div>

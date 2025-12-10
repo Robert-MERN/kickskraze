@@ -1,431 +1,422 @@
-import React, { useEffect, useState } from 'react'
-import Image from 'next/image'
-import { LuBadgePercent } from "react-icons/lu";
-import { PiGift } from "react-icons/pi";
-import { GoInbox } from "react-icons/go";
-import { MdOutlineVerifiedUser } from "react-icons/md";
-import banner from "@/public/images/web_banner.webp"
-import banner_2 from "@/public/images/web_banner_2.jpg"
-import adidas from "@/public/images/adidas.webp";
-import converse from "@/public/images/converse.webp";
-import new_balance from "@/public/images/new-balance.webp";
-import nike from "@/public/images/nike.webp";
-import asics from "@/public/images/asics.webp";
-import vans from "@/public/images/vans.webp";
-import mid_banner from "@/public/images/home_banner_mid_1.webp"
-import mid_banner_2 from "@/public/images/home_banner_mid_2.webp"
-import sm_banner_1 from "@/public/images/sm_banner_1.jpg"
-import sm_banner_2 from "@/public/images/sm_banner_2.jpg"
-import sm_banner_3 from "@/public/images/sm_banner_3.jpg"
-import Link from 'next/link';
-import useStateContext from '@/context/ContextProvider';
-import { CircularProgress, Skeleton } from '@mui/material';
-import { Fade } from 'react-reveal';
-import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
-import { convert_to_query_string } from '@/utils/functions/filter_function';
-import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
-import { IoBagCheckOutline } from "react-icons/io5";
-import { BsCash } from "react-icons/bs";
+import Link from "next/link";
 
-
-
-const Landing_page = ({ axios }) => {
-
-
-    const top_categories = [
-        {
-            category: "Adidas",
-            src: adidas,
-        },
-        {
-            category: "Nike",
-            src: nike,
-        },
-        {
-            category: "Converse",
-            src: converse,
-        },
-        {
-            category: "Vans",
-            src: vans,
-        },
-        {
-            category: "New Balance",
-            src: new_balance,
-        },
-        {
-            category: "ASICS",
-            src: asics,
-        },
-    ]
-
-    const {
-        get_all_products_api,
-        fetched_products_for_landing: products,
-        set_fetched_products_for_landing: set_products,
-        products_for_landing_loading: is_loading,
-        set_products_for_landing_loading: set_is_loading,
-    } = useStateContext();
-
-
-    const [show_more_loading, set_show_more_loading] = useState(false);
-    const [query, set_query] = useState("");
-    const [is_action_loading, set_is_action_loading] = useState(false);
-
-
-    const [show_more_payload, set_show_more_payload] = useState({
-        limit: 50,
-        page: 1,
-        hasMore: false,
-        count: 0,
-    });
-
-    useEffect(() => {
-        if (!products.length) {
-            get_all_products_api(axios, "", set_products, set_show_more_payload, set_is_loading);
-        }
-    }, []);
-
-    const category_change_btn = (category) => {
-        set_query(category);
-        get_all_products_api(axios, `category=${category}`, set_products, set_show_more_payload, set_is_action_loading);
-    };
-
-    const show_more_payload_func = () => {
-        set_show_more_payload(prev => ({ ...prev, page: prev.page + 1 }));
-    };
-
-    useEffect(() => {
-        const { page, limit } = show_more_payload;
-        if (page > 1) {
-            get_all_products_api(axios, `category=${query}`, set_products, set_show_more_payload, set_show_more_loading, convert_to_query_string([{ page }, { limit }]));
-        }
-    }, [show_more_payload.page]);
-
-
-
-
-
+export default function Landing_page({ logoUrl, fullUrl }) {
     return (
-        <div className='w-full px-[20px] pt-[15px] md:pt-[30px] '>
-            {/* Offer */}
-            <div className='w-full flex flex-col md:flex-row px-[10px] py-[10px] md:py-[25px] h-auto md:h-[100px] bg-[#F9EDE1] justify-between items-center' >
-                <div className='w-full border-b md:border-b-0 md:border-r-2 border-stone-300 flex flex-col justify-center items-center pb-2 md:pb-0' >
-                    <h2 className='text-[13px] md:text-[24px] font-bold  text-stone-800' >100% AUTHENTIC IMPORTED THRIFTED SHOES*</h2>
-                    <p className='text-stone-800 text-[12px] md:text-[17px]' >Plus, four-day delivery on thousands of items.</p>
-                </div>
-                <div className='w-full flex flex-col justify-center items-center mt-2 md:mt-0' >
-                    <h2 className='text-[13px] md:text-[24px]  font-bold   text-stone-800' >AMAZING VALUE EVERY DAY</h2>
-                    <p className='text-stone-800 text-[12px] md:text-[17px]' >Items you love at prices that fit your budget.</p>
-                </div>
-            </div>
-
-            {/* Offer 2 */}
-            <div className='w-full h-auto md:h-[60px] bg-[#F8F8F8] grid grid-cols-2 md:flex text-[10px]  gap-x-4 gap-y-2 md:gap-0 xl:text-[19px] font-bold text-stone-800  py-[12px] md:py-[15px] mt-[15px] px-[10px] md:px-0' >
-                <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 border-stone-400 w-full md:justify-center items-center px-1 pb-2 md:p-0' >
-                    <PublishedWithChangesIcon className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >EASY EXCHANGE</p>
-                </div>
-                <div className='flex gap-2 xl:gap-3 border-b md:border-b-0 md:border-r-2 w-full border-stone-400 md:justify-center items-center px-1 pb-2 md:p-0' >
-                    <MdOutlineVerifiedUser className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >100% SECURE SHOPPING</p>
-                </div>
-                <div className='flex gap-2 xl:gap-3 md:border-r-2 w-full border-stone-400 md:justify-center items-center px-1 md:p-0' >
-                    <IoBagCheckOutline className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >INSPECTED BEFORE DISPATCH</p>
-                </div>
-                <div className='flex gap-2 xl:gap-3  w-full border-stone-400 md:justify-center items-center px-1 md:p-0' >
-                    <BsCash className='text-[16px] xl:text-[26px] text-stone-800' />
-                    <p className='' >CASH ON DELIVERY</p>
-                </div>
-
-            </div>
+        <>
 
 
-            {/* Banner */}
-            <div className='w-full flex justify-center items-center flex-col relative text-center text-white md:text-stone-800 ' >
-                <div className='absolute text-center' >
-                    <p className='w-[300px] md:w-[370px] text-center text-[45px] lg:text-[60px] font-medium leading-[1.1] ' >FASHION WITH A CONSCIENCE</p>
-                    <p className='text-[17px] my-[30px]' >Shop pre-loved shoes today!</p>
-                    <Link href="/collection">
-                        <button className='font-bold text-[19px] px-[40px] py-[10px] md:bg-transparent hover:bg-teal-600 md:hover:text-white md:text-stone-800 transition-all text-stone-800 hover:text-white bg-white' >Shop Collection</button>
-                    </Link>
-                </div>
-                <Link className='w-full' href="/collection">
-                    <Image alt="banner_1" src={banner} className='w-full object-contain  md:block hidden' />
-                </Link>
-                <Link className='w-full' href="/collection">
-                    <Image priority={true} alt="banner_2" src={banner_2} className='w-full object-cover block md:hidden' />
-                </Link>
+            <div className="w-screen flex flex-col items-center">
 
+                <main className="w-full 2xl:w-[1650px] xl:w-[1400px] lg:w-[1100px] px-[20px] sm:px-6 md:px-10 lg:px-[80px] pt-6 sm:pt-10 pb-16 flex flex-col gap-16">
 
-            </div>
+                    {/* -------------------------------------------------- */}
+                    {/* HERO SECTION – UNIVERSAL PREMIUM MINIMAL */}
+                    {/* -------------------------------------------------- */}
 
+                    <section className="w-full flex flex-col lg:flex-row items-center gap-12">
 
-            {/* Top Categories For Shoes */}
-            <div className='w-full text-stone-900 text-center  my-12'>
-                <p className='text-[26px] font-medium' >TOP CATEGORIES</p>
-                <div className='w-full grid grid-cols-2 md:flex justify-center items-center mt-[30px] gap-5'>
-                    {top_categories.map((val, index) => (
-                        <Link key={index + val.category} href={`/collection?brand=${val.category}`}>
-                            <div className='flex flex-col xl:flex-row items-center rounded-md bg-[#F7F7F7] py-[15px] px-[25px] w-full xl:gap-4 justify-between cursor-pointer  hover:shadow-2xl transition-all duration-300 h-[130px] xl:h-auto active:bg-white active:shadow-none' >
-                                <Image src={val.src} alt="shoes" className='w-[70px] object-contain hover:scale-110 transition-all duration-500' />
-                                <p className='text-[15px] md:text-[14px] xl:text-[16px] font-bold' >{val.category}</p>
+                        {/* HERO TEXT */}
+                        <div className="flex-1 flex flex-col gap-5 text-center lg:text-left">
+
+                            <p className="uppercase tracking-[0.25em] text-[12px] text-gray-500">
+                                Footwear • Thrift • Jewellery • Apparel • Accessories
+                            </p>
+
+                            <h1 className="text-[30px] sm:text-[38px] lg:text-[42px] font-bold tracking-tight text-gray-900 leading-snug">
+                                Step into Style. <br />
+                                Sustainably & Affordably.
+                            </h1>
+
+                            <p className="text-gray-600 text-[14px] sm:text-[16px] max-w-lg mx-auto lg:mx-0">
+                                Shop curated thrifted shoes, new footwear, stainless steel jewellery,
+                                apparel essentials and premium accessories — all verified and hand-picked.
+                            </p>
+
+                            {/* CTA BUTTONS */}
+                            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
+                                <Link
+                                    href="/collection"
+                                    className="px-6 py-3 rounded-full bg-black text-white text-[14px] font-semibold hover:bg-white hover:text-black border border-black transition-all"
+                                >
+                                    Shop All Collections
+                                </Link>
+
+                                <Link
+                                    href="/collection/footwear"
+                                    className="px-6 py-3 rounded-full border border-gray-300 text-gray-700 text-[14px] font-semibold hover:border-black hover:text-black transition-all"
+                                >
+                                    Explore Thrifted Shoes
+                                </Link>
                             </div>
-                        </Link>
-                    ))
-                    }
-
-                </div>
-            </div>
-
-
-
-            <div className='w-full text-stone-900 text-center flex flex-col items-center  my-12 gap-4'>
-
-                {is_loading ?
-                    <Fade>
-                        <div className='w-full flex justify-center'>
-                            <Skeleton
-                                variant='rounded'
-                                animation="wave"
-                                className='bg-stone-100 w-[30%] h-[20px] md:h-[26px]'
-                            />
                         </div>
 
-                        <div className='hidden md:flex gap-3 items-center mt-[30px]'>
-                            <Skeleton
-                                variant='rounded'
-                                animation="wave"
-                                className='bg-stone-100 h-[45px] w-[220px]'
-                            />
-                            <Skeleton
-                                variant='rounded'
-                                animation="wave"
-                                className='bg-stone-100 h-[45px] w-[220px]'
-                            />
-                            <Skeleton
-                                variant='rounded'
-                                animation="wave"
-                                className='bg-stone-100 h-[45px] w-[220px]'
-                            />
-                        </div>
-                    </Fade>
-                    :
-                    <>
-                        <p className='text-[20px] md:text-[26px] font-medium hidden md:block' >NEW LIFE FOR OLD SOLES</p>
-                        {/* Categories For Genders */}
-                        <div className='hidden md:flex gap-3 items-center mt-[30px]'>
-                            <button
-                                onClick={() => category_change_btn("men")}
-                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("men") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
-                            >
-                                Men
-                            </button>
-                            <button
-                                onClick={() => category_change_btn("women")}
-                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("women") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
-                            >
-                                Women
-                            </button>
-                            <button
-                                onClick={() => category_change_btn("kids")}
-                                className={`text-[17px] w-[220px] py-[14px] font-semibold transition-all border border-stone-200 active:opacity-75 ${query === ("kids") ? "bg-stone-800 text-white" : "bg-transparent text-stone-800 hover:bg-stone-800 hover:text-white"}`}
-                            >
-                                Kids
-                            </button>
-                        </div>
-                    </>
-                }
+                        {/* HERO IMAGES (UNIVERSAL THEME) */}
+                        <div className="flex-1 w-full">
+                            <div className="relative w-full aspect-[5/3] rounded-3xl overflow-hidden shadow-sm bg-gray-50">
 
-                {/* Products */}
-                {is_loading || is_action_loading ?
-                    <>
+                                {/* LEFT IMAGE */}
+                                <img
+                                    src="/images/landing/universal-hero-1.webp"
+                                    alt="Footwear & accessories"
+                                    className="absolute left-4 top-6 w-[40%] rounded-2xl shadow-md object-cover"
+                                />
 
-                        <Fade>
-                            <div className='hidden md:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 w-full' >
-                                {[...Array(15)].map((_, i) => (
-                                    <Fade key={i}>
-                                        <div className={`p-2 md:p-4 flex gap-2 flex-col`}>
-                                            <Skeleton
-                                                variant='rounded'
-                                                animation="wave"
-                                                className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] cursor-progress`}
-                                            />
-                                            <div>
-                                                <Skeleton
-                                                    variant='text'
-                                                    animation="wave"
-                                                    className='bg-stone-100 w-[140px] md:w-[160px]'
-                                                />
-                                                <div className='mt-4 flex flex-col gap-1' >
-                                                    <Skeleton
-                                                        variant='rounded'
-                                                        animation="wave"
-                                                        className='bg-stone-100 w-[90px] md:w-[100px] h-[14px]'
-                                                    />
-                                                    <Skeleton
-                                                        variant='rounded'
-                                                        animation="wave"
-                                                        className='bg-stone-100 w-[70px] md:w-[80px] h-[14px]'
-                                                    />
-                                                    <Skeleton
-                                                        variant='rounded'
-                                                        animation="wave"
-                                                        className='bg-stone-100 w-[120px] md:w-[140px] h-[14px]'
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Fade>
-                                ))}
+                                {/* RIGHT IMAGE */}
+                                <img
+                                    src="/images/landing/universal-hero-2.webp"
+                                    alt="Jewellery & apparel"
+                                    className="absolute right-4 bottom-6 w-[50%] rounded-2xl shadow-md object-cover"
+                                />
+
+                                {/* BADGE */}
+                                <div className="absolute left-1/2 -translate-x-1/2 bottom-3 bg-white/80 backdrop-blur px-4 py-1 rounded-full text-[11px] text-gray-700 border border-gray-200">
+                                    Curated by Kickskraze
+                                </div>
                             </div>
-                        </Fade>
-                    </>
-                    : Boolean(products.length) ?
-                        <>
+                        </div>
+                    </section>
 
-                            <div className='hidden md:grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 text-left w-ful' >
-                                {products.map((product) => (
-                                    <Fade key={product._id} >
-                                        <Link href={`/product?product_id=${product._id}`} >
-                                            <div
-                                                className={`p-2 md:p-4 flex flex-col gap-2 cursor-pointer`}
-                                            >
-                                                <div className='relative'>
-                                                    <div className={`"w-full overflow-hidden shadow-sm relative`}>
+                    {/* -------------------------------------------------- */}
+                    {/* STORE-SPECIFIC CATEGORY BLOCKS */}
+                    {/* -------------------------------------------------- */}
 
-                                                        <img
-                                                            alt="Product"
-                                                            src={select_thumbnail_from_media(product.media)}
-                                                            className={`w-full h-[450px] sm:h-[500px] md:h-[450px] lg:h-[330px] xl:h-[320px] lg:hover:scale-[1.1] object-cover transition-all duration-500`}
-                                                            onError={(e) => e.target.src = "/images/logo_error.png"}
-                                                        />
+                    <section className="flex flex-col gap-8">
 
-                                                        {calculate_product_stock(product) === 0 &&
-                                                            <span className='absolute inset-0 text-center w-full h-full bg-[rgba(0,0,0,.6)] flex justify-center items-center text-gray-200 font-bold text-[17px]'>
-                                                                SOLD OUT
-                                                            </span>
-                                                        }
-                                                    </div>
+                        {/* TOP HEADING */}
+                        <div className="text-center">
+                            <h2 className="text-[30px] font-semibold text-gray-900">
+                                Shop by Store
+                            </h2>
+                            <p className="text-gray-600 text-[16px]">
+                                Explore what you love — curated by category and store.
+                            </p>
+                        </div>
 
-                                                    {Boolean(calculate_discount_precentage(product.price, product.compare_price)) &&
-                                                        <p className='w-[45px] h-[45px] text-center text-[13px] flex items-center justify-center bg-[#FF0000] text-white rounded-full font-bold absolute top-[-23px] right-[2px] z-[10]' >
-                                                            {`-${calculate_discount_precentage(product.price, product.compare_price)}%`}
-                                                        </p>
-                                                    }
-                                                </div>
+                        {/* GRID – 4 STORES */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+
+                            {/* FOOTWEAR STORE */}
+                            <StoreCard
+                                title="Footwear"
+                                desc="New arrivals, sneakers & everyday shoes"
+                                image="/images/landing/store-footwear.webp"
+                                href="/collection/footwear"
+                            />
+
+                            {/* FOOTWEAR ACCESSORIES STORE */}
+                            <StoreCard
+                                title="Footwear Accessories"
+                                desc="Clean, protect, and level up your footwear."
+                                image="/images/landing/store-accessories.webp"
+                                href="/collection/footwear-accessories"
+                            />
+
+                            {/* JEWELLERY STORE */}
+                            <StoreCard
+                                title="Jewellery"
+                                desc="Fashion-forward stainless steel pieces"
+                                image="/images/landing/store-jewellery.webp"
+                                href="/collection/jewellry"
+                            />
+
+                            {/* APPAREL STORE */}
+                            <StoreCard
+                                title="Apparel"
+                                desc="Tees, hoodies & everyday fits"
+                                image="/images/landing/store-apparel.webp"
+                                href="/collection/apparel"
+                            />
+
+                        </div>
+                    </section>
+
+                    {/* -------------------------------------------------- */}
+                    {/* CATEGORY BREAKDOWN FOR EACH STORE */}
+                    {/* -------------------------------------------------- */}
+
+                    <section className="flex flex-col gap-20 mt-10">
+
+                        {/* FOOTWEAR CATEGORIES */}
+                        <CategorySection
+                            title="Footwear Categories"
+                            items={[
+                                {
+                                    label: "Men's Fashion Sneakers",
+                                    image: "/images/landing/men-fashion-footwear.webp",
+                                    href: "/collection/footwear?store_name=Barefoot&category=men"
+                                },
+                                {
+                                    label: "Women’s Fasion Sneakers",
+                                    image: "/images/landing/women-fashion-footwear.webp",
+                                    href: "/collection/footwear?store_name=Barefoot&category=women"
+                                },
+                                {
+                                    label: "Women's Heels & Sandals",
+                                    image: "/images/landing/women-heels-footwear.webp",
+                                    href: "/collection/footwear?store_name=heels,sandals,flats"
+                                },
+                                {
+                                    label: "Men's Sports",
+                                    image: "/images/landing/men-sports-footwear.webp",
+                                    href: "/collection/footwear?store_name=Kickskraze&category=men"
+                                },
+                                {
+                                    label: "Women's Sports",
+                                    image: "/images/landing/women-sports-footwear.webp",
+                                    href: "/collection/footwear?store_name=Kickskraze&category=women"
+                                },
+                                {
+                                    label: "Men's Formal",
+                                    image: "/images/landing/formal-footwear.webp",
+                                    href: "/collection/footwear?store_name=Formal-footwear"
+                                },
+                                {
+                                    label: "Men's Casual",
+                                    image: "/images/landing/men-casual-footwear.webp",
+                                    href: "/collection/footwear?store_name=Casual-footwear&category=men"
+                                },
+                                {
+                                    label: "Women's Casual",
+                                    image: "/images/landing/women-casual-footwear.webp",
+                                    href: "/collection/footwear?store_name=Casual-footwear&category=women"
+                                },
+                                {
+                                    label: "Kids",
+                                    image: "/images/landing/kids-footwear.webp",
+                                    href: "/collection/footwear?category=kids"
+                                },
+
+                            ]}
+                        />
 
 
-                                                <div className='flex flex-col gap-1'>
-                                                    <p className='text-[16px] font-bold text-stone-600 line-clamp-1 overflow-hidden text-ellipsis' >{product.title}</p>
-                                                    <p className='mt-2 line-clamp-1 overflow-hidden text-ellipsis' >
-                                                        <span className='text-[15px] font-bold text-black'>
-                                                            Rs. {product.price.toLocaleString("en-US")}
-                                                        </span>
-                                                        {" "}
-                                                        {Boolean(product.compare_price) &&
-                                                            <span className='text-[13px] line-through text-red-600'>
-                                                                Rs. {product.compare_price.toLocaleString("en-US")}
-                                                            </span>
-                                                        }
-                                                    </p>
-                                                    {!product.has_variants && Boolean(product.size) &&
-                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Size: {product.size}</p>
-                                                    }
-                                                    {product.condition !== "brand new" &&
-                                                        <p className='text-[14px] text-black line-clamp-1 overflow-hidden text-ellipsis' >Condition: <span className='capitalize text-stone-700 text-[13px]'>{product.condition}</span></p>
-                                                    }
-                                                </div>
-                                            </div>
-                                        </Link>
-                                    </Fade>
-                                ))}
+                        {/* JEWELLERY CATEGORIES */}
+                        <CategorySection
+                            title="Jewellery Categories"
+                            items={[
+                                {
+                                    label: "Rings",
+                                    image: "/images/landing/j-rings.webp",
+                                    href: "/collection/jewellery?type=rings"
+                                },
+                                {
+                                    label: "Pendants & Necklaces",
+                                    image: "/images/landing/j-pendants.webp",
+                                    href: "/collection/jewellery?type=pendants,necklaces"
+                                },
+                                {
+                                    label: "Bracelets",
+                                    image: "/images/landing/j-bracelets.webp",
+                                    href: "/collection/jewellery?type=bracelets"
+                                }
+                            ]}
+                        />
+
+                        {/* APPAREL CATEGORIES */}
+                        <CategorySection
+                            title="Apparel Categories"
+                            items={[
+                                {
+                                    label: "Casual (T-Shirts, Jeans, Hoodies)",
+                                    image: "/images/landing/a-casual.webp",
+                                    href: "/collection/apparel?type=casual"
+                                },
+                                {
+                                    label: "Formal (Suits & Office Wear)",
+                                    image: "/images/landing/a-formal.webp",
+                                    href: "/collection/apparel?type=formal"
+                                },
+                                {
+                                    label: "Men's Traditional (Shalwar kameez)",
+                                    image: "/images/landing/a-men-traditional.webp",
+                                    href: "/collection/apparel?type=traditional"
+                                },
+                                {
+                                    label: "Women's Traditional (Suits, Kurti, Saree)",
+                                    image: "/images/landing/a-women-traditional.webp",
+                                    href: "/collection/apparel?type=traditional"
+                                },
+                                {
+                                    label: "Nigh Suits & Pajamas",
+                                    image: "/images/landing/a-sleepwear.webp",
+                                    href: "/collection/apparel?type=sleepwear"
+                                },
+                                {
+                                    label: "Sports (Track Suits & Gym Wear)",
+                                    image: "/images/landing/a-sportswear.webp",
+                                    href: "/collection/apparel?type=sportswear"
+                                },
+                                {
+                                    label: "Outerwear (Jackets & Rain Suits)",
+                                    image: "/images/landing/a-jackets.webp",
+                                    href: "/collection/apparel?type=outerwear"
+                                },
+                                {
+                                    label: "Modest (Abaya, Burka)",
+                                    image: "/images/landing/a-abaya.webp",
+                                    href: "/collection/apparel?type=abaya"
+                                },
+                                {
+                                    label: "Headscarf (Hijab, Scarf, Shawls)",
+                                    image: "/images/landing/a-headscarf.webp",
+                                    href: "/collection/apparel?type=headscarf"
+                                },
+                                {
+                                    label: "Undergarments",
+                                    image: "/images/landing/a-undergarments.webp",
+                                    href: "/collection/apparel?type=undergarments"
+                                },
+                            ]}
+                        />
+
+
+                        {/* FOOTWEAR ACCESSORIES TYPES */}
+                        <CategorySection
+                            title="Footwear Accessories"
+                            items={[
+                                {
+                                    label: "Polish",
+                                    image: "/images/landing/polish.webp",
+                                    href: "/collection/footwear-accessories?type=polish"
+                                },
+                                {
+                                    label: "Shoe Laces",
+                                    image: "/images/landing/shoelaces.webp",
+                                    href: "/collection/footwear-accessories?type=shoelaces"
+                                },
+                                {
+                                    label: "Shiner",
+                                    image: "/images/landing/shiner.webp",
+                                    href: "/collection/footwear-accessories?type=shiner"
+                                }
+                            ]}
+                        />
+                    </section>
+
+
+
+                    {/* -------------------------------------------------- */}
+                    {/* FINAL BRAND STORY / ABOUT SECTION */}
+                    {/* -------------------------------------------------- */}
+
+                    <section className="w-full flex flex-col items-center text-center gap-6 mt-10">
+
+                        <h2 className="text-[26px] sm:text-[30px] font-bold tracking-tight text-gray-900">
+                            Why Shop at Kickskraze?
+                        </h2>
+
+                        <p className="text-gray-600 text-[15px] sm:text-[17px] max-w-3xl leading-relaxed">
+                            Kickskraze was created with one mission — to bring premium style within reach for everyone.
+                            From brand-new footwear to carefully inspected thrifted shoes, fashion-forward stainless steel
+                            jewellery, apparel essentials and daily accessories — every item is authenticated, checked,
+                            and curated with care.
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full mt-6">
+
+                            {/* Point 1 */}
+                            <div className="flex flex-col items-center gap-2 px-4">
+                                <p className="text-[18px] font-semibold text-gray-900">Hand-Picked Quality</p>
+                                <p className="text-gray-600 text-[14px] leading-relaxed">
+                                    Every product goes through a strict inspection process to ensure authenticity,
+                                    condition and premium value.
+                                </p>
                             </div>
 
-                            {(show_more_payload.hasMore && !is_loading) &&
-                                <Fade>
+                            {/* Point 2 */}
+                            <div className="flex flex-col items-center gap-2 px-4">
+                                <p className="text-[18px] font-semibold text-gray-900">Affordable, Always</p>
+                                <p className="text-gray-600 text-[14px] leading-relaxed">
+                                    Fashion shouldn’t be expensive. Our pricing is designed to make premium items
+                                    accessible to everyone.
+                                </p>
+                            </div>
 
-                                    <div className='w-full hidden md:flex justify-center my-8 '>
-                                        <button
-                                            onClick={show_more_payload_func}
-                                            disabled={!show_more_payload.hasMore && is_loading && show_more_loading}
-                                            className='hover:bg-stone-800 hover:text-white text-[17px] w-[275px] py-[10px] font-bold bg-transparent text-stone-800 transition-all border border-stone-500 active:opacity-75'
-                                        >
-                                            {show_more_loading ?
-                                                <CircularProgress size={17} color='inherit' />
-                                                :
-                                                "Show More"}
-                                        </button>
-                                    </div>
-                                </Fade>
-                            }
-                        </>
-                        :
-                        <></>
-                }
+                            {/* Point 3 */}
+                            <div className="flex flex-col items-center gap-2 px-4">
+                                <p className="text-[18px] font-semibold text-gray-900">Authenticity Guaranteed</p>
+                                <p className="text-gray-600 text-[14px] leading-relaxed">
+                                    No replicas, no surprises. What you see is exactly what you'll receive — with detailed
+                                    photos and condition notes.
+                                </p>
+                            </div>
 
+                            {/* Point 4 */}
+                            <div className="flex flex-col items-center gap-2 px-4">
+                                <p className="text-[18px] font-semibold text-gray-900">Fast Delivery</p>
+                                <p className="text-gray-600 text-[14px] leading-relaxed">
+                                    Enjoy fast and reliable delivery across Pakistan through Trax & Leopard Courier Services.
+                                </p>
+                            </div>
+                        </div>
 
-
-                <h1 className='text-[20px] md:text-[26px] font-medium md:hidden' >NEW LIFE FOR OLD SOLES</h1>
-
-                <div className="w-full text-center text-[44px] font-medium bg-contain relative md:hidden">
-                    <div className='static' >
-                        <Image alt="banner" style={{ width: "auto" }} src={sm_banner_1} className='object-contain w-[calc(100vh-20px)] sm:hidden block' />
-                        <Image alt="banner" style={{ width: "auto" }} src={mid_banner} className='object-contain w-[calc(100vh-20px)] hidden sm:block' />
-                    </div>
-
-                    <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
-                        <p className='text-white'>MEN</p>
-                        <Link href="/collection?category=men">
-                            <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
+                        {/* FINAL CTA */}
+                        <Link
+                            href="/collection"
+                            className="mt-10 px-8 py-3 rounded-full bg-black text-white text-[14px] sm:text-[15px] font-semibold 
+        hover:bg-white hover:text-black border border-black transition-all"
+                        >
+                            Start Shopping
                         </Link>
-                    </div>
+                    </section>
 
-                </div>
-
-                <p className='text-[20px] font-medium md:hidden' >FIND YOUR SOLE MATE HERE</p>
-                <div className="w-full text-center text-[44px] font-medium bg-contain relative md:hidden">
-                    <div className='static' >
-                        <Image alt="banner" src={sm_banner_2} className='object-contain w-[calc(100vh-20px)] sm:hidden block' />
-                        <Image alt="banner" src={mid_banner_2} className='object-contain w-[calc(100vh-20px)] hidden sm:block' />
-                    </div>
-
-                    <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
-                        <p className='text-white'>WOMEN</p>
-                        <Link href="/collection?category=women">
-                            <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
-                        </Link>
-                    </div>
-
-                </div>
-
-                <p className='text-[20px] font-medium md:hidden' >FROM ONE KID TO ANOTHER KID</p>
-                <div className="w-full text-center text-[44px] font-medium bg-contain relative md:hidden">
-                    <div className='static ' >
-                        <Image alt="banner" src={sm_banner_3} className='object-contain w-[calc(100vh-20px)] sm:hidden block' />
-                        <Image alt="banner" src={mid_banner_2} className='object-contain w-[calc(100vh-20px)] hidden sm:block' />
-                    </div>
-
-                    <div className='w-full inset-0 absolute flex flex-col justify-center items-center' >
-                        <p className='text-white'>KIDS</p>
-                        <Link href="/collection?category=kids">
-                            <button className='bg-white text-stone-800 text-[15px] px-[30px] py-[8px] font-bold hover:text-stone-800 transition-all border border-stone-200 active:opacity-85'>SHOP NOW</button>
-                        </Link>
-                    </div>
-
-                </div>
-
-
+                </main>
             </div>
-
-
-
-
-            {/* <App_footer /> */}
-
-        </div>
-    )
+        </>
+    );
 }
 
-export default Landing_page
+/* ----------------------------------------- */
+/* Reusable Components */
+/* ----------------------------------------- */
+
+function StoreCard({ title, desc, image, href }) {
+    return (
+        <Link
+            href={href}
+            className="group flex flex-col gap-2 border border-gray-200 p-4 rounded-2xl bg-white hover:-translate-y-1 hover:shadow-md transition-all duration-[250ms]"
+        >
+            <img src={image} className="w-full h-[180px] object-cover  object-center rounded-xl" alt={title} />
+            <p className="text-[16px] font-semibold text-gray-900  leading-[20px]">{title}</p>
+            <p className="text-[13px] text-gray-500 group-hover:text-gray-700">{desc}</p>
+        </Link>
+    );
+}
+
+function CategorySection({ title, items }) {
+    return (
+        <div className="flex flex-col gap-5">
+            <h3 className="text-[24px] font-semibold text-gray-900">{title}</h3>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
+                {items.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        className="group relative rounded-2xl overflow-hidden bg-gray-100 h-[200px] sm:h-[300px] cursor-pointer"
+                    >
+                        <img
+                            src={item.image}
+                            className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        <p className="absolute bottom-4 left-4 text-white font-semibold text-[14px] md:text-[16px]">
+                            {item.label}
+                        </p>
+                    </Link>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+export async function getServerSideProps({ req }) {
+    const protocol = req.headers["x-forwarded-proto"] || "http";
+    const host = req.headers.host;
+    const fullUrl = `${protocol}://${host}${req.url}`;
+    const logoUrl = `${protocol}://${host}/images/og_logo.webp`;
+
+    return {
+        props: { fullUrl, logoUrl },
+    };
+}

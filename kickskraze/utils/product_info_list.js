@@ -56,6 +56,7 @@ export const size_list = [
 export const jewelry_type_list = [
     { title: "Necklaces", type: "necklaces" },
     { title: "Pendants & Charms", type: "pendants" },
+    { title: "Chains", type: "chains" },
     { title: "Rings", type: "rings" },
     { title: "Bracelets (Cuffs)", type: "bracelets" },
     { title: "Earrings", type: "earrings" },
@@ -615,6 +616,7 @@ export const google_product_category = {
         earrings: "Apparel & Accessories > Jewelry > Earrings",
         watches: "Apparel & Accessories > Jewelry > Watches",
         anklets: "Apparel & Accessories > Jewelry > Anklets",
+        chains: "Apparel & Accessories > Jewelry > Necklaces",
         "jewelry-set": "Apparel & Accessories > Jewelry",
     },
     "Footwear-accessories": {
@@ -723,6 +725,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
         men: {
@@ -733,6 +736,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > men's watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
         women: {
@@ -743,6 +747,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > women's watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
         kids: {
@@ -753,6 +758,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
         "kids-boys": {
@@ -763,6 +769,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
         "kids-girls": {
@@ -773,6 +780,7 @@ const facebook_product_category = {
             earrings: "jewelry & watches > jewelry > earrings",
             watches: "jewelry & watches > watches > kids' watches",
             anklets: "jewelry & watches > jewelry > anklets",
+            chains: "jewelry & watches > jewelry > necklaces",
             "jewelry-set": "jewelry & watches > jewelry",
         },
     },

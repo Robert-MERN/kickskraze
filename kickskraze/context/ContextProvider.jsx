@@ -167,6 +167,28 @@ export const ContextProvider = ({ children }) => {
         });
     };
 
+    const buy_now_item = (item) => {
+        set_cart(prev_cart => {
+            const updated = [...prev_cart];
+
+            const index = updated.findIndex(each =>
+                each._id === item._id &&
+                (!item.selectedVariant || each.selectedVariant?.variant_id === item.selectedVariant?.variant_id)
+            );
+
+            // If exists → DO NOT increment
+            if (index !== -1) {
+                return updated; // keep quantity same
+            }
+
+            // If not exists → add with quantity = 1
+            updated.push({ ...item, quantity: 1 });
+
+            save_cart(updated);
+
+            return updated;
+        });
+    };
 
     const substract_item_from_cart = (item) => {
         set_cart(prev_cart => {
@@ -189,7 +211,7 @@ export const ContextProvider = ({ children }) => {
         });
     };
 
-
+    //  <<<<<<<<<<<<<<<<<<<<<============== CART LOGIC ENDS HERE ==============>>>>>>>>>>>>>>>>>
 
     // Create Product Details
     const default_product_details = {
@@ -962,7 +984,7 @@ export const ContextProvider = ({ children }) => {
                 filters, set_filters, filter_options, set_filter_options,
 
                 cart, set_cart, save_cart, sum_of_cart, delete_item_from_cart, add_item_to_cart,
-                substract_item_from_cart,
+                buy_now_item, substract_item_from_cart,
 
                 stored_product_id, set_stored_product_id,
 

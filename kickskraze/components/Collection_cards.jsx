@@ -99,6 +99,16 @@ const Collection_cards = () => {
             <div className='w-full' >
 
 
+                <div className="flex flex-col items-center text-center gap-2 my-4">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-900">
+                        All Collections
+                    </h1>
+                    <p className="text-gray-600 max-w-xl">
+                        Explore our complete range of curated collections — from premium footwear and accessories
+                        to stainless steel jewellery and modern apparel. Discover everything you need in one place.
+                    </p>
+                </div>
+
 
                 {/* Header */}
                 <div className='w-full flex justify-center items-center py-[15px] mb-[30px] lg:pt-[10px] lg:mb-[15px] sticky  top-0 bg-white z-[12] px-[16px]' >
@@ -119,7 +129,11 @@ const Collection_cards = () => {
                 </div>
 
 
-                < div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`grid gap-x-2 gap-y-4 transition-all`}>
+
+
+
+
+                < div style={{ gridTemplateColumns: `repeat(${grid}, minmax(0, 1fr))` }} className={`grid gap-x-2 gap-y-4 transition-all mb-20`}>
 
                     {collections.map((each, index) => (
                         <Link key={index} href={each.collection_link} >
@@ -138,7 +152,7 @@ const Collection_cards = () => {
                                                         ${grid === 3 ? "w-full h-[320px] xl:h-[470px]" : ""}
                                                         ${grid === 4 ? "w-full h-[340px]" : ""}
 
-                                                        overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500 `}
+                                                        overflow-hidden object-cover object-center lg:hover:scale-[1.1] transition-all duration-500`}
                                         />
 
                                     </div>
