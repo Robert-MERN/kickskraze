@@ -25,6 +25,9 @@ export default async function handler(req, res) {
             // user data
             email,
             phone,
+            firstName,
+            lastName,
+            city,
             fbp,
             fbc,
         } = req.body;
@@ -45,8 +48,14 @@ export default async function handler(req, res) {
                     user_data: {
                         em: email ? [sha256(email)] : undefined,
                         ph: phone ? [sha256(phone)] : undefined,
+
+                        fn: firstName ? [sha256(firstName)] : undefined,
+                        ln: lastName ? [sha256(lastName)] : undefined,
+                        ct: city ? [sha256(city)] : undefined,
+
                         fbp: fbp || undefined,
                         fbc: fbc || undefined,
+
                         client_user_agent: req.headers["user-agent"],
                         client_ip_address: clientIp,
                     },

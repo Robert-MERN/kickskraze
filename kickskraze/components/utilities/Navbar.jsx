@@ -11,6 +11,9 @@ import { useRouter } from "next/router";
 import SearchPopper from "@/utils/popper/Search_poppper";
 import axios from "axios"
 import { MetaPixel } from "@/lib/fpixel";
+import { getBrowserCookie } from "@/utils/functions/cookie";
+import { v4 as uuidv4 } from "uuid";
+
 
 
 
@@ -18,7 +21,7 @@ import { MetaPixel } from "@/lib/fpixel";
 const Navbar = () => {
 
     const router = useRouter();
-    const { toggle_drawer, cart, get_all_products_api, filters } = useStateContext();
+    const { toggle_drawer, cart, get_all_products_api, filters, handle_meta_capi } = useStateContext();
 
     useEffect(() => {
         document.querySelectorAll(".MuiBadge-colorInfo").forEach((each) => each.style = "background-color: #292524")
@@ -123,6 +126,27 @@ const Navbar = () => {
     }, [searchTerm]);
 
 
+    const sendSearchEvent = async (searchTerm) => {
+        const eventId = uuidv4();
+
+        // Pixel
+        MetaPixel.trackEvent("Search", {
+            search_string: searchTerm,
+            event_id: eventId,
+        });
+
+        // CAPI
+        await handle_meta_capi({
+            event_name: "Search",
+            event_id: eventId,
+            event_source_url: window.location.href,
+            search_string: searchTerm,
+            fbp: getBrowserCookie("_fbp"),
+            fbc: getBrowserCookie("_fbc"),
+        });
+    };
+
+
     // Fetch results when the debounced term changes
     useEffect(() => {
         // Set loading state **before** starting the fetch
@@ -131,7 +155,7 @@ const Navbar = () => {
         const fetchResults = async () => {
             try {
                 await get_all_products_api(axios, `search=${debouncedTerm}&main_store=${store_name}`, set_results, set_show_more_payload, set_fake_is_loading);
-                MetaPixel.trackEvent("Search", { search_string: debouncedTerm });
+                if (debouncedTerm) sendSearchEvent(debouncedTerm);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -149,7 +173,7 @@ const Navbar = () => {
         };
     }, [is_loading, searchTerm]);
 
-    
+
 
     const updateUrlFromFilters = (filters) => {
         const query = {};

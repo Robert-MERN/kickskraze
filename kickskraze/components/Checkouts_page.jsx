@@ -285,6 +285,9 @@ const Checkouts_page = ({ axios }) => {
                 // user matching signals
                 email: order_details.email,
                 phone: order_details.phone,
+                firstName: order_details.firstName,
+                lastName: order_details.lastName,
+                city: order_details.city,
             }, set_API_loading)
 
 

@@ -10,12 +10,15 @@ import { Skeleton } from "@mui/material";
 import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import { MetaPixel } from '@/lib/fpixel';
 import useStateContext from '@/context/ContextProvider';
+import { getBrowserCookie } from '../functions/cookie';
+import { v4 as uuidv4 } from "uuid";
+
 
 
 
 const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axios }) => {
 
-  const { filters } = useStateContext();
+  const { filters, handle_meta_capi } = useStateContext();
 
   const router = useRouter();
 
@@ -237,6 +240,28 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
   }, [searchTerm]);
 
 
+  const sendSearchEvent = async (searchTerm) => {
+    const eventId = uuidv4();
+
+    // Pixel
+    MetaPixel.trackEvent("Search", {
+      search_string: searchTerm,
+      event_id: eventId,
+    });
+
+    // CAPI
+    await handle_meta_capi({
+      event_name: "Search",
+      event_id: eventId,
+      event_source_url: window.location.href,
+      search_string: searchTerm,
+      fbp: getBrowserCookie("_fbp"),
+      fbc: getBrowserCookie("_fbc"),
+    });
+  };
+
+
+
   // Fetch results when the debounced term changes
   useEffect(() => {
     // Set loading state **before** starting the fetch
@@ -245,7 +270,8 @@ const Search_drawer = ({ drawer_state, toggle_drawer, get_all_products_api, axio
     const fetchResults = async () => {
       try {
         await get_all_products_api(axios, `search=${debouncedTerm}&main_store=${store_name}`, set_results, set_show_more_payload, set_fake_is_loading);
-        MetaPixel.trackEvent("Search", { search_string: debouncedTerm });
+        
+        if (debouncedTerm) sendSearchEvent(debouncedTerm);
       } catch (err) {
         console.error(err);
       } finally {
