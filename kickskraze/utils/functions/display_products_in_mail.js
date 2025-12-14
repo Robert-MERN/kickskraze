@@ -1,4 +1,4 @@
-import { select_thumbnail_from_media } from "./produc_fn"
+import { select_thumbnail_from_media } from "./product_fn"
 
 export const purchase_items_displayer = (orders) => {
 

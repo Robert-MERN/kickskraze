@@ -3,7 +3,7 @@ import Redis from "ioredis";
 import fs from "fs-extra";
 import * as fastCsv from "fast-csv";
 import Products from "@/models/product_model";
-import { select_thumbnail_from_media, generateSKU, generateGTIN, generateMPN } from "@/utils/functions/produc_fn";
+import { select_thumbnail_from_media, generateSKU, generateGTIN, generateMPN } from "@/utils/functions/product_fn";
 import path from "path";
 import { getFacebookCategory, getGoogleCategory } from "@/utils/product_info_list";
 

@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';

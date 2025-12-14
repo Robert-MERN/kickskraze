@@ -44,7 +44,8 @@
     "react-multi-carousel": "^2.8.5",
     "react-reveal": "^1.2.2",
     "sharp": "^0.33.5",
-    "use-sound": "^5.0.0"
+    "use-sound": "^5.0.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "postcss": "^8",

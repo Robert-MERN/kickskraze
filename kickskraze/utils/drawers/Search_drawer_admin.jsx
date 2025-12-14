@@ -7,7 +7,7 @@ import style from "@/styles/home.module.css";
 import { useRouter } from 'next/router';
 import RevealFade from "react-reveal/Fade";
 import { Skeleton } from "@mui/material";
-import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import useStateContext from '@/context/ContextProvider';
 
 

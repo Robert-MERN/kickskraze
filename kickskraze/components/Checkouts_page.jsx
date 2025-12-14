@@ -7,7 +7,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Badge from "@mui/material/Badge";
 import Link from 'next/link';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, capitalizeWords, convert_purchase_to_meta, select_store_name, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, capitalizeWords, convert_purchase_to_meta, convert_purchase_to_meta_capi, select_store_name, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import useStateContext from '@/context/ContextProvider';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -20,11 +20,13 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import { MetaPixel } from '@/lib/fpixel';
 import { PK_cities } from '@/utils/product_info_list';
 import styles from "@/styles/home.module.css";
+import { v4 as uuidv4 } from "uuid";
+import { getBrowserCookie } from '@/utils/functions/cookie';
 
 
 const Checkouts_page = ({ axios }) => {
 
-    const { confirm_order_api, set_API_loading, set_snackbar_alert } = useStateContext();
+    const { confirm_order_api, set_API_loading, set_snackbar_alert, handle_meta_capi } = useStateContext();
 
     useEffect(() => {
         if (document.querySelector(".MuiCheckbox-root")) {
@@ -235,9 +237,10 @@ const Checkouts_page = ({ axios }) => {
         audio.volume = 0.6;
         audio.play();
     };
+    const [purchaseSent, setPurchaseSent] = useState(false);
 
     // Submit Order Functionality
-    const handle_submit = (e) => {
+    const handle_submit = async (e) => {
         e.preventDefault();
         const errors = {};
         Object.keys(order_details).forEach((fieldName) => {
@@ -263,7 +266,30 @@ const Checkouts_page = ({ axios }) => {
                 store_name: select_store_name(purchase),
             }
 
-            MetaPixel.trackEvent("Purchase", convert_purchase_to_meta(purchase));
+            // Meta Pixel and Conversion API
+            if (purchaseSent) return;
+            setPurchaseSent(true);
+            const eventId = uuidv4();
+
+            MetaPixel.trackEvent("Purchase", { ...convert_purchase_to_meta(purchase), event_id: eventId });
+
+            await handle_meta_capi({
+                event_name: "Purchase",
+                event_id: eventId, // same ID
+                event_source_url: window.location.href,
+                ...convert_purchase_to_meta_capi(purchase),
+
+                fbp: getBrowserCookie("_fbp"),
+                fbc: getBrowserCookie("_fbc"),
+
+                // user matching signals
+                email: order_details.email,
+                phone: order_details.phone,
+            }, set_API_loading)
+
+
+
+            // Now submitting order
             confirm_order_api(axios, data_body, set_API_loading);
 
         } else {

@@ -2,7 +2,11 @@ import React, { useState, createContext, useContext, useEffect, useRef } from 'r
 import imageCompression from 'browser-image-compression';
 import { useRouter } from 'next/router';
 import { MetaPixel } from '@/lib/fpixel';
-import { resolve_meta_category, resolve_meta_content_id } from '@/utils/functions/produc_fn';
+import { convert_product_to_meta, convert_purchase_to_meta, convert_purchase_to_meta_capi, resolve_meta_category, resolve_meta_content_id } from '@/utils/functions/product_fn';
+import axios from 'axios';
+import { v4 as uuidv4 } from "uuid";
+import { getBrowserCookie } from '@/utils/functions/cookie';
+
 
 
 
@@ -86,18 +90,6 @@ export const ContextProvider = ({ children }) => {
     // Cart Logic
     const [cart, set_cart] = useState([]);
 
-    const convert_product_to_meta = (product) => {
-        const meta_product = {
-            content_ids: [resolve_meta_content_id(product)],
-            content_type: "product",
-            content_name: product.title,
-            content_category: resolve_meta_category(product),
-            value: product.price.toFixed(2),
-            currency: "PKR",
-        }
-        return meta_product;
-    }
-
     useEffect(() => {
         const saved_cart = JSON.parse(localStorage.getItem("cart"));
         if (saved_cart) {
@@ -122,73 +114,106 @@ export const ContextProvider = ({ children }) => {
     }
 
     // ADD TO CART — supports variants + base products + BUY NOW logic
-    const add_item_to_cart = (item, direct) => {
+    const add_item_to_cart = (item, options = {}) => {
+        const {
+            source = "product", // "product" | "cart"
+            quantity = 1,
+        } = options;
+
         set_cart(prev_cart => {
             const updated = [...prev_cart];
 
             const index = updated.findIndex(each =>
                 each._id === item._id &&
-                (!item.selectedVariant || each.selectedVariant?.variant_id === item.selectedVariant?.variant_id)
+                (!item.selectedVariant ||
+                    each.selectedVariant?.variant_id === item.selectedVariant?.variant_id)
             );
 
             const maxStock = item.selectedVariant ? item.selectedVariant.stock : item.stock;
-            const newQty = index !== -1 ? updated[index].quantity + 1 : 1;
+            const existingQty = index !== -1 ? updated[index].quantity : 0;
+            const newQty = existingQty + quantity;
 
-            // Prevent adding if stock limit exceeded (except in direct mode we still allow checkout with qty=1)
             if (newQty > maxStock) {
-                if (!direct) { // only warn for normal Add to Cart
-                    set_snackbar_alert({
-                        open: true,
-                        message: "Not enough stock available!",
-                        severity: "warning"
-                    });
-                }
+                set_snackbar_alert({
+                    open: true,
+                    message: "Not enough stock available!",
+                    severity: "warning"
+                });
                 return updated;
             }
 
-            // If item already exists — increase quantity
+            // UPDATE
             if (index !== -1) {
-                updated[index] = { ...updated[index], quantity: newQty };
+                updated[index] = {
+                    ...updated[index],
+                    quantity: newQty
+                };
             }
-            // New entry
+            // ADD NEW
             else {
-                updated.push({ ...item, quantity: 1 });
-                MetaPixel.trackEvent("AddToCart", convert_product_to_meta(item)); // analytics
+                updated.push({ ...item, quantity });
+
+
+                // 🔥 Track ONLY when coming from product page
+                if (source === "product") {
+                    const eventId = uuidv4();
+                    const metaPayload = convert_product_to_meta(item);
+
+                    MetaPixel.trackEvent("AddToCart", {
+                        ...metaPayload,
+                        event_id: eventId,
+                    });
+
+
+                    handle_meta_capi({
+                        event_id: eventId,
+                        event_name: "AddToCart",
+                        event_source_url: window.location.href,
+                        ...metaPayload,
+                        fbp: getBrowserCookie("_fbp"),
+                        fbc: getBrowserCookie("_fbc"),
+                    });
+                }
             }
 
             save_cart(updated);
-
-            // If not direct — show snackbar normally
-            if (!direct) {
-                set_snackbar_alert({ open: true, message: "Added to cart", severity: "success" });
-            }
-
             return updated;
         });
     };
 
-    const buy_now_item = (item) => {
-        set_cart(prev_cart => {
-            const updated = [...prev_cart];
 
-            const index = updated.findIndex(each =>
-                each._id === item._id &&
-                (!item.selectedVariant || each.selectedVariant?.variant_id === item.selectedVariant?.variant_id)
-            );
 
-            // If exists → DO NOT increment
-            if (index !== -1) {
-                return updated; // keep quantity same
-            }
+    const buy_now_item = async (item, options = {}) => {
+        const { quantity = 1 } = options;
 
-            // If not exists → add with quantity = 1
-            updated.push({ ...item, quantity: 1 });
+        // 1️⃣ Add item to cart (this will fire AddToCart)
+        add_item_to_cart(item, {
+            source: "product",
+            quantity,
+        });
 
-            save_cart(updated);
+        // 2️⃣ Fire InitiateCheckout immediately
+        const eventId = uuidv4();
 
-            return updated;
+        MetaPixel.trackEvent("InitiateCheckout", {
+            ...convert_purchase_to_meta([
+                { ...item, quantity }
+            ]),
+            event_id: eventId,
+        });
+
+        handle_meta_capi({
+            event_name: "InitiateCheckout",
+            event_id: eventId,
+            event_source_url: window.location.href,
+            ...convert_purchase_to_meta_capi([
+                { ...item, quantity }
+            ]),
+            fbp: getBrowserCookie("_fbp"),
+            fbc: getBrowserCookie("_fbc"),
         });
     };
+
 
     const substract_item_from_cart = (item) => {
         set_cart(prev_cart => {
@@ -967,6 +992,21 @@ export const ContextProvider = ({ children }) => {
     }
 
 
+    // <--------------------- Meta Conversion API --------------------->
+    const handle_meta_capi = async (event, set_is_loading) => {
+        if (set_is_loading) set_is_loading(true);
+        try {
+            const res = await axios.post("/api/meta-capi", event);
+        } catch (err) {
+            console.error("Conversion API failed");
+        } finally {
+            if (set_is_loading) set_is_loading(false);
+        }
+    }
+
+
+
+
     return (
         <StateContext.Provider
             value={{
@@ -1029,6 +1069,8 @@ export const ContextProvider = ({ children }) => {
                 confirm_order_api, delete_order_api, get_order_api, get_all_orders_api, update_order_api,
 
                 get_trax_shipment_status,
+
+                handle_meta_capi,
 
             }}
         >

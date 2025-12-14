@@ -15,7 +15,7 @@ import ImageSearchIcon from '@mui/icons-material/ImageSearch';
 import { GiConverseShoe } from "react-icons/gi";
 import { useRouter } from 'next/router';
 import mongoose from 'mongoose';
-import { build_variants, capitalizeWords, fill_missing_variant_values } from '@/utils/functions/produc_fn';
+import { build_variants, capitalizeWords, fill_missing_variant_values } from '@/utils/functions/product_fn';
 import StoreIcon from '@mui/icons-material/Store';
 import { CircularProgress } from '@mui/material';
 import { GiClothes } from "react-icons/gi";
@@ -824,9 +824,9 @@ const Update_product = ({ axios, user: USER }) => {
                 }
 
 
-                play_success_sound();
                 await update_product_api(axios, product_id, formData, set_API_loading,
                     isValidObjectId(router.query?.product_id) ? () => { } : reset_all);
+                play_success_sound();
 
                 if (product_id) {
                     await get_product_api(axios, product_id, update_product_details, set_update_product_details, set_API_loading);

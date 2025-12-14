@@ -323,7 +323,7 @@ export const resolve_meta_content_id = (p) => {
 
 
 
-// 🧠 Convert entire cart/order for Purchase tracking
+// 🧠 Convert entire cart/order for Purchase tracking META PIXEL
 export const convert_purchase_to_meta = (purchase) => {
     return {
         content_type: "product_group",
@@ -339,13 +339,37 @@ export const convert_purchase_to_meta = (purchase) => {
         contents: purchase.map(item => ({
             id: resolve_meta_content_id(item),  // ← UNIQUE variant-based ID
             quantity: item.quantity,
-            item_price: Number(item.price),
+            item_price: Number(item.price).toFixed(2),
             item_category: resolve_meta_category(item),
             title: item.title,
         }))
     }
 };
 
+// 🧠 Convert cart/order for purchase tracking CAPI helper (STRICT)
+export const convert_purchase_to_meta_capi = (purchase) => ({
+    content_type: "product_group",
+    content_ids: purchase.map(resolve_meta_content_id),
+    num_items: purchase.reduce((t, i) => t + i.quantity, 0),
+    value: purchase.reduce((t, p) => t + (p.price * p.quantity), 0),
+    currency: "PKR",
+    contents: purchase.map(item => ({
+        id: resolve_meta_content_id(item),
+        quantity: item.quantity,
+        item_price: Number(item.price),
+    })),
+});
+
+
+// 🧠 Convert singular product for meta tracking
+export const convert_product_to_meta = (product) => ({
+    content_type: "product",
+    content_ids: [resolve_meta_content_id(product)],
+    content_name: product.title,
+    content_category: resolve_meta_category(product),
+    value: Number(product.price).toFixed(2),
+    currency: "PKR",
+});
 
 
 // SKU Builder (safe)

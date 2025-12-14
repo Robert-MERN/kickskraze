@@ -10,7 +10,7 @@ import {
     decrementStock,
 } from "@/utils/functions/order_variant_helpers"; // or paste helpers directly in this file
 
-import { select_store_name } from "@/utils/functions/produc_fn"; //  ⬅ NEW
+import { select_store_name } from "@/utils/functions/product_fn"; //  ⬅ NEW
 
 /**
  * 

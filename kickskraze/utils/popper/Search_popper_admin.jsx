@@ -6,7 +6,7 @@ import RevealFade from "react-reveal/Fade";
 import SearchIcon from "@mui/icons-material/Search";
 import Link from "next/link";
 import { Popper, Skeleton } from "@mui/material";
-import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '../functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '../functions/product_fn';
 import useStateContext from '@/context/ContextProvider';
 
 const SearchPopperAdmin = ({ anchorEl, setAnchorEl, open, onClose, forwardRef, debouncedTerm, searchTerm, results, trending_results,

@@ -10,7 +10,7 @@ import {
     incrementStock,
 } from "@/utils/functions/order_variant_helpers";
 
-import { select_store_name } from "@/utils/functions/produc_fn";  // <-- NEW
+import { select_store_name } from "@/utils/functions/product_fn";  // <-- NEW
 
 /* Build usable live order */
 const getUsableOrder = async (orderDoc) => {

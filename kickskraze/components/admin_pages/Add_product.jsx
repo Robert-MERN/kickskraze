@@ -12,7 +12,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { apparel_type_list, brand_list, category_list, color_list, condition_list, footwear_accessories_type_list, jewelry_type_list, sandals_type_list, size_list, store_list } from '@/utils/product_info_list';
 import { FaBasketShopping } from "react-icons/fa6";
 import { GiConverseShoe } from "react-icons/gi";
-import { build_variants, capitalizeWords, fill_missing_variant_values } from '@/utils/functions/produc_fn';
+import { build_variants, capitalizeWords, fill_missing_variant_values } from '@/utils/functions/product_fn';
 import StoreIcon from '@mui/icons-material/Store';
 import { GiClothes } from "react-icons/gi";
 
@@ -753,8 +753,8 @@ const Add_product = ({ axios, user: USER }) => {
 
                 }
 
-                play_success_sound();
                 await create_product_api(axios, formData, set_API_loading, reset_all);
+                play_success_sound();
 
             } else {
                 // trigger shake animation every time on error

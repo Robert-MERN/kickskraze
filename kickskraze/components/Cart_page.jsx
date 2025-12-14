@@ -8,8 +8,11 @@ import { FaMinus } from "react-icons/fa6";
 import { MdVerifiedUser } from "react-icons/md";
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import useStateContext from '@/context/ContextProvider';
-import { select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { convert_purchase_to_meta_capi, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import { MetaPixel } from '@/lib/fpixel';
+import { convert_purchase_to_meta } from '@/utils/functions/product_fn';
+import { v4 as uuidv4 } from "uuid";
+import { getBrowserCookie } from '@/utils/functions/cookie';
 import { useRouter } from 'next/router';
 
 
@@ -21,7 +24,8 @@ const Cart_page = () => {
         sum_of_cart,
         delete_item_from_cart,
         add_item_to_cart,
-        substract_item_from_cart
+        substract_item_from_cart,
+        handle_meta_capi,
     } = useStateContext()
 
     const router = useRouter();
@@ -58,17 +62,42 @@ const Cart_page = () => {
         return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
     };
 
-    const convert_cart_to_meta = (cart) => {
-        const meta_cart = {
-            content_ids: cart.map(each => each._id),
-            contents: cart,
-            content_type: "product_group",
-            value: sum_of_cart().toFixed(2),
-            currency: "PKR",
-        }
-        return meta_cart
 
-    }
+    // Meta tracking for initiating checkout
+    const [checkoutStarted, setCheckoutStarted] = useState(false);
+
+    const handleInitiateCheckout = async () => {
+        if (checkoutStarted) return;
+        setCheckoutStarted(true);
+
+        try {
+            const eventId = uuidv4();
+
+            // 🔵 Pixel
+            MetaPixel.trackEvent("InitiateCheckout", {
+                ...convert_purchase_to_meta(cart),
+                event_id: eventId,
+            });
+
+            // 🟢 CAPI
+            await handle_meta_capi({
+                event_name: "InitiateCheckout",
+                event_id: eventId,
+                event_source_url: window.location.href,
+                ...convert_purchase_to_meta_capi(cart),
+
+                // matching signals
+                fbp: getBrowserCookie("_fbp"),
+                fbc: getBrowserCookie("_fbc"),
+            });
+
+        } catch (err) {
+            console.error("InitiateCheckout failed:", err);
+            setCheckoutStarted(false); // allow retry
+        }
+    };
+
+
 
 
     return (
@@ -175,7 +204,10 @@ const Cart_page = () => {
                                                     </button>
                                                     <p className='text-[12px] sm:text-[15px] md:text-[16px]' >{item.quantity}</p>
                                                     <button
-                                                        onClick={() => add_item_to_cart(item)}
+                                                        onClick={() => add_item_to_cart(item, {
+                                                            source: "cart",
+                                                            quantity: 1
+                                                        })}
                                                         className='active:opacity-60'
                                                     >
                                                         <IoMdAdd className='text-[14px] sm:text-[15px] md:text-[17px]' />
@@ -207,7 +239,10 @@ const Cart_page = () => {
                                             </button>
                                             <p>{item.quantity}</p>
                                             <button
-                                                onClick={() => add_item_to_cart(item)}
+                                                onClick={() => add_item_to_cart(item, {
+                                                    source: "cart",
+                                                    quantity: 1
+                                                })}
                                                 className='active:opacity-60'
                                             >
                                                 <IoMdAdd className='text-[17px]' />
@@ -293,7 +328,10 @@ const Cart_page = () => {
 
                                 {/* Checkout Button */}
                                 <Link href="/checkouts" >
-                                    <button onClick={() => MetaPixel.trackEvent("InitiateCheckout", convert_cart_to_meta(cart))} className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[14px] md:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'>
+                                    <button
+                                        onClick={handleInitiateCheckout}
+                                        className='w-full py-[12px] flex justify-center items-center text-white bg-stone-950 font-bold text-[14px] md:text-[15px] hover:bg-white hover:text-stone-950 border border-stone-500  transition-all duration-300'
+                                    >
                                         PROCEED TO CHECKOUT
                                     </button>
                                 </Link>

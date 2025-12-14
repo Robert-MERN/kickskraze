@@ -15,7 +15,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import useStateContext from '@/context/ContextProvider';
 import { useRouter } from 'next/router';
 import { IconButton, Skeleton } from '@mui/material';
-import { calculate_discount_precentage, resolve_meta_category, resolve_meta_content_id, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, convert_product_to_meta, resolve_meta_category, resolve_meta_content_id, select_thumbnail_from_media, sort_product_media } from '@/utils/functions/product_fn';
 import Fade from 'react-reveal/Fade';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { MetaPixel } from '@/lib/fpixel';
@@ -23,6 +23,9 @@ import ShareIcon from '@mui/icons-material/Share';
 import { color_list } from '@/utils/product_info_list';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import { v4 as uuidv4 } from "uuid";
+import { getBrowserCookie } from '@/utils/functions/cookie';
+
 
 
 
@@ -30,7 +33,7 @@ const Product_page = ({ axios }) => {
 
     const router = useRouter();
 
-    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart, toggle_modal, set_snackbar_alert, buy_now_item } = useStateContext();
+    const { get_product_api, get_all_products_api, stored_product_id, set_stored_product_id, add_item_to_cart, toggle_modal, set_snackbar_alert, buy_now_item, handle_meta_capi } = useStateContext();
     const [is_loading, set_is_loading] = useState(true);
     const [product, set_product] = useState({});
 
@@ -75,67 +78,6 @@ const Product_page = ({ axios }) => {
     }, [product]);
 
 
-    const convert_product_to_meta = (product) => {
-        const meta_product = {
-            content_ids: [[resolve_meta_content_id(product)]],
-            content_name: product.title,
-            content_type: "product",
-            content_category: resolve_meta_category(product),
-            value: product.price.toFixed(2),
-            currency: "PKR",
-        }
-        return meta_product;
-    }
-
-
-    // Related Product Fetching
-    const [show_more_payload, set_show_more_payload] = useState({
-        limit: 52,
-        page: 1,
-        hasMore: false,
-        count: 0,
-    });
-    const [related_products, set_related_products] = useState([]);
-    const [is_RP_loading, set_is_RP_loading] = useState(false);
-
-    // Frequently Bought Product Fetching
-    const [show_more_fb_payload, set_show_more_fb_payload] = useState({
-        limit: 52,
-        page: 1,
-        hasMore: false,
-        count: 0,
-    });
-    const [frequently_bought_products, set_frequently_bought_products] = useState([]);
-    const [is_FB_loading, set_is_FB_loading] = useState(false);
-
-    // Fetching Related Products & Frequently bought products
-    useEffect(() => {
-        if (!Object.entries(product).length) return;
-
-        // Sending tracking to Meta Pixel
-        MetaPixel.trackEvent("ViewContent", convert_product_to_meta(product));
-
-        // Related Products
-        if (!related_products.length) {
-            const query = []
-            if (Boolean(product.store_name)) query.push(`store_name=${product.store_name}`);
-
-            if (Boolean(product.size)) query.push(`size=${product.size}`);
-
-            if (Boolean(product.type) && product.store_name !== "Footwear-accessories") query.push(`type=${product.type}`);
-
-            if (Boolean(product.brand) && product.store_name.includes("Kickskraze")) query.push(`brand=${product.brand}`);
-
-            get_all_products_api(axios, query.join("&"), set_related_products, set_show_more_payload, set_is_RP_loading);
-        }
-
-        // Frequently Bought Products
-        if (!frequently_bought_products.length && ["Barefoot", "Kickskraze"].includes(product.store_name)) {
-            get_all_products_api(axios, "store_name=Footwear-accessories", set_frequently_bought_products, set_show_more_fb_payload, set_is_FB_loading);
-        }
-
-
-    }, [product]);
 
 
 
@@ -286,62 +228,126 @@ const Product_page = ({ axios }) => {
 
     // Add to Cart Handler
     const handleAddToCart = () => {
-        if (product.has_variants) {
-            if (!selectedVariant) {
-                set_snackbar_alert({
-                    open: true,
-                    message: "Please select a variant first",
-                    severity: "warning"
-                });
-                return;
-            }
-
-            add_item_to_cart({
-                ...product,
-                price: selectedVariant.price,
-                stock: selectedVariant.stock,
-                selectedVariant,
-                quantity,
+        if (product.has_variants && !selectedVariant) {
+            set_snackbar_alert({
+                open: true,
+                message: "Please select a variant first",
+                severity: "warning"
             });
-
-        } else {
-            add_item_to_cart({
-                ...product,
-                quantity,
-            });
+            return;
         }
+
+        add_item_to_cart(
+            {
+                ...product,
+                price: selectedVariant ? selectedVariant.price : product.price,
+                stock: selectedVariant ? selectedVariant.stock : product.stock,
+                selectedVariant,
+            },
+            {
+                source: "product",
+                quantity,
+            }
+        );
     };
+
 
     // Buy Now Handler
-    const handleBuyNow = () => {
-        if (product.has_variants) {
-            if (!selectedVariant) {
-                set_snackbar_alert({
-                    open: true,
-                    message: "Please select a variant first",
-                    severity: "warning"
-                });
-                return;
-            }
+    const handleBuyNow = async () => {
+        if (product.has_variants && !selectedVariant) {
+            set_snackbar_alert({
+                open: true,
+                message: "Please select a variant first",
+                severity: "warning"
+            });
+            return;
+        }
 
-            buy_now_item({
+        await buy_now_item(
+            {
                 ...product,
-                price: selectedVariant.price,
-                stock: selectedVariant.stock,
+                price: selectedVariant ? selectedVariant.price : product.price,
+                stock: selectedVariant ? selectedVariant.stock : product.stock,
                 selectedVariant,
-            });
+            },
+            {
+                quantity,
+            }
+        );
 
-            router.push("/checkouts");
-        }
-        else {
-            buy_now_item({
-                ...product
-            });
-
-            router.push("/checkouts");
-        }
+        router.push("/checkouts");
     };
 
+
+    // Related Product Fetching
+    const [show_more_payload, set_show_more_payload] = useState({
+        limit: 52,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+    const [related_products, set_related_products] = useState([]);
+    const [is_RP_loading, set_is_RP_loading] = useState(false);
+
+    // Frequently Bought Product Fetching
+    const [show_more_fb_payload, set_show_more_fb_payload] = useState({
+        limit: 52,
+        page: 1,
+        hasMore: false,
+        count: 0,
+    });
+    const [frequently_bought_products, set_frequently_bought_products] = useState([]);
+    const [is_FB_loading, set_is_FB_loading] = useState(false);
+
+    // Fetching Related Products & Frequently bought products
+    useEffect(() => {
+        if (!Object.entries(product).length) return;
+
+        // Sending tracking to Meta Pixel
+        const eventId = uuidv4();
+        const metaPayload = convert_product_to_meta({
+            ...product,
+            // if variants exist, prefer selectedVariant for content_id
+            selectedVariant: selectedVariant ?? undefined,
+        });
+
+        // 🔥 PIXEL
+        MetaPixel.trackEvent("ViewContent", {
+            ...metaPayload,
+            event_id: eventId,
+        });
+
+        // 🔥 CONVERSION API
+        handle_meta_capi({
+            event_name: "ViewContent",
+            event_id: eventId,
+            event_source_url: window.location.href,
+            ...metaPayload,
+            fbp: getBrowserCookie("_fbp"),
+            fbc: getBrowserCookie("_fbc"),
+        });
+
+        // Related Products
+        if (!related_products.length) {
+            const query = []
+            if (Boolean(product.store_name)) query.push(`store_name=${product.store_name}`);
+
+            if (Boolean(product.size)) query.push(`size=${product.size}`);
+
+            if (Boolean(product.type) && product.store_name !== "Footwear-accessories") query.push(`type=${product.type}`);
+
+            if (Boolean(product.brand) && product.store_name.includes("Kickskraze")) query.push(`brand=${product.brand}`);
+
+            get_all_products_api(axios, query.join("&"), set_related_products, set_show_more_payload, set_is_RP_loading);
+        }
+
+        // Frequently Bought Products
+        if (!frequently_bought_products.length && ["Barefoot", "Kickskraze"].includes(product.store_name)) {
+            get_all_products_api(axios, "store_name=Footwear-accessories", set_frequently_bought_products, set_show_more_fb_payload, set_is_FB_loading);
+        }
+
+
+    }, [product?._id, selectedVariant?.variant_id]);
 
 
 

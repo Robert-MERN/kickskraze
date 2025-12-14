@@ -20,6 +20,14 @@ export const get_cookies = ({ req, res }) => {
     return cookies;
 }
 
+export const getBrowserCookie = (name) => {
+    if (typeof document === "undefined") return null;
+    return document.cookie
+        .split("; ")
+        .find(row => row.startsWith(name + "="))
+        ?.split("=")[1] || null;
+};
+
 
 export const remove_cookie = (cookie_name) => {
     // Set the cookie with an expiration date in the past to remove it

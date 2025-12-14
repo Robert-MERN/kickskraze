@@ -3,7 +3,7 @@ import Products from "@/models/product_model";
 import connect_mongo from "@/utils/functions/connect_mongo";
 import mongoose from "mongoose";
 import { hydrateOrder } from "@/utils/functions/order_variant_helpers";
-import { select_store_name } from "@/utils/functions/produc_fn";
+import { select_store_name } from "@/utils/functions/product_fn";
 
 /**
  * @param {import('next').NextApiRequest} req 

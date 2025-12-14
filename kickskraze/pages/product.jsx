@@ -6,7 +6,7 @@ import Product_page from '@/components/Product_page'
 import axios from 'axios'
 import Products from '@/models/product_model'
 import connect_mongo from '@/utils/functions/connect_mongo'
-import { select_thumbnail_from_media } from '@/utils/functions/produc_fn'
+import { select_thumbnail_from_media } from '@/utils/functions/product_fn'
 
 const product = ({ fullUrl, ogImage }) => {
     return (

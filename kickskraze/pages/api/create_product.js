@@ -2,7 +2,7 @@ import { csvQueue } from '@/lib/queue';
 import Products from '@/models/product_model';
 import connect_mongo from '@/utils/functions/connect_mongo';
 import { deleteFiles } from '@/utils/functions/delete_bunnycdn_files_fn';
-import { generateSKU, parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/produc_fn';
+import { generateSKU, parseMixedField, parseOptionsField, parseVariantsField } from '@/utils/functions/product_fn';
 
 
 /**

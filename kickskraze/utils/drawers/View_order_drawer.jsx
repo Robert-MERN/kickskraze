@@ -7,7 +7,7 @@ import { Skeleton } from '@mui/material';
 import mongoose from 'mongoose';
 import ShoppingCartCheckoutIcon from '@mui/icons-material/ShoppingCartCheckout';
 import useStateContext from '@/context/ContextProvider';
-import { calc_gross_total_amount, calc_total_amount, calc_total_items, formatPakistaniNumber, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calc_gross_total_amount, calc_total_amount, calc_total_items, formatPakistaniNumber, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import styles from "@/styles/home.module.css";
 import Link from 'next/link';
 import { useRouter } from 'next/router';

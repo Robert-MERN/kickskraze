@@ -21,7 +21,7 @@ import Link from 'next/link';
 import useStateContext from '@/context/ContextProvider';
 import { CircularProgress, Skeleton } from '@mui/material';
 import { Fade } from 'react-reveal';
-import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 import { convert_to_query_string } from '@/utils/functions/filter_function';
 import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
 import { IoBagCheckOutline } from "react-icons/io5";

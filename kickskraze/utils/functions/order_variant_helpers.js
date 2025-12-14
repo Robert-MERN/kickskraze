@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Products from "@/models/product_model";
-import { calc_gross_total_amount, calc_total_amount, calc_total_items } from "@/utils/functions/produc_fn";
+import { calc_gross_total_amount, calc_total_amount, calc_total_items } from "@/utils/functions/product_fn";
 
 // 🔹 Check stock for a single line item (variant-aware)
 export const hasSufficientStock = (product, item) => {

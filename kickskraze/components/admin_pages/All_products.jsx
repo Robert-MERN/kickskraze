@@ -28,7 +28,7 @@ import { IoClose } from "react-icons/io5";
 import { CircularProgress, Skeleton } from '@mui/material';
 import { Fade } from 'react-reveal';
 import { useRouter } from 'next/router';
-import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/produc_fn';
+import { calculate_discount_precentage, calculate_product_stock, select_thumbnail_from_media } from '@/utils/functions/product_fn';
 
 // Sort Popover for Windows Screens
 const Sort_popover = ({ anchorEl, close, sort_options, filters, set_filters, updateUrlFromFilters }) => {

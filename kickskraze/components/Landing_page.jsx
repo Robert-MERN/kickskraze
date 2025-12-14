@@ -18,7 +18,7 @@ export default function Landing_page({ logoUrl, fullUrl }) {
                         {/* HERO TEXT */}
                         <div className="flex-1 flex flex-col gap-5 text-center lg:text-left">
 
-                            <p className="uppercase tracking-[0.25em] text-[12px] text-gray-500">
+                            <p className="uppercase tracking-[0.25em] text-[11px] md:text-[12px] text-gray-500">
                                 Footwear • Thrift • Jewellery • Apparel • Accessories
                             </p>
 
