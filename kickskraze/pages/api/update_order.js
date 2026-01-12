@@ -130,26 +130,37 @@ export default async function handler(req, res) {
         hydratedUpdated.store_name = newStoreName;
 
         /* ====================== 6) EMAIL EVENTS ====================== */
-        const keys = Object.keys(req.body);
-        const original = order.toObject();
-        const changed = keys.filter(k => JSON.stringify(req.body[k]) !== JSON.stringify(original[k]));
+        /* Fields that should NEVER trigger emails */
+const NON_EMAIL_FIELDS = [
+    "verification",
+    "warehouse_status",
+    "store_name",
+    "updatedAt",
+    "__v"
+];
 
-        const statusChanged = changed.includes("status");
-        const trackingChanged = changed.includes("tracking_no");
-        const courierChanged = changed.includes("courier_name");
-        const verificationChanged = changed.includes("verification");
-        const warehouseChanged = changed.includes("warehouse_status");
+/* Compare ONLY meaningful changes */
+const original = order.toObject();
 
-        const onlyVerify = verificationChanged && changed.length === 1;
-        const onlyWarehouse = warehouseChanged && changed.length === 1;
-        const bothMinor = verificationChanged && warehouseChanged && changed.length === 2;
+const keys = Object.keys(req.body);
 
-        if (changed.length > 0) {
-            if (statusChanged || trackingChanged || courierChanged)
-                await send_confirm_mail(res, hydratedUpdated, "status_update");
-            else if (!onlyVerify && !onlyWarehouse && !bothMinor)
-                await send_confirm_mail(res, hydratedUpdated, "update");
-        }
+const changed = keys.filter(k => {
+    if (NON_EMAIL_FIELDS.includes(k)) return false;
+    return JSON.stringify(req.body[k]) !== JSON.stringify(original[k]);
+});
+
+const statusChanged = changed.includes("status");
+const trackingChanged = changed.includes("tracking_no");
+const courierChanged = changed.includes("courier_name");
+
+/* Send emails ONLY when required */
+if (changed.length > 0) {
+    if (statusChanged || trackingChanged || courierChanged) {
+        await send_confirm_mail(res, hydratedUpdated, "status_update");
+    } else {
+        await send_confirm_mail(res, hydratedUpdated, "update");
+    }
+}
 
         return res.status(200).json({
             success: true,
