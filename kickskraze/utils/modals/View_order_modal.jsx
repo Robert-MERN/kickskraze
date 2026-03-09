@@ -823,6 +823,7 @@ const View_order_modal = ({
                                                     <option value="verified">Verified</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="unverified">Unverified</option>
+                                                    <option value="exchange">Exchange</option>
                                                 </select>
 
 

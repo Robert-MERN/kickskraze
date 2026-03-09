@@ -130,37 +130,26 @@ export default async function handler(req, res) {
         hydratedUpdated.store_name = newStoreName;
 
         /* ====================== 6) EMAIL EVENTS ====================== */
-        /* Fields that should NEVER trigger emails */
-const NON_EMAIL_FIELDS = [
-    "verification",
-    "warehouse_status",
-    "store_name",
-    "updatedAt",
-    "__v"
-];
 
-/* Compare ONLY meaningful changes */
-const original = order.toObject();
+        const unImportantFields = ['updatedAt', 'subtotal_amount', 'total_amount', 'total_items']
+        const keys = Object.keys(req.body).filter(k => !unImportantFields.includes(k));
+        const original = order.toObject();
 
-const keys = Object.keys(req.body);
+        const changed = keys.filter(k => JSON.stringify(req.body[k]) !== JSON.stringify(original[k]));
 
-const changed = keys.filter(k => {
-    if (NON_EMAIL_FIELDS.includes(k)) return false;
-    return JSON.stringify(req.body[k]) !== JSON.stringify(original[k]);
-});
 
-const statusChanged = changed.includes("status");
-const trackingChanged = changed.includes("tracking_no");
-const courierChanged = changed.includes("courier_name");
+        const statusChanged = changed.includes("status");
+        const trackingChanged = changed.includes("tracking_no");
+        const courierChanged = changed.includes("courier_name");
 
-/* Send emails ONLY when required */
-if (changed.length > 0) {
-    if (statusChanged || trackingChanged || courierChanged) {
-        await send_confirm_mail(res, hydratedUpdated, "status_update");
-    } else {
-        await send_confirm_mail(res, hydratedUpdated, "update");
-    }
-}
+        /* Send emails ONLY when required */
+        if (changed.length > 0) {
+            if (statusChanged || trackingChanged || courierChanged) {
+                await send_confirm_mail(res, hydratedUpdated, "status_update");
+            } else {
+                await send_confirm_mail(res, hydratedUpdated, "update");
+            }
+        }
 
         return res.status(200).json({
             success: true,

@@ -827,6 +827,7 @@ const View_order_drawer = ({ drawer_state, toggle_drawer, toggle_modal, axios })
                                                     <option value="verified">Verified</option>
                                                     <option value="pending">Pending</option>
                                                     <option value="unverified">Unverified</option>
+                                                    <option value="exchange">Exchange</option>
                                                 </select>
 
 
