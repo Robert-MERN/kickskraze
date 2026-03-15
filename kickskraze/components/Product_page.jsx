@@ -65,7 +65,9 @@ const Product_page = ({ axios }) => {
 
     // Set default selected options on product load
     useEffect(() => {
-        if (!product?.has_variants || !product.variants?.length) return;
+        if (!product?.has_variants || !product.variants?.length) {
+            return setSelectedVariant(null);
+        };
 
         const firstVariant = product.variants[0];
 
@@ -348,7 +350,6 @@ const Product_page = ({ axios }) => {
 
 
     }, [product?._id, selectedVariant?.variant_id]);
-
 
 
     return (

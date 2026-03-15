@@ -608,6 +608,9 @@ const Update_product = ({ axios, user: USER }) => {
 
 
     // ================== Populate Size + Color when product fetches ==================
+    const [backup_size, set_backup_size] = useState(null);
+
+    ;
     useEffect(() => {
         if (!update_product_details?._id) return;
 
@@ -621,19 +624,22 @@ const Update_product = ({ axios, user: USER }) => {
 
             set_size_format(numeric ? "numeric" : "alphabetic");
 
+            set_backup_size(sizeValue);
+
             if (Array.isArray(sizeValue)) {
-                set_size_color_array(prev => ({ ...prev, size: sizeValue }));
+                set_size_color_array(prev => ({ size: sizeValue, color: prev.color }));
+
             } else {
-                set_size_color(prev => ({ ...prev, size: sizeValue }));
+                set_size_color(prev => ({ size: sizeValue, color: prev.color }));
             }
         }
 
         // ===== COLOR =====
         if (update_product_details.color && size_color_array.color.length === 0 && !size_color.color) {
             if (Array.isArray(update_product_details.color)) {
-                set_size_color_array(prev => ({ ...prev, color: update_product_details.color }));
+                set_size_color_array(prev => ({ color: update_product_details.color, size: prev.size }));
             } else {
-                set_size_color(prev => ({ ...prev, color: update_product_details.color }));
+                set_size_color(prev => ({ color: update_product_details.color, size: prev.size }));
             }
         }
 
@@ -643,14 +649,38 @@ const Update_product = ({ axios, user: USER }) => {
 
 
 
+
     // Prevent unwanted reset on first fetch — only trigger when user changes store name or type manually
     useEffect(() => {
         if (!update_product_details._id) return;
 
+        // reset size if changing to/from Footwear-accessories (except if type is socks or insole, then size is required and won't reset)
+        if ((update_product_details.store_name === "Footwear-accessories" && !["socks", "insole"].includes(update_product_details.type))) {
+            set_update_product_details(prevState => ({ ...prevState, size: "" }));
+            set_size_color_array(prev => ({ ...prev, size: [] }));
+            set_size_color(prev => ({ ...prev, size: "" }));
+        } else {
+            if (backup_size && update_product_details.size === "") {
+
+                set_update_product_details(prevState => ({ ...prevState, size: backup_size }));
+                if (Array.isArray(backup_size)) {
+                    set_size_color_array(prev => ({ ...prev, size: backup_size }));
+                }
+                if (!Array.isArray(backup_size)) {
+                    set_size_color(prev => ({ ...prev, size: backup_size }));
+                }
+            }
+
+        }
+
         const prev = prevStoreRef.current;
         const curr = update_product_details.store_name;
 
+
+
         if (prev === curr) return;
+
+
 
         if (user?.store_name === "Footwear") {
 
@@ -667,10 +697,8 @@ const Update_product = ({ axios, user: USER }) => {
             }
 
             if (curr === "Footwear-accessories" || prev === "Footwear-accessories") {
-                // reset size/color
-                set_size_color(default_size_color);
-                set_size_color_array(default_size_color_array);
-                set_update_product_details(prevState => ({ ...prevState, size: "" }));
+
+
             }
         } else {
             if (["Jewelry", "Apparel"].includes(user?.store_name) &&
@@ -680,7 +708,7 @@ const Update_product = ({ axios, user: USER }) => {
         }
 
         prevStoreRef.current = curr;
-    }, [update_product_details.store_name, user?.store_name]);
+    }, [update_product_details.store_name, update_product_details.type, user?.store_name]);
 
 
 
@@ -711,6 +739,7 @@ const Update_product = ({ axios, user: USER }) => {
         // Reset size/color states
         set_size_color(default_size_color);
         set_size_color_array(default_size_color_array);
+        set_backup_size(null);
 
         // Reset REFS (very important)
         loadedTypeRef.current = false;
@@ -868,6 +897,8 @@ const Update_product = ({ axios, user: USER }) => {
 
         return `${formattedDate}  [${formattedTime}]`;
     };
+
+
 
 
     return (
@@ -1275,7 +1306,7 @@ const Update_product = ({ axios, user: USER }) => {
 
 
                         {/* <h1 className='text-[17px] font-medium mt-5'>Colors</h1> */}
-                        {(user?.store_name !== "Footwear" || update_product_details.store_name === "Footwear-accessories") &&
+                        {
                             <div className='flex flex-col gap-3'>
 
                                 <div className='flex flex-wrap gap-2' >
